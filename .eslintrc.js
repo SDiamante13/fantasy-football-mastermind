@@ -28,7 +28,6 @@ module.exports = {
     // Code style
     'semi': ['error', 'always'],
     'quotes': ['error', 'single'],
-    'comma-dangle': ['error', 'always'],
     
     // TypeScript strictness
     '@typescript-eslint/no-explicit-any': 'error',

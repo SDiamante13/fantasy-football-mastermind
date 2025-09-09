@@ -5,7 +5,7 @@ describe('Firebase App', () => {
     const mockConfig = {
       projectId: 'test-project',
       privateKey: 'test-key',
-      clientEmail: 'test@test.com',
+      clientEmail: 'test@test.com'
     };
 
     const mockFirebaseInit = (): { name: string } => ({ name: '[DEFAULT]' });
@@ -15,7 +15,7 @@ describe('Firebase App', () => {
     const initializeFirebaseApp = createFirebaseAppInitializer(
       mockFirebaseInit,
       mockGetApps,
-      mockCredential,
+      mockCredential
     );
 
     const app = initializeFirebaseApp(mockConfig);
