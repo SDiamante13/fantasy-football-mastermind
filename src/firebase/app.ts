@@ -1,7 +1,11 @@
-import { initializeApp, getApps, } from 'firebase-admin/app';
-import { credential, } from 'firebase-admin';
+import { initializeApp, getApps } from 'firebase-admin/app';
+import { credential } from 'firebase-admin';
 
-type FirebaseConfig = { projectId: string; privateKey: string; clientEmail: string };
+type FirebaseConfig = {
+  projectId: string;
+  privateKey: string;
+  clientEmail: string;
+};
 type FirebaseApp = { name: string };
 
 export function createFirebaseAppInitializer(
@@ -9,7 +13,7 @@ export function createFirebaseAppInitializer(
   getExistingApps: () => FirebaseApp[],
   createCredential: (cert: unknown) => unknown,
 ) {
-  return function initializeFirebaseApp(config: FirebaseConfig,): FirebaseApp {
+  return function initializeFirebaseApp(config: FirebaseConfig): FirebaseApp {
     if (getExistingApps().length > 0) {
       return getExistingApps()[0];
     }
@@ -17,11 +21,11 @@ export function createFirebaseAppInitializer(
     return firebaseInit({
       credential: createCredential({
         projectId: config.projectId,
-        privateKey: config.privateKey.replace(/\\n/g, '\n',),
+        privateKey: config.privateKey.replace(/\\n/g, '\n'),
         clientEmail: config.clientEmail,
-      },),
+      }),
       projectId: config.projectId,
-    },);
+    });
   };
 }
 
