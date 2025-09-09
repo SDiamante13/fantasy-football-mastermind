@@ -1,0 +1,15 @@
+[
+  {
+    "type": "free_agent",
+    "drops": {
+      "1": "2124"
+    },
+    "creator": "user123",
+    "created": 1693843200000
+  },
+  {
+    "type": "trade",
+    "creator": "user456",
+    "created": 1693929600000
+  }
+]
