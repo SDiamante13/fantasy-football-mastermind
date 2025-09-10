@@ -30,7 +30,7 @@ export function createFirebaseAppInitializer(
 }
 
 export const initializeFirebaseApp = createFirebaseAppInitializer(
-  initializeApp,
+  initializeApp as (config: unknown) => FirebaseApp,
   getApps,
-  credential.cert
+  credential.cert as (cert: unknown) => unknown
 );
