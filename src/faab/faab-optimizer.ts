@@ -92,24 +92,30 @@ type OptimizationResult = {
   reasoning: string;
 };
 
+type PlayerValueData = {
+  tier: 'high' | 'medium' | 'low';
+  score: number;
+  confidence: 'high' | 'medium' | 'low';
+};
+
+type BiddingPatternData = {
+  averageWinningBid: number;
+  bidRange: { min: number; max: number };
+  sampleSize: number;
+};
+
+type BudgetData = {
+  totalBudget: number;
+  spent: number;
+  remaining: number;
+  percentageSpent: number;
+  weeksRemaining: number;
+};
+
 function createBidCalculationData(
-  playerValue: {
-    tier: 'high' | 'medium' | 'low';
-    score: number;
-    confidence: 'high' | 'medium' | 'low';
-  },
-  biddingPattern: {
-    averageWinningBid: number;
-    bidRange: { min: number; max: number };
-    sampleSize: number;
-  },
-  budget: {
-    totalBudget: number;
-    spent: number;
-    remaining: number;
-    percentageSpent: number;
-    weeksRemaining: number;
-  }
+  playerValue: PlayerValueData,
+  biddingPattern: BiddingPatternData,
+  budget: BudgetData
 ): BidCalculationData {
   return {
     playerValue: {
