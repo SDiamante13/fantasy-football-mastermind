@@ -1,13 +1,35 @@
 import { createTradeOpportunityDetector } from './trade-opportunity-detector';
 
 const createMockRosterAnalyzer = (): {
-  analyzeRoster: (playerIds: string[]) => { strengths: string[]; weaknesses: string[]; overallScore: number; positionScores: Record<string, number> };
+  analyzeRoster: (playerIds: string[]) => {
+    strengths: string[];
+    weaknesses: string[];
+    overallScore: number;
+    positionScores: Record<string, number>;
+  };
 } => ({
-  analyzeRoster: (playerIds: string[]): { strengths: string[]; weaknesses: string[]; overallScore: number; positionScores: Record<string, number> } => {
+  analyzeRoster: (
+    playerIds: string[]
+  ): {
+    strengths: string[];
+    weaknesses: string[];
+    overallScore: number;
+    positionScores: Record<string, number>;
+  } => {
     if (playerIds.includes('rb_elite')) {
-      return { strengths: ['RB'], weaknesses: ['WR'], overallScore: 75, positionScores: { RB: 90, WR: 40 } };
+      return {
+        strengths: ['RB'],
+        weaknesses: ['WR'],
+        overallScore: 75,
+        positionScores: { RB: 90, WR: 40 }
+      };
     }
-    return { strengths: ['WR'], weaknesses: ['RB'], overallScore: 72, positionScores: { WR: 88, RB: 35 } };
+    return {
+      strengths: ['WR'],
+      weaknesses: ['RB'],
+      overallScore: 72,
+      positionScores: { WR: 88, RB: 35 }
+    };
   }
 });
 

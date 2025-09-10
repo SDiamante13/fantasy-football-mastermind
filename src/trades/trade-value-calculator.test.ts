@@ -3,7 +3,9 @@ import { createTradeValueCalculator } from './trade-value-calculator';
 describe('Trade Value Calculator', () => {
   it('[TEST] calculates trade value differential between proposed players', () => {
     const mockPlayerValuer = {
-      getPlayerValue: (playerId: string): { value: number; projectedPoints: number; consistency: number } => {
+      getPlayerValue: (
+        playerId: string
+      ): { value: number; projectedPoints: number; consistency: number } => {
         if (playerId === 'elite_rb') {
           return { value: 85, projectedPoints: 18.5, consistency: 92 };
         }

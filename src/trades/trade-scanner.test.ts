@@ -1,9 +1,25 @@
 import { createTradeScanner } from './trade-scanner';
 
 type MockServices = {
-  tradeOpportunityDetector: { findTradeOpportunities: () => Array<{ teamA: string; teamB: string; mutualBenefit: number }> };
-  tradeValueCalculator: { assessTrade: () => { teamAValueDiff: number; teamBValueDiff: number; fairness: 'fair'; totalValue: number } };
-  rosterAnalyzer: { analyzeRoster: (playerIds: string[]) => { strengths: string[]; weaknesses: string[]; overallScore: number; positionScores: Record<string, number> } };
+  tradeOpportunityDetector: {
+    findTradeOpportunities: () => Array<{ teamA: string; teamB: string; mutualBenefit: number }>;
+  };
+  tradeValueCalculator: {
+    assessTrade: () => {
+      teamAValueDiff: number;
+      teamBValueDiff: number;
+      fairness: 'fair';
+      totalValue: number;
+    };
+  };
+  rosterAnalyzer: {
+    analyzeRoster: (playerIds: string[]) => {
+      strengths: string[];
+      weaknesses: string[];
+      overallScore: number;
+      positionScores: Record<string, number>;
+    };
+  };
 };
 
 const createMockServices = (): MockServices => ({
@@ -13,7 +29,12 @@ const createMockServices = (): MockServices => ({
     ]
   },
   tradeValueCalculator: {
-    assessTrade: (): { teamAValueDiff: number; teamBValueDiff: number; fairness: 'fair'; totalValue: number } => ({
+    assessTrade: (): {
+      teamAValueDiff: number;
+      teamBValueDiff: number;
+      fairness: 'fair';
+      totalValue: number;
+    } => ({
       teamAValueDiff: 3,
       teamBValueDiff: -3,
       fairness: 'fair' as const,
@@ -21,11 +42,28 @@ const createMockServices = (): MockServices => ({
     })
   },
   rosterAnalyzer: {
-    analyzeRoster: (playerIds: string[]): { strengths: string[]; weaknesses: string[]; overallScore: number; positionScores: Record<string, number> } => {
+    analyzeRoster: (
+      playerIds: string[]
+    ): {
+      strengths: string[];
+      weaknesses: string[];
+      overallScore: number;
+      positionScores: Record<string, number>;
+    } => {
       if (playerIds.includes('strong_rb')) {
-        return { strengths: ['RB'], weaknesses: ['WR'], overallScore: 78, positionScores: { RB: 92, WR: 45 } };
+        return {
+          strengths: ['RB'],
+          weaknesses: ['WR'],
+          overallScore: 78,
+          positionScores: { RB: 92, WR: 45 }
+        };
       }
-      return { strengths: ['WR'], weaknesses: ['RB'], overallScore: 76, positionScores: { WR: 88, RB: 42 } };
+      return {
+        strengths: ['WR'],
+        weaknesses: ['RB'],
+        overallScore: 76,
+        positionScores: { WR: 88, RB: 42 }
+      };
     }
   }
 });

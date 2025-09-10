@@ -18,10 +18,7 @@ type TradeAssessment = {
   totalValue: number;
 };
 
-function calculatePlayerValues(
-  playerIds: string[], 
-  playerValuer: PlayerValuer
-): number {
+function calculatePlayerValues(playerIds: string[], playerValuer: PlayerValuer): number {
   return playerIds.reduce((sum, playerId) => sum + playerValuer.getPlayerValue(playerId).value, 0);
 }
 
@@ -41,12 +38,15 @@ export function createTradeValueCalculator(playerValuer: PlayerValuer): {
   return {
     assessTrade: (proposal: TradeProposal): TradeAssessment => {
       const teamAGivingValue = calculatePlayerValues(proposal.teamA.playersGiving, playerValuer);
-      const teamAReceivingValue = calculatePlayerValues(proposal.teamA.playersReceiving, playerValuer);
+      const teamAReceivingValue = calculatePlayerValues(
+        proposal.teamA.playersReceiving,
+        playerValuer
+      );
       const teamAValueDiff = teamAReceivingValue - teamAGivingValue;
       const teamBValueDiff = -teamAValueDiff;
       const totalValue = teamAGivingValue + teamAReceivingValue;
       const fairness = determineFairness(teamAValueDiff);
-      
+
       return { teamAValueDiff, teamBValueDiff, fairness, totalValue };
     }
   };

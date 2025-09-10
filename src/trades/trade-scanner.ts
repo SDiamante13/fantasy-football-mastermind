@@ -52,7 +52,7 @@ export function createTradeScanner(services: Services): {
   return {
     scanForTrades: (leagueId: string): ScanResult => {
       const opportunities = services.tradeOpportunityDetector.findTradeOpportunities(leagueId);
-      
+
       const enhancedOpportunities = opportunities.map(opp => ({
         teamA: opp.teamA,
         teamB: opp.teamB,
@@ -60,7 +60,7 @@ export function createTradeScanner(services: Services): {
         confidence: 'high' as const,
         mutualBenefit: opp.mutualBenefit
       }));
-      
+
       return {
         opportunities: enhancedOpportunities,
         totalOpportunities: enhancedOpportunities.length

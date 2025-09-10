@@ -23,9 +23,16 @@ const testSinglePositionStrengths = (): void => {
 };
 
 const createMixedEvaluator = (): {
-  evaluatePlayer: (playerId: string) => { tier: 'elite' | 'poor'; position: 'RB' | 'WR'; value: number; consistency: number };
+  evaluatePlayer: (playerId: string) => {
+    tier: 'elite' | 'poor';
+    position: 'RB' | 'WR';
+    value: number;
+    consistency: number;
+  };
 } => ({
-  evaluatePlayer: (playerId: string): { tier: 'elite' | 'poor'; position: 'RB' | 'WR'; value: number; consistency: number } => {
+  evaluatePlayer: (
+    playerId: string
+  ): { tier: 'elite' | 'poor'; position: 'RB' | 'WR'; value: number; consistency: number } => {
     if (playerId === 'elite_rb') {
       return { tier: 'elite' as const, position: 'RB' as const, value: 90, consistency: 85 };
     }
@@ -45,6 +52,12 @@ const testMultiplePositionWeaknesses = (): void => {
 };
 
 describe('Roster Analyzer', () => {
-  it('[TEST] identifies team roster strengths and weaknesses by position', testSinglePositionStrengths);
-  it('[TEST] analyzes multiple positions and identifies weaknesses', testMultiplePositionWeaknesses);
+  it(
+    '[TEST] identifies team roster strengths and weaknesses by position',
+    testSinglePositionStrengths
+  );
+  it(
+    '[TEST] analyzes multiple positions and identifies weaknesses',
+    testMultiplePositionWeaknesses
+  );
 });
