@@ -15,10 +15,12 @@ const createMockPlayerStats = (): { getRosterPercentage: () => number } => ({
   getRosterPercentage: (): number => 75
 });
 
-const createMockPlayerData = (): { getPlayerDetails: () => { name: string; position: string; team: string } } => ({
+const createMockPlayerData = (): {
+  getPlayerDetails: () => { name: string; position: string; team: string };
+} => ({
   getPlayerDetails: (): { name: string; position: string; team: string } => ({
     name: 'Saquon Barkley',
-    position: 'RB', 
+    position: 'RB',
     team: 'NYG'
   })
 });
@@ -26,8 +28,8 @@ const createMockPlayerData = (): { getPlayerDetails: () => { name: string; posit
 describe('Player Monitor', () => {
   it('includes player name in drop alert', () => {
     const playerMonitor = createPlayerMonitor(
-      createMockSleeperApi(), 
-      createMockPlayerStats(), 
+      createMockSleeperApi(),
+      createMockPlayerStats(),
       createMockPlayerData()
     );
     const alerts = playerMonitor.checkForDrops('league123');
@@ -39,10 +41,7 @@ describe('Player Monitor', () => {
   });
 
   it('detects when a player with >50% roster rate is dropped', () => {
-    const playerMonitor = createPlayerMonitor(
-      createMockSleeperApi(), 
-      createMockPlayerStats()
-    );
+    const playerMonitor = createPlayerMonitor(createMockSleeperApi(), createMockPlayerStats());
     const alerts = playerMonitor.checkForDrops('league123');
 
     expect(alerts).toHaveLength(1);

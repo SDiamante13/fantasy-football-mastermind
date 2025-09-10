@@ -7,11 +7,14 @@ describe('Notification Service', () => {
     };
 
     const notificationService = createNotificationService(mockFCM);
-    await notificationService.sendDropAlert({
-      playerId: 'player123',
-      rosterPercentage: 75,
-      playerName: 'Saquon Barkley'
-    }, 'user-token-123');
+    await notificationService.sendDropAlert(
+      {
+        playerId: 'player123',
+        rosterPercentage: 75,
+        playerName: 'Saquon Barkley'
+      },
+      'user-token-123'
+    );
 
     expect(mockFCM.sendNotification).toHaveBeenCalledWith({
       token: 'user-token-123',

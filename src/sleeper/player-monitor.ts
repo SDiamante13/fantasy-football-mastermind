@@ -23,7 +23,11 @@ type DropAlert = {
   playerName?: string;
 };
 
-function isHighValueDrop(playerId: string, playerStats: PlayerStats, playerData?: PlayerData): DropAlert | null {
+function isHighValueDrop(
+  playerId: string,
+  playerStats: PlayerStats,
+  playerData?: PlayerData
+): DropAlert | null {
   const rosterPercentage = playerStats.getRosterPercentage(playerId);
   if (rosterPercentage > 50) {
     const alert: DropAlert = { playerId, rosterPercentage };
@@ -36,7 +40,11 @@ function isHighValueDrop(playerId: string, playerStats: PlayerStats, playerData?
   return null;
 }
 
-function processTransaction(transaction: Transaction, playerStats: PlayerStats, playerData?: PlayerData): DropAlert[] {
+function processTransaction(
+  transaction: Transaction,
+  playerStats: PlayerStats,
+  playerData?: PlayerData
+): DropAlert[] {
   if (transaction.type !== 'free_agent' || !transaction.drops) {
     return [];
   }

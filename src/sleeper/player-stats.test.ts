@@ -12,10 +12,8 @@ describe('Player Stats', () => {
     const mockPlayerData = {
       '1426': { player_id: '1426', full_name: 'Saquon Barkley' }
     };
-    const mockTrendingData = [
-      { player_id: '1426', count: 75 }
-    ];
-    
+    const mockTrendingData = [{ player_id: '1426', count: 75 }];
+
     const playerStats = createPlayerStats(mockPlayerData, mockTrendingData);
     const rosterPercentage = playerStats.getRosterPercentage('1426');
 
