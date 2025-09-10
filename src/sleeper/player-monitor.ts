@@ -13,27 +13,37 @@ type PlayerStats = {
   getRosterPercentage: (playerId: string) => number;
 };
 
+type PlayerData = {
+  getPlayerDetails: (playerId: string) => { name: string; position: string; team: string };
+};
+
 type DropAlert = {
   playerId: string;
   rosterPercentage: number;
+  playerName?: string;
 };
 
-function isHighValueDrop(playerId: string, playerStats: PlayerStats): DropAlert | null {
+function isHighValueDrop(playerId: string, playerStats: PlayerStats, playerData?: PlayerData): DropAlert | null {
   const rosterPercentage = playerStats.getRosterPercentage(playerId);
   if (rosterPercentage > 50) {
-    return { playerId, rosterPercentage };
+    const alert: DropAlert = { playerId, rosterPercentage };
+    if (playerData) {
+      const details = playerData.getPlayerDetails(playerId);
+      alert.playerName = details.name;
+    }
+    return alert;
   }
   return null;
 }
 
-function processTransaction(transaction: Transaction, playerStats: PlayerStats): DropAlert[] {
+function processTransaction(transaction: Transaction, playerStats: PlayerStats, playerData?: PlayerData): DropAlert[] {
   if (transaction.type !== 'free_agent' || !transaction.drops) {
     return [];
   }
 
   const alerts: DropAlert[] = [];
   for (const playerId of Object.values(transaction.drops)) {
-    const alert = isHighValueDrop(playerId, playerStats);
+    const alert = isHighValueDrop(playerId, playerStats, playerData);
     if (alert) {
       alerts.push(alert);
     }
@@ -43,7 +53,8 @@ function processTransaction(transaction: Transaction, playerStats: PlayerStats):
 
 export function createPlayerMonitor(
   sleeperApi: SleeperApi,
-  playerStats: PlayerStats
+  playerStats: PlayerStats,
+  playerData?: PlayerData
 ): {
   checkForDrops: (leagueId: string) => DropAlert[];
 } {
@@ -53,7 +64,7 @@ export function createPlayerMonitor(
       const alerts: DropAlert[] = [];
 
       for (const transaction of transactions) {
-        alerts.push(...processTransaction(transaction, playerStats));
+        alerts.push(...processTransaction(transaction, playerStats, playerData));
       }
 
       return alerts;
