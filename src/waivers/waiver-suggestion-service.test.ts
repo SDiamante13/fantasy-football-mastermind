@@ -11,15 +11,20 @@ type MockServices = {
     checkAvailability: () => string[];
   };
   priorityScorer: {
-    calculateScore: () => { total: number; breakdown: { handcuff_bonus: number; opportunity_score: number; injury_severity_bonus: number } };
+    calculateScore: () => {
+      total: number;
+      breakdown: {
+        handcuff_bonus: number;
+        opportunity_score: number;
+        injury_severity_bonus: number;
+      };
+    };
   };
 };
 
 const createMockServices = (): MockServices => ({
   injuryDetector: {
-    checkForInjuries: () => [
-      { playerId: 'saquon_123', injuryStatus: 'Out', severity: 'high' }
-    ]
+    checkForInjuries: () => [{ playerId: 'saquon_123', injuryStatus: 'Out', severity: 'high' }]
   },
   backupFinder: {
     findBackups: () => [

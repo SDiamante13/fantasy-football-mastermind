@@ -18,10 +18,10 @@ export function createBackupFinder(playerData: PlayerData): {
       const injuredPlayer = playerData.getPlayerInfo(injuredPlayerId);
       const teamPlayers = playerData.getTeamPlayers(injuredPlayer.team);
       const backups: BackupPlayer[] = [];
-      
+
       for (const playerId of teamPlayers) {
         if (playerId === injuredPlayerId) continue;
-        
+
         const player = playerData.getPlayerInfo(playerId);
         if (player.position === injuredPlayer.position) {
           backups.push({
@@ -32,7 +32,7 @@ export function createBackupFinder(playerData: PlayerData): {
           });
         }
       }
-      
+
       return backups;
     }
   };

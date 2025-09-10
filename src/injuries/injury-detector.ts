@@ -14,7 +14,7 @@ export function createInjuryDetector(playerData: PlayerData): {
   return {
     checkForInjuries: (playerIds: string[]): InjuryAlert[] => {
       const alerts: InjuryAlert[] = [];
-      
+
       for (const playerId of playerIds) {
         const status = playerData.getPlayerStatus(playerId);
         if (status.injury_status === 'Out') {
@@ -25,7 +25,7 @@ export function createInjuryDetector(playerData: PlayerData): {
           });
         }
       }
-      
+
       return alerts;
     }
   };

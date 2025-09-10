@@ -1,9 +1,13 @@
 type InjuryDetector = {
-  checkForInjuries: (playerIds: string[]) => Array<{ playerId: string; injuryStatus: string; severity: string }>;
+  checkForInjuries: (
+    playerIds: string[]
+  ) => Array<{ playerId: string; injuryStatus: string; severity: string }>;
 };
 
 type BackupFinder = {
-  findBackups: (injuredPlayerId: string) => Array<{ playerId: string; position: string; team: string; name: string }>;
+  findBackups: (
+    injuredPlayerId: string
+  ) => Array<{ playerId: string; position: string; team: string; name: string }>;
 };
 
 type WaiverChecker = {
@@ -51,18 +55,18 @@ function processInjuryForSuggestions(
   services: Services
 ): WaiverSuggestion[] {
   const suggestions: WaiverSuggestion[] = [];
-  
+
   const backups = services.backupFinder.findBackups(injury.playerId);
   const backupIds = backups.map(backup => backup.playerId);
   const availableIds = services.waiverChecker.checkAvailability(backupIds, leagueId);
-  
+
   for (const backup of backups) {
     if (availableIds.includes(backup.playerId)) {
       const suggestion = createSuggestionFromBackup(backup, injury, services.priorityScorer);
       suggestions.push(suggestion);
     }
   }
-  
+
   return suggestions;
 }
 
@@ -80,9 +84,9 @@ function createSuggestionFromBackup(
       injurySeverity: injury.severity
     }
   };
-  
+
   const score = scorer.calculateScore(scoreRequest);
-  
+
   return {
     playerId: backup.playerId,
     playerName: backup.name,
@@ -99,12 +103,12 @@ export function createWaiverSuggestionService(services: Services): {
     getSuggestions: (playerIds: string[], leagueId: string): WaiverSuggestion[] => {
       const suggestions: WaiverSuggestion[] = [];
       const injuries = services.injuryDetector.checkForInjuries(playerIds);
-      
+
       for (const injury of injuries) {
         const injurySuggestions = processInjuryForSuggestions(injury, leagueId, services);
         suggestions.push(...injurySuggestions);
       }
-      
+
       return suggestions.sort((a, b) => b.priorityScore - a.priorityScore);
     }
   };

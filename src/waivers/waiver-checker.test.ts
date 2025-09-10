@@ -11,7 +11,7 @@ describe('Waiver Checker', () => {
 
     const waiverChecker = createWaiverChecker(mockSleeperApi);
     const availablePlayers = waiverChecker.checkAvailability(
-      ['breida_999', 'saquon_123', 'pollard_888'], 
+      ['breida_999', 'saquon_123', 'pollard_888'],
       'league_123'
     );
 

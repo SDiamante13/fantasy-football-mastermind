@@ -19,7 +19,7 @@ type MockScoreRequest = {
 const createMockPlayerData = (): MockPlayerData => ({
   getPlayerInfo: (): { team: string; position: string; name: string } => ({
     team: 'NYG',
-    position: 'RB', 
+    position: 'RB',
     name: 'Matt Breida'
   }),
   getTargetShare: (): number => 15,

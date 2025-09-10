@@ -39,7 +39,7 @@ function calculateHandcuffBonus(player: PlayerInfo, injuredStarter: InjuredStart
 
 function calculateOpportunityScore(targetShare: number, opportunities: OpportunityMetrics): number {
   return Math.min(
-    (targetShare + opportunities.touches_per_game + opportunities.red_zone_looks * 2), 
+    targetShare + opportunities.touches_per_game + opportunities.red_zone_looks * 2,
     35
   );
 }
@@ -56,15 +56,16 @@ export function createPriorityScorer(playerData: PlayerData): {
       const player = playerData.getPlayerInfo(request.playerId);
       const targetShare = playerData.getTargetShare(request.playerId);
       const opportunities = playerData.getOpportunityMetrics(request.playerId);
-      
+
       const breakdown: ScoreBreakdown = {
         handcuff_bonus: calculateHandcuffBonus(player, request.injuredStarter),
         opportunity_score: calculateOpportunityScore(targetShare, opportunities),
         injury_severity_bonus: calculateInjurySeverityBonus(request.injuredStarter.injurySeverity)
       };
-      
-      const total = breakdown.handcuff_bonus + breakdown.opportunity_score + breakdown.injury_severity_bonus;
-      
+
+      const total =
+        breakdown.handcuff_bonus + breakdown.opportunity_score + breakdown.injury_severity_bonus;
+
       return { total, breakdown };
     }
   };
