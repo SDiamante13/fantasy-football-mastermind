@@ -21,13 +21,14 @@ type BiddingPattern = {
 };
 
 function filterMatchingTransactions(
-  transactions: TransactionData[], 
+  transactions: TransactionData[],
   criteria: PlayerCriteria
 ): TransactionData[] {
-  return transactions.filter(transaction => 
-    transaction.position === criteria.position &&
-    transaction.playerTier === criteria.tier &&
-    transaction.playerValue === criteria.value
+  return transactions.filter(
+    transaction =>
+      transaction.position === criteria.position &&
+      transaction.playerTier === criteria.tier &&
+      transaction.playerValue === criteria.value
   );
 }
 

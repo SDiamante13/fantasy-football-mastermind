@@ -25,7 +25,7 @@ const createMockTransactionData = (): MockTransaction[] => [
     playerValue: 'medium'
   },
   {
-    playerId: 'rb_similar_2', 
+    playerId: 'rb_similar_2',
     playerTier: 'handcuff',
     position: 'RB',
     winningBid: 18,
