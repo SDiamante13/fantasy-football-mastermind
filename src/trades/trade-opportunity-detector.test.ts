@@ -1,35 +1,34 @@
 import { createTradeOpportunityDetector } from './trade-opportunity-detector';
 
+type RosterAnalysisResult = {
+  strengths: string[];
+  weaknesses: string[];
+  overallScore: number;
+  positionScores: Record<string, number>;
+};
+
+const createStrongRBTeam = (): RosterAnalysisResult => ({
+  strengths: ['RB'],
+  weaknesses: ['WR'],
+  overallScore: 75,
+  positionScores: { RB: 90, WR: 40 }
+});
+
+const createStrongWRTeam = (): RosterAnalysisResult => ({
+  strengths: ['WR'],
+  weaknesses: ['RB'],
+  overallScore: 72,
+  positionScores: { WR: 88, RB: 35 }
+});
+
 const createMockRosterAnalyzer = (): {
-  analyzeRoster: (playerIds: string[]) => {
-    strengths: string[];
-    weaknesses: string[];
-    overallScore: number;
-    positionScores: Record<string, number>;
-  };
+  analyzeRoster: (playerIds: string[]) => RosterAnalysisResult;
 } => ({
-  analyzeRoster: (
-    playerIds: string[]
-  ): {
-    strengths: string[];
-    weaknesses: string[];
-    overallScore: number;
-    positionScores: Record<string, number>;
-  } => {
+  analyzeRoster: (playerIds: string[]): RosterAnalysisResult => {
     if (playerIds.includes('rb_elite')) {
-      return {
-        strengths: ['RB'],
-        weaknesses: ['WR'],
-        overallScore: 75,
-        positionScores: { RB: 90, WR: 40 }
-      };
+      return createStrongRBTeam();
     }
-    return {
-      strengths: ['WR'],
-      weaknesses: ['RB'],
-      overallScore: 72,
-      positionScores: { WR: 88, RB: 35 }
-    };
+    return createStrongWRTeam();
   }
 });
 

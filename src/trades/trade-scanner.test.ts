@@ -22,50 +22,56 @@ type MockServices = {
   };
 };
 
-const createMockServices = (): MockServices => ({
-  tradeOpportunityDetector: {
-    findTradeOpportunities: (): Array<{ teamA: string; teamB: string; mutualBenefit: number }> => [
-      { teamA: 'team_strong_rb', teamB: 'team_strong_wr', mutualBenefit: 1 }
-    ]
-  },
-  tradeValueCalculator: {
-    assessTrade: (): {
-      teamAValueDiff: number;
-      teamBValueDiff: number;
-      fairness: 'fair';
-      totalValue: number;
-    } => ({
-      teamAValueDiff: 3,
-      teamBValueDiff: -3,
-      fairness: 'fair' as const,
-      totalValue: 165
-    })
-  },
-  rosterAnalyzer: {
-    analyzeRoster: (
-      playerIds: string[]
-    ): {
-      strengths: string[];
-      weaknesses: string[];
-      overallScore: number;
-      positionScores: Record<string, number>;
-    } => {
-      if (playerIds.includes('strong_rb')) {
-        return {
-          strengths: ['RB'],
-          weaknesses: ['WR'],
-          overallScore: 78,
-          positionScores: { RB: 92, WR: 45 }
-        };
-      }
+const createMockOpportunityDetector = (): MockServices['tradeOpportunityDetector'] => ({
+  findTradeOpportunities: (): Array<{ teamA: string; teamB: string; mutualBenefit: number }> => [
+    { teamA: 'team_strong_rb', teamB: 'team_strong_wr', mutualBenefit: 1 }
+  ]
+});
+
+const createMockValueCalculator = (): MockServices['tradeValueCalculator'] => ({
+  assessTrade: (): {
+    teamAValueDiff: number;
+    teamBValueDiff: number;
+    fairness: 'fair';
+    totalValue: number;
+  } => ({
+    teamAValueDiff: 3,
+    teamBValueDiff: -3,
+    fairness: 'fair' as const,
+    totalValue: 165
+  })
+});
+
+const createMockRosterAnalyzer2 = (): MockServices['rosterAnalyzer'] => ({
+  analyzeRoster: (
+    playerIds: string[]
+  ): {
+    strengths: string[];
+    weaknesses: string[];
+    overallScore: number;
+    positionScores: Record<string, number>;
+  } => {
+    if (playerIds.includes('strong_rb')) {
       return {
-        strengths: ['WR'],
-        weaknesses: ['RB'],
-        overallScore: 76,
-        positionScores: { WR: 88, RB: 42 }
+        strengths: ['RB'],
+        weaknesses: ['WR'],
+        overallScore: 78,
+        positionScores: { RB: 92, WR: 45 }
       };
     }
+    return {
+      strengths: ['WR'],
+      weaknesses: ['RB'],
+      overallScore: 76,
+      positionScores: { WR: 88, RB: 42 }
+    };
   }
+});
+
+const createMockServices = (): MockServices => ({
+  tradeOpportunityDetector: createMockOpportunityDetector(),
+  tradeValueCalculator: createMockValueCalculator(),
+  rosterAnalyzer: createMockRosterAnalyzer2()
 });
 
 describe('Trade Scanner', () => {
