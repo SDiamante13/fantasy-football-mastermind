@@ -46,8 +46,8 @@ const UserInputSection = ({
       autoCorrect={false}
       editable={!isLoading}
     />
-    <TouchableOpacity 
-      style={[styles.button, isLoading && styles.buttonDisabled]} 
+    <TouchableOpacity
+      style={[styles.button, isLoading && styles.buttonDisabled]}
       onPress={handleSubmit}
       disabled={isLoading || !username.trim()}
       accessibilityLabel="Load leagues for the entered username"
@@ -62,13 +62,13 @@ const UserInputSection = ({
   </View>
 );
 
-const ErrorCard = ({ 
-  title, 
-  message, 
-  suggestions 
-}: { 
-  title: string; 
-  message: string; 
+const ErrorCard = ({
+  title,
+  message,
+  suggestions
+}: {
+  title: string;
+  message: string;
   suggestions: string[];
 }): React.JSX.Element => (
   <View style={styles.errorCard}>
@@ -79,7 +79,9 @@ const ErrorCard = ({
     <Text style={styles.errorMessage}>{message}</Text>
     <View style={styles.errorSuggestions}>
       {suggestions.map((suggestion, index) => (
-        <Text key={index} style={styles.errorSuggestion}>• {suggestion}</Text>
+        <Text key={index} style={styles.errorSuggestion}>
+          • {suggestion}
+        </Text>
       ))}
     </View>
   </View>
@@ -93,7 +95,7 @@ const ErrorDisplay = ({
   leaguesError: string | null;
 }): React.JSX.Element | null => {
   if (!userError && !leaguesError) return null;
-  
+
   return (
     <>
       {userError && (
@@ -198,7 +200,12 @@ const renderUserInput = (
   handleSubmit: () => void,
   isLoading: boolean
 ): React.JSX.Element => (
-  <UserInputSection username={username} setUsername={setUsername} handleSubmit={handleSubmit} isLoading={isLoading} />
+  <UserInputSection
+    username={username}
+    setUsername={setUsername}
+    handleSubmit={handleSubmit}
+    isLoading={isLoading}
+  />
 );
 
 const renderStatus = (statusProps: {

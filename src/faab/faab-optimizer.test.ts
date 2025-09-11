@@ -114,18 +114,16 @@ const createMockBidCalculator = (): MockServices['bidCalculator'] => ({
   })
 });
 
-
-
 describe('FAAB Optimizer', () => {
   it('provides comprehensive bid recommendations integrating all services', () => {
     const mockServices = {
       biddingAnalyzer: createMockBiddingAnalyzer(),
       playerValueAssessor: createMockPlayerValueAssessor(),
       budgetTracker: createMockBudgetTracker(),
-      bidCalculator: createMockBidCalculator(),
+      bidCalculator: createMockBidCalculator()
     };
     const optimizer = createFAABOptimizer(mockServices);
-    
+
     const recommendation = optimizer.getOptimalBid({
       playerId: 'rb_handcuff_123',
       position: 'RB',

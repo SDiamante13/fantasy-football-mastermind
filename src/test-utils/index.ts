@@ -33,15 +33,20 @@ export const commonExpectations = {
 };
 
 // Common test data generators
-export const generateTestId = (prefix = 'test'): string => `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+export const generateTestId = (prefix = 'test'): string =>
+  `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-export const createTestUser = (username?: string): { user_id: string; username: string; display_name: string } => ({
+export const createTestUser = (
+  username?: string
+): { user_id: string; username: string; display_name: string } => ({
   user_id: generateTestId('user'),
   username: username || 'testuser',
   display_name: username || 'testuser'
 });
 
-export const createTestLeague = (name?: string): { league_id: string; name: string; season: string; status: string } => ({
+export const createTestLeague = (
+  name?: string
+): { league_id: string; name: string; season: string; status: string } => ({
   league_id: generateTestId('league'),
   name: name || 'Test League',
   season: '2025',

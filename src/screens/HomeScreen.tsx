@@ -5,19 +5,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export function HomeScreen(): React.JSX.Element {
   return (
     <SafeAreaView style={styles.container}>
-      <View 
+      <View
         style={styles.content}
         accessibilityRole="none"
         accessibilityLabel="Fantasy Football Mastermind home screen"
       >
-        <Text 
+        <Text
           style={styles.title}
           accessibilityRole="header"
           accessibilityLabel="Fantasy Football Mastermind - Main application title"
         >
           Fantasy Football Mastermind
         </Text>
-        <Text 
+        <Text
           style={styles.subtitle}
           accessibilityRole="text"
           accessibilityLabel="Welcome message: Your fantasy football command center"
@@ -25,10 +25,7 @@ export function HomeScreen(): React.JSX.Element {
           Welcome to your fantasy football command center
         </Text>
         <View style={styles.featuresContainer}>
-          <Text 
-            style={styles.featuresTitle}
-            accessibilityRole="header"
-          >
+          <Text style={styles.featuresTitle} accessibilityRole="header">
             Features
           </Text>
           <View style={styles.featuresList}>

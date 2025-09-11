@@ -21,37 +21,25 @@ const FeatureCard = ({
   description: string;
   onPress: () => void;
 }): React.JSX.Element => (
-  <TouchableOpacity 
-    style={styles.featureCard} 
+  <TouchableOpacity
+    style={styles.featureCard}
     onPress={onPress}
     accessibilityRole="button"
     accessibilityLabel={`${title}: ${description}`}
     accessibilityHint="Tap to learn more about this feature"
   >
-    <Text 
-      style={styles.featureTitle}
-      accessibilityRole="header"
-    >
+    <Text style={styles.featureTitle} accessibilityRole="header">
       {title}
     </Text>
-    <Text 
-      style={styles.featureDescription}
-      accessibilityRole="text"
-    >
+    <Text style={styles.featureDescription} accessibilityRole="text">
       {description}
     </Text>
   </TouchableOpacity>
 );
 
 const TradesTab = (): React.JSX.Element => (
-  <ScrollView 
-    style={styles.tabContent}
-    accessibilityLabel="Trade analysis features"
-  >
-    <Text 
-      style={styles.sectionTitle}
-      accessibilityRole="header"
-    >
+  <ScrollView style={styles.tabContent} accessibilityLabel="Trade analysis features">
+    <Text style={styles.sectionTitle} accessibilityRole="header">
       Trade Analysis
     </Text>
     <FeatureCard
@@ -73,14 +61,8 @@ const TradesTab = (): React.JSX.Element => (
 );
 
 const FaabTab = (): React.JSX.Element => (
-  <ScrollView 
-    style={styles.tabContent}
-    accessibilityLabel="FAAB optimization features"
-  >
-    <Text 
-      style={styles.sectionTitle}
-      accessibilityRole="header"
-    >
+  <ScrollView style={styles.tabContent} accessibilityLabel="FAAB optimization features">
+    <Text style={styles.sectionTitle} accessibilityRole="header">
       FAAB Optimization
     </Text>
     <FeatureCard
@@ -102,14 +84,8 @@ const FaabTab = (): React.JSX.Element => (
 );
 
 const WaiversTab = (): React.JSX.Element => (
-  <ScrollView 
-    style={styles.tabContent}
-    accessibilityLabel="Waiver analysis features"
-  >
-    <Text 
-      style={styles.sectionTitle}
-      accessibilityRole="header"
-    >
+  <ScrollView style={styles.tabContent} accessibilityLabel="Waiver analysis features">
+    <Text style={styles.sectionTitle} accessibilityRole="header">
       Waiver Analysis
     </Text>
     <FeatureCard
@@ -142,7 +118,7 @@ const TabButton = ({
   title: string;
 }): React.JSX.Element => {
   const isSelected = activeTab === tab;
-  
+
   return (
     <TouchableOpacity
       style={[styles.tabButton, isSelected && styles.activeTabButton]}
@@ -152,9 +128,7 @@ const TabButton = ({
       accessibilityState={{ selected: isSelected }}
       accessibilityHint={`Switch to ${title.toLowerCase()} analytics view`}
     >
-      <Text style={[styles.tabButtonText, isSelected && styles.activeTabButtonText]}>
-        {title}
-      </Text>
+      <Text style={[styles.tabButtonText, isSelected && styles.activeTabButtonText]}>{title}</Text>
     </TouchableOpacity>
   );
 };
@@ -175,10 +149,7 @@ const TabButtons = ({
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
 }): React.JSX.Element => (
-  <View 
-    style={styles.tabButtons}
-    accessibilityLabel="Analytics categories"
-  >
+  <View style={styles.tabButtons} accessibilityLabel="Analytics categories">
     {createTabButton('trades', 'Trades', activeTab, setActiveTab)}
     {createTabButton('faab', 'FAAB', activeTab, setActiveTab)}
     {createTabButton('waivers', 'Waivers', activeTab, setActiveTab)}
@@ -203,12 +174,12 @@ export function AnalyticsScreen(): React.JSX.Element {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View 
+      <View
         style={styles.content}
         accessibilityRole="none"
         accessibilityLabel="Analytics screen content"
       >
-        <Text 
+        <Text
           style={styles.title}
           accessibilityRole="header"
           accessibilityLabel="Analytics - Fantasy football analysis tools"

@@ -1,5 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Animated } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+  Animated
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAllPlayers } from '../hooks/useSleeperApi';
@@ -40,13 +48,10 @@ const filterPlayers = (
 
 const PlayerHeader = ({ item }: { item: Player }): React.JSX.Element => (
   <View style={styles.playerHeader}>
-    <Text 
-      style={styles.playerName}
-      accessibilityRole="header"
-    >
+    <Text style={styles.playerName} accessibilityRole="header">
       {item.full_name}
     </Text>
-    <View 
+    <View
       style={styles.playerBadge}
       accessibilityRole="text"
       accessibilityLabel={`Position: ${item.position}`}
@@ -58,27 +63,24 @@ const PlayerHeader = ({ item }: { item: Player }): React.JSX.Element => (
 
 const renderPlayer = ({ item }: { item: Player }): React.JSX.Element => {
   const team = item.team || 'Free Agent';
-  const experience = item.years_exp !== undefined ? `${item.years_exp} years experience` : 'Experience not available';
+  const experience =
+    item.years_exp !== undefined
+      ? `${item.years_exp} years experience`
+      : 'Experience not available';
   const accessibilityLabel = `${item.full_name}, ${item.position} position, ${team}, ${experience}`;
-  
+
   return (
-    <View 
+    <View
       style={styles.playerCard}
       accessibilityRole="none"
       accessibilityLabel={accessibilityLabel}
     >
       <PlayerHeader item={item} />
-      <Text 
-        style={styles.playerTeam}
-        accessibilityRole="text"
-      >
+      <Text style={styles.playerTeam} accessibilityRole="text">
         {team} {item.position && `• ${item.position}`}
       </Text>
       {item.years_exp !== undefined && (
-        <Text 
-          style={styles.playerInfo}
-          accessibilityRole="text"
-        >
+        <Text style={styles.playerInfo} accessibilityRole="text">
           {item.years_exp} years experience
         </Text>
       )}
@@ -95,13 +97,13 @@ const useSkeletonAnimation = () => {
         Animated.timing(animatedValue, {
           toValue: 1,
           duration: 1000,
-          useNativeDriver: false,
+          useNativeDriver: false
         }),
         Animated.timing(animatedValue, {
           toValue: 0,
           duration: 1000,
-          useNativeDriver: false,
-        }),
+          useNativeDriver: false
+        })
       ]).start(() => startAnimation());
     };
     startAnimation();
@@ -109,17 +111,17 @@ const useSkeletonAnimation = () => {
 
   return animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#e0e0e0', '#f0f0f0'],
+    outputRange: ['#e0e0e0', '#f0f0f0']
   });
 };
 
-const SkeletonBox = ({ 
-  width, 
-  height, 
-  style 
-}: { 
-  width: number | string; 
-  height: number; 
+const SkeletonBox = ({
+  width,
+  height,
+  style
+}: {
+  width: number | string;
+  height: number;
   style?: import('react-native').ViewStyle;
 }): React.JSX.Element => {
   const backgroundColor = useSkeletonAnimation();
@@ -131,9 +133,9 @@ const SkeletonBox = ({
           width,
           height,
           backgroundColor,
-          borderRadius: 4,
+          borderRadius: 4
         } as any,
-        style,
+        style
       ]}
     />
   );
@@ -157,15 +159,15 @@ const SkeletonSearchInput = (): React.JSX.Element => (
 const SkeletonPositionFilters = (): React.JSX.Element => (
   <View style={styles.positionFilters}>
     {Array.from({ length: 7 }).map((_, index) => (
-      <SkeletonBox 
-        key={index} 
-        width={index === 0 ? 50 : 35} 
-        height={28} 
-        style={{ 
-          borderRadius: 16, 
-          marginRight: 8, 
-          marginBottom: 8 
-        }} 
+      <SkeletonBox
+        key={index}
+        width={index === 0 ? 50 : 35}
+        height={28}
+        style={{
+          borderRadius: 16,
+          marginRight: 8,
+          marginBottom: 8
+        }}
       />
     ))}
   </View>
@@ -186,7 +188,7 @@ const SkeletonContent = (): React.JSX.Element => (
 );
 
 const LoadingView = (): React.JSX.Element => (
-  <SafeAreaView 
+  <SafeAreaView
     style={styles.container}
     accessibilityRole="progressbar"
     accessibilityLabel="Loading players data"
@@ -198,8 +200,8 @@ const LoadingView = (): React.JSX.Element => (
 
 const ErrorMessage = ({ error }: { error: string }): React.JSX.Element => (
   <Text style={styles.errorMessage}>
-    {error.includes('network') || error.includes('fetch') 
-      ? 'Please check your internet connection and try again.' 
+    {error.includes('network') || error.includes('fetch')
+      ? 'Please check your internet connection and try again.'
       : 'There was a problem loading player data from Sleeper API.'}
   </Text>
 );
@@ -215,9 +217,8 @@ const ErrorView = ({ error }: { error: string }): React.JSX.Element => (
         <ErrorMessage error={error} />
         <View style={styles.errorActions}>
           <Text style={styles.errorSuggestion}>
-            • Check your internet connection{'\n'}
-            • Try refreshing the app{'\n'}
-            • If the problem persists, Sleeper API may be temporarily unavailable
+            • Check your internet connection{'\n'}• Try refreshing the app{'\n'}• If the problem
+            persists, Sleeper API may be temporarily unavailable
           </Text>
         </View>
       </View>
@@ -236,7 +237,7 @@ const PositionButton = ({
 }): React.JSX.Element => {
   const isSelected = selectedPosition === position;
   const positionLabel = position === 'ALL' ? 'All positions' : `${position} position`;
-  
+
   return (
     <TouchableOpacity
       style={[styles.positionButton, isSelected && styles.selectedPositionButton]}
@@ -246,12 +247,7 @@ const PositionButton = ({
       accessibilityState={{ selected: isSelected }}
       accessibilityHint={`Tap to ${isSelected ? 'keep' : 'filter by'} ${positionLabel}`}
     >
-      <Text
-        style={[
-          styles.positionButtonText,
-          isSelected && styles.selectedPositionButtonText
-        ]}
-      >
+      <Text style={[styles.positionButtonText, isSelected && styles.selectedPositionButtonText]}>
         {position}
       </Text>
     </TouchableOpacity>
@@ -267,7 +263,7 @@ const PositionFilters = ({
   selectedPosition: string;
   setSelectedPosition: (position: string) => void;
 }): React.JSX.Element => (
-  <View 
+  <View
     style={styles.positionFilters}
     accessibilityRole="none"
     accessibilityLabel="Position filters"
@@ -294,7 +290,7 @@ type PlayersContentProps = {
 };
 
 const renderPlayersHeader = (): React.JSX.Element => (
-  <Text 
+  <Text
     style={styles.title}
     accessibilityRole="header"
     accessibilityLabel="Player Analysis - Search and filter NFL players"
@@ -324,7 +320,7 @@ const PlayersSearchInput = ({
 );
 
 const PlayersResultCount = ({ count }: { count: number }): React.JSX.Element => (
-  <Text 
+  <Text
     style={styles.resultCount}
     accessibilityRole="text"
     accessibilityLabel={`${count} players found in search results`}
@@ -348,11 +344,7 @@ const PlayersList = ({ players }: { players: Player[] }): React.JSX.Element => (
 );
 
 const PlayersContentLayout = ({ children }: { children: React.ReactNode }): React.JSX.Element => (
-  <View 
-    style={styles.content}
-    accessibilityRole="none"
-    accessibilityLabel="Players screen content"
-  >
+  <View style={styles.content} accessibilityRole="none" accessibilityLabel="Players screen content">
     {children}
   </View>
 );

@@ -1,15 +1,15 @@
 /**
  * Creates a mock service with predictable return values
  */
-export const createMockService = <T extends Record<string, (...args: any[]) => any>>(
-  serviceMethods: { [K in keyof T]: ReturnType<T[K]> }
-): T => {
+export const createMockService = <
+  T extends Record<string, (...args: any[]) => any>
+>(serviceMethods: { [K in keyof T]: ReturnType<T[K]> }): T => {
   const mock = {} as T;
-  
+
   for (const [methodName, returnValue] of Object.entries(serviceMethods)) {
     mock[methodName as keyof T] = (() => returnValue) as T[keyof T];
   }
-  
+
   return mock;
 };
 
@@ -25,7 +25,7 @@ export const mockData = {
       team: 'TEST',
       active: true
     }),
-    
+
     withStats: (overrides?: Partial<any>) => ({
       ...mockData.player.basic(),
       years_exp: 5,
@@ -33,7 +33,7 @@ export const mockData = {
       ...overrides
     })
   },
-  
+
   user: {
     basic: (username = 'testuser') => ({
       user_id: 'test-user-id',
@@ -41,7 +41,7 @@ export const mockData = {
       display_name: username
     })
   },
-  
+
   league: {
     basic: () => ({
       league_id: 'test-league-1',
@@ -50,7 +50,7 @@ export const mockData = {
       status: 'in_season'
     })
   },
-  
+
   tradeOpportunity: {
     basic: () => ({
       teamA: 'team_strong_rb',
@@ -58,7 +58,7 @@ export const mockData = {
       mutualBenefit: 1
     })
   },
-  
+
   tradeAssessment: {
     fair: () => ({
       teamAValueDiff: 3,
@@ -67,7 +67,7 @@ export const mockData = {
       totalValue: 165
     })
   },
-  
+
   rosterAnalysis: {
     rbStrong: () => ({
       strengths: ['RB'],
@@ -75,7 +75,7 @@ export const mockData = {
       overallScore: 78,
       positionScores: { RB: 92, WR: 45 }
     }),
-    
+
     wrStrong: () => ({
       strengths: ['WR'],
       weaknesses: ['RB'],
@@ -83,14 +83,14 @@ export const mockData = {
       positionScores: { WR: 88, RB: 42 }
     })
   },
-  
+
   faabAnalysis: {
     biddingData: () => ({
       averageWinningBid: 28,
       bidRange: { min: 15, max: 45 },
       sampleSize: 6
     }),
-    
+
     playerValue: () => ({
       tier: 'medium' as const,
       score: 68,
@@ -103,7 +103,7 @@ export const mockData = {
         waiversDepth: 18
       }
     }),
-    
+
     budget: () => ({
       totalBudget: 200,
       spent: 65,
@@ -111,7 +111,7 @@ export const mockData = {
       percentageSpent: 33,
       weeksRemaining: 9
     }),
-    
+
     bidRecommendation: () => ({
       recommendedBid: 34,
       winProbability: 0.74,
@@ -126,49 +126,54 @@ export const mockData = {
  * Trade service mock factories
  */
 export const tradeServiceMocks = {
-  tradeOpportunityDetector: () => createMockService({
-    findTradeOpportunities: [mockData.tradeOpportunity.basic()]
-  }),
-  
-  tradeValueCalculator: () => createMockService({
-    assessTrade: mockData.tradeAssessment.fair()
-  }),
-  
-  rosterAnalyzer: () => createMockService({
-    analyzeRoster: (playerIds: string[]) => {
-      if (playerIds.includes('strong_rb')) {
-        return mockData.rosterAnalysis.rbStrong();
+  tradeOpportunityDetector: () =>
+    createMockService({
+      findTradeOpportunities: [mockData.tradeOpportunity.basic()]
+    }),
+
+  tradeValueCalculator: () =>
+    createMockService({
+      assessTrade: mockData.tradeAssessment.fair()
+    }),
+
+  rosterAnalyzer: () =>
+    createMockService({
+      analyzeRoster: (playerIds: string[]) => {
+        if (playerIds.includes('strong_rb')) {
+          return mockData.rosterAnalysis.rbStrong();
+        }
+        return mockData.rosterAnalysis.wrStrong();
       }
-      return mockData.rosterAnalysis.wrStrong();
-    }
-  })
+    })
 };
 
 /**
- * FAAB service mock factories  
+ * FAAB service mock factories
  */
 export const faabServiceMocks = {
-  biddingAnalyzer: () => createMockService({
-    analyzeSimilarPlayers: mockData.faabAnalysis.biddingData()
-  }),
-  
-  playerValueAssessor: () => createMockService({
-    assessValue: mockData.faabAnalysis.playerValue()
-  }),
-  
-  budgetTracker: () => createMockService({
-    getBudgetStatus: mockData.faabAnalysis.budget()
-  }),
-  
-  bidCalculator: () => createMockService({
-    calculateOptimalBid: mockData.faabAnalysis.bidRecommendation()
-  })
+  biddingAnalyzer: () =>
+    createMockService({
+      analyzeSimilarPlayers: mockData.faabAnalysis.biddingData()
+    }),
+
+  playerValueAssessor: () =>
+    createMockService({
+      assessValue: mockData.faabAnalysis.playerValue()
+    }),
+
+  budgetTracker: () =>
+    createMockService({
+      getBudgetStatus: mockData.faabAnalysis.budget()
+    }),
+
+  bidCalculator: () =>
+    createMockService({
+      calculateOptimalBid: mockData.faabAnalysis.bidRecommendation()
+    })
 };
 
 import { Services as FaabServices } from '../faab/faab-optimizer';
 import { Services as TradeServices } from '../trades/trade-scanner';
-
-
 
 /**
  * Generic test helper for service tests
