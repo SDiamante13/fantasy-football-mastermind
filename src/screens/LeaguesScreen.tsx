@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { useSleeperUser, useUserLeagues } from '../hooks/useSleeperApi';
 
 export function LeaguesScreen(): React.JSX.Element {

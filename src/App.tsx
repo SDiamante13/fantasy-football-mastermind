@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
 import { HomeScreen } from './screens/HomeScreen';
 import { LeaguesScreen } from './screens/LeaguesScreen';
 import { PlayersScreen } from './screens/PlayersScreen';
