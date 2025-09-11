@@ -1,4 +1,4 @@
-import { commonExpectations, tradeServiceMocks } from '../test-utils';
+import { commonExpectations, tradeServiceMocks } from '../test-utils/core-helpers';
 
 import { TradeOpportunityDetector, TradeValueCalculator, RosterAnalyzer } from './trade-scanner';
 import { createTradeScanner } from './trade-scanner';

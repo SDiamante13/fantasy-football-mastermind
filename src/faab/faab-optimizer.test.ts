@@ -1,4 +1,4 @@
-import { commonExpectations } from '../test-utils';
+import { commonExpectations } from '../test-utils/core-helpers';
 
 import { createFAABOptimizer } from './faab-optimizer';
 

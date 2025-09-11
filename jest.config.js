@@ -12,5 +12,8 @@ module.exports = {
     '!src/**/*.tsx',
     '!src/setupTests.ts',
     '!src/setupTests.mobile.ts'
+  ],
+  transformIgnorePatterns: [
+    'node_modules/(?!(react-native|@react-native|@testing-library/react-native)/)'
   ]
 };
