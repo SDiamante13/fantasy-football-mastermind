@@ -19,3 +19,11 @@ This app uses Sleeper API. Read the docs in docs/sleeper-api.md.
 - tests should always be asserting on behaviors not implementation details
 - Refactor often, but avoid over-engineering. There's a fine balance
 - Prefer stubbed functions passed in, rather than using jest mocks
+
+## Commiting and Pushing
+
+After completing a task do the following:
+
+- `npm run setup` (enables husky hooks)
+- add files and commit (short message with high level details), don't include Claude Code or Happy as editor
+- `git push` 
