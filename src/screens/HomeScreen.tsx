@@ -5,9 +5,44 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export function HomeScreen(): React.JSX.Element {
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Fantasy Football Mastermind</Text>
-        <Text style={styles.subtitle}>Welcome to your fantasy football command center</Text>
+      <View 
+        style={styles.content}
+        accessibilityRole="none"
+        accessibilityLabel="Fantasy Football Mastermind home screen"
+      >
+        <Text 
+          style={styles.title}
+          accessibilityRole="header"
+          accessibilityLabel="Fantasy Football Mastermind - Main application title"
+        >
+          Fantasy Football Mastermind
+        </Text>
+        <Text 
+          style={styles.subtitle}
+          accessibilityRole="text"
+          accessibilityLabel="Welcome message: Your fantasy football command center"
+        >
+          Welcome to your fantasy football command center
+        </Text>
+        <View style={styles.featuresContainer}>
+          <Text 
+            style={styles.featuresTitle}
+            accessibilityRole="header"
+          >
+            Features
+          </Text>
+          <View style={styles.featuresList}>
+            <Text style={styles.featureItem} accessibilityRole="text">
+              • View and manage your fantasy leagues
+            </Text>
+            <Text style={styles.featureItem} accessibilityRole="text">
+              • Search and analyze player statistics
+            </Text>
+            <Text style={styles.featureItem} accessibilityRole="text">
+              • Access comprehensive analytics dashboard
+            </Text>
+          </View>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -16,24 +51,47 @@ export function HomeScreen(): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f5f5f5'
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: 20
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: 'center'
   },
   subtitle: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
+    marginBottom: 30
   },
+  featuresContainer: {
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center'
+  },
+  featuresTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 15,
+    textAlign: 'center'
+  },
+  featuresList: {
+    alignItems: 'flex-start',
+    width: '100%'
+  },
+  featureItem: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 8,
+    lineHeight: 20
+  }
 });

@@ -1,4 +1,5 @@
 import { createFAABOptimizer } from './faab-optimizer';
+import { createFaabServiceMocks, commonExpectations } from '../test-utils/unit-test-helpers';
 
 type MockServices = {
   biddingAnalyzer: {
@@ -121,9 +122,9 @@ const createMockServices = (): MockServices => ({
 
 describe('FAAB Optimizer', () => {
   it('provides comprehensive bid recommendations integrating all services', () => {
-    const mockServices = createMockServices();
-
+    const mockServices = createFaabServiceMocks();
     const optimizer = createFAABOptimizer(mockServices);
+    
     const recommendation = optimizer.getOptimalBid({
       playerId: 'rb_handcuff_123',
       position: 'RB',
@@ -131,11 +132,11 @@ describe('FAAB Optimizer', () => {
       leagueId: 'league789'
     });
 
-    expect(recommendation.recommendedBid).toBe(34);
-    expect(recommendation.winProbability).toBe(0.74);
-    expect(recommendation.strategy).toBe('balanced');
-    expect(recommendation.playerValue.tier).toBe('medium');
-    expect(recommendation.budgetImpact.remaining).toBe(135);
-    expect(recommendation.confidence).toBe('high');
+    commonExpectations.toBe(recommendation.recommendedBid, 34);
+    commonExpectations.toBe(recommendation.winProbability, 0.74);
+    commonExpectations.toBe(recommendation.strategy, 'balanced');
+    commonExpectations.toBe(recommendation.playerValue.tier, 'medium');
+    commonExpectations.toBe(recommendation.budgetImpact.remaining, 135);
+    commonExpectations.toBe(recommendation.confidence, 'high');
   });
 });

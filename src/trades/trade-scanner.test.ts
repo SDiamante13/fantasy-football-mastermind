@@ -1,89 +1,17 @@
 import { createTradeScanner } from './trade-scanner';
+import { createTradeServiceMocks, commonExpectations } from '../test-utils/unit-test-helpers';
 
-type MockServices = {
-  tradeOpportunityDetector: {
-    findTradeOpportunities: () => Array<{ teamA: string; teamB: string; mutualBenefit: number }>;
-  };
-  tradeValueCalculator: {
-    assessTrade: () => {
-      teamAValueDiff: number;
-      teamBValueDiff: number;
-      fairness: 'fair';
-      totalValue: number;
-    };
-  };
-  rosterAnalyzer: {
-    analyzeRoster: (playerIds: string[]) => {
-      strengths: string[];
-      weaknesses: string[];
-      overallScore: number;
-      positionScores: Record<string, number>;
-    };
-  };
-};
-
-const createMockOpportunityDetector = (): MockServices['tradeOpportunityDetector'] => ({
-  findTradeOpportunities: (): Array<{ teamA: string; teamB: string; mutualBenefit: number }> => [
-    { teamA: 'team_strong_rb', teamB: 'team_strong_wr', mutualBenefit: 1 }
-  ]
-});
-
-const createMockValueCalculator = (): MockServices['tradeValueCalculator'] => ({
-  assessTrade: (): {
-    teamAValueDiff: number;
-    teamBValueDiff: number;
-    fairness: 'fair';
-    totalValue: number;
-  } => ({
-    teamAValueDiff: 3,
-    teamBValueDiff: -3,
-    fairness: 'fair' as const,
-    totalValue: 165
-  })
-});
-
-const createMockRosterAnalyzer2 = (): MockServices['rosterAnalyzer'] => ({
-  analyzeRoster: (
-    playerIds: string[]
-  ): {
-    strengths: string[];
-    weaknesses: string[];
-    overallScore: number;
-    positionScores: Record<string, number>;
-  } => {
-    if (playerIds.includes('strong_rb')) {
-      return {
-        strengths: ['RB'],
-        weaknesses: ['WR'],
-        overallScore: 78,
-        positionScores: { RB: 92, WR: 45 }
-      };
-    }
-    return {
-      strengths: ['WR'],
-      weaknesses: ['RB'],
-      overallScore: 76,
-      positionScores: { WR: 88, RB: 42 }
-    };
-  }
-});
-
-const createMockServices = (): MockServices => ({
-  tradeOpportunityDetector: createMockOpportunityDetector(),
-  tradeValueCalculator: createMockValueCalculator(),
-  rosterAnalyzer: createMockRosterAnalyzer2()
-});
 
 describe('Trade Scanner', () => {
   it('[TEST] provides comprehensive trade opportunity analysis for league', () => {
-    const mockServices = createMockServices();
-
+    const mockServices = createTradeServiceMocks();
     const scanner = createTradeScanner(mockServices);
+    
     const results = scanner.scanForTrades('league_456');
 
-    expect(results.opportunities).toHaveLength(1);
-    expect(results.opportunities[0].recommended).toBe(true);
-    expect(results.opportunities[0].confidence).toBe('high');
-    expect(results.totalOpportunities).toBe(1);
+    commonExpectations.toHaveLength(results.opportunities, 1);
+    commonExpectations.toBe(results.opportunities[0].recommended, true);
+    commonExpectations.toBe(results.opportunities[0].confidence, 'high');
+    commonExpectations.toBe(results.totalOpportunities, 1);
   });
 });

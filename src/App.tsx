@@ -10,39 +10,47 @@ import { AnalyticsScreen } from './screens/AnalyticsScreen';
 
 const Tab = createBottomTabNavigator();
 
-export default function App(): React.JSX.Element {
-  return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Tab.Navigator
-          screenOptions={{
-            headerShown: true,
-            tabBarActiveTintColor: '#2196F3',
-            tabBarInactiveTintColor: '#757575',
-          }}
-        >
-          <Tab.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{ title: 'Home' }}
-          />
-          <Tab.Screen
-            name="Leagues"
-            component={LeaguesScreen}
-            options={{ title: 'Leagues' }}
-          />
-          <Tab.Screen
-            name="Players"
-            component={PlayersScreen}
-            options={{ title: 'Players' }}
-          />
-          <Tab.Screen
-            name="Analytics"
-            component={AnalyticsScreen}
-            options={{ title: 'Analytics' }}
-          />
-        </Tab.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
-  );
-}
+const createTabScreens = (): React.JSX.Element => (
+  <>
+    <Tab.Screen
+      name="Home"
+      component={HomeScreen}
+      options={{ title: 'Home' }}
+    />
+    <Tab.Screen
+      name="Leagues"
+      component={LeaguesScreen}
+      options={{ title: 'Leagues' }}
+    />
+    <Tab.Screen
+      name="Players"
+      component={PlayersScreen}
+      options={{ title: 'Players' }}
+    />
+    <Tab.Screen
+      name="Analytics"
+      component={AnalyticsScreen}
+      options={{ title: 'Analytics' }}
+    />
+  </>
+);
+
+const createTabNavigator = (): React.JSX.Element => (
+  <Tab.Navigator
+    screenOptions={{
+      headerShown: true,
+      tabBarActiveTintColor: '#2196F3',
+      tabBarInactiveTintColor: '#757575',
+    }}
+  >
+    {createTabScreens()}
+  </Tab.Navigator>
+);
+
+export const App = (): React.JSX.Element => (
+  <SafeAreaProvider>
+    <NavigationContainer>
+      {createTabNavigator()}
+    </NavigationContainer>
+  </SafeAreaProvider>
+);

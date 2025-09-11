@@ -2,162 +2,221 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+type TabType = 'trades' | 'faab' | 'waivers';
+
+const handleFeaturePress = (feature: string): void => {
+  Alert.alert(
+    'Feature Coming Soon',
+    `${feature} analysis will be available soon! The backend systems are already built and ready to integrate.`,
+    [{ text: 'OK' }]
+  );
+};
+
+const FeatureCard = ({
+  title,
+  description,
+  onPress
+}: {
+  title: string;
+  description: string;
+  onPress: () => void;
+}): React.JSX.Element => (
+  <TouchableOpacity 
+    style={styles.featureCard} 
+    onPress={onPress}
+    accessibilityRole="button"
+    accessibilityLabel={`${title}: ${description}`}
+    accessibilityHint="Tap to learn more about this feature"
+  >
+    <Text 
+      style={styles.featureTitle}
+      accessibilityRole="header"
+    >
+      {title}
+    </Text>
+    <Text 
+      style={styles.featureDescription}
+      accessibilityRole="text"
+    >
+      {description}
+    </Text>
+  </TouchableOpacity>
+);
+
+const TradesTab = (): React.JSX.Element => (
+  <ScrollView 
+    style={styles.tabContent}
+    accessibilityLabel="Trade analysis features"
+  >
+    <Text 
+      style={styles.sectionTitle}
+      accessibilityRole="header"
+    >
+      Trade Analysis
+    </Text>
+    <FeatureCard
+      title="Trade Opportunity Scanner"
+      description="Automatically scan all teams in your league to find potential trade opportunities based on roster needs and player values."
+      onPress={() => handleFeaturePress('Trade Opportunity Scanner')}
+    />
+    <FeatureCard
+      title="Trade Value Calculator"
+      description="Evaluate trade proposals with advanced metrics including positional scarcity and team context."
+      onPress={() => handleFeaturePress('Trade Value Calculator')}
+    />
+    <FeatureCard
+      title="Roster Analysis"
+      description="Deep dive into roster strengths, weaknesses, and improvement opportunities for every team."
+      onPress={() => handleFeaturePress('Roster Analysis')}
+    />
+  </ScrollView>
+);
+
+const FaabTab = (): React.JSX.Element => (
+  <ScrollView 
+    style={styles.tabContent}
+    accessibilityLabel="FAAB optimization features"
+  >
+    <Text 
+      style={styles.sectionTitle}
+      accessibilityRole="header"
+    >
+      FAAB Optimization
+    </Text>
+    <FeatureCard
+      title="FAAB Optimizer"
+      description="Calculate optimal bid amounts based on player value, remaining budget, and league competition."
+      onPress={() => handleFeaturePress('FAAB Optimizer')}
+    />
+    <FeatureCard
+      title="Budget Tracker"
+      description="Track FAAB spending across the league and identify budget management strategies."
+      onPress={() => handleFeaturePress('Budget Tracker')}
+    />
+    <FeatureCard
+      title="Bidding Analyzer"
+      description="Analyze historical bidding patterns to predict optimal bid amounts for waiver targets."
+      onPress={() => handleFeaturePress('Bidding Analyzer')}
+    />
+  </ScrollView>
+);
+
+const WaiversTab = (): React.JSX.Element => (
+  <ScrollView 
+    style={styles.tabContent}
+    accessibilityLabel="Waiver analysis features"
+  >
+    <Text 
+      style={styles.sectionTitle}
+      accessibilityRole="header"
+    >
+      Waiver Analysis
+    </Text>
+    <FeatureCard
+      title="Smart Waiver Suggestions"
+      description="Get personalized waiver wire recommendations based on your roster needs and league trends."
+      onPress={() => handleFeaturePress('Waiver Suggestions')}
+    />
+    <FeatureCard
+      title="Priority Scorer"
+      description="Rank waiver targets by priority score considering your roster, league format, and matchups."
+      onPress={() => handleFeaturePress('Priority Scorer')}
+    />
+    <FeatureCard
+      title="Waiver Checker"
+      description="Monitor waiver wire activity and get notifications for high-value player drops."
+      onPress={() => handleFeaturePress('Waiver Checker')}
+    />
+  </ScrollView>
+);
+
+const TabButton = ({
+  tab,
+  activeTab,
+  onPress,
+  title
+}: {
+  tab: TabType;
+  activeTab: TabType;
+  onPress: () => void;
+  title: string;
+}): React.JSX.Element => {
+  const isSelected = activeTab === tab;
+  
+  return (
+    <TouchableOpacity
+      style={[styles.tabButton, isSelected && styles.activeTabButton]}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${title} analytics tab`}
+      accessibilityState={{ selected: isSelected }}
+      accessibilityHint={`Switch to ${title.toLowerCase()} analytics view`}
+    >
+      <Text style={[styles.tabButtonText, isSelected && styles.activeTabButtonText]}>
+        {title}
+      </Text>
+    </TouchableOpacity>
+  );
+};
+
+const createTabButton = (
+  tab: TabType,
+  title: string,
+  activeTab: TabType,
+  setActiveTab: (tab: TabType) => void
+): React.JSX.Element => (
+  <TabButton tab={tab} activeTab={activeTab} onPress={() => setActiveTab(tab)} title={title} />
+);
+
+const TabButtons = ({
+  activeTab,
+  setActiveTab
+}: {
+  activeTab: TabType;
+  setActiveTab: (tab: TabType) => void;
+}): React.JSX.Element => (
+  <View 
+    style={styles.tabButtons}
+    accessibilityLabel="Analytics categories"
+  >
+    {createTabButton('trades', 'Trades', activeTab, setActiveTab)}
+    {createTabButton('faab', 'FAAB', activeTab, setActiveTab)}
+    {createTabButton('waivers', 'Waivers', activeTab, setActiveTab)}
+  </View>
+);
+
+const renderTabContent = (activeTab: TabType): React.JSX.Element => {
+  switch (activeTab) {
+    case 'trades':
+      return <TradesTab />;
+    case 'faab':
+      return <FaabTab />;
+    case 'waivers':
+      return <WaiversTab />;
+    default:
+      return <TradesTab />;
+  }
+};
+
 export function AnalyticsScreen(): React.JSX.Element {
-  const [activeTab, setActiveTab] = useState<'trades' | 'faab' | 'waivers'>('trades');
-
-  const handleFeaturePress = (feature: string) => {
-    Alert.alert(
-      'Feature Coming Soon',
-      `${feature} analysis will be available soon! The backend systems are already built and ready to integrate.`,
-      [{ text: 'OK' }]
-    );
-  };
-
-  const renderTradesTab = () => (
-    <ScrollView style={styles.tabContent}>
-      <Text style={styles.sectionTitle}>Trade Analysis</Text>
-      
-      <TouchableOpacity 
-        style={styles.featureCard}
-        onPress={() => handleFeaturePress('Trade Opportunity Scanner')}
-      >
-        <Text style={styles.featureTitle}>Trade Opportunity Scanner</Text>
-        <Text style={styles.featureDescription}>
-          Automatically scan all teams in your league to find potential trade opportunities based on roster needs and player values.
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.featureCard}
-        onPress={() => handleFeaturePress('Trade Value Calculator')}
-      >
-        <Text style={styles.featureTitle}>Trade Value Calculator</Text>
-        <Text style={styles.featureDescription}>
-          Evaluate trade proposals with advanced metrics including positional scarcity and team context.
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.featureCard}
-        onPress={() => handleFeaturePress('Roster Analysis')}
-      >
-        <Text style={styles.featureTitle}>Roster Analysis</Text>
-        <Text style={styles.featureDescription}>
-          Deep dive into roster strengths, weaknesses, and improvement opportunities for every team.
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
-  );
-
-  const renderFaabTab = () => (
-    <ScrollView style={styles.tabContent}>
-      <Text style={styles.sectionTitle}>FAAB Optimization</Text>
-      
-      <TouchableOpacity 
-        style={styles.featureCard}
-        onPress={() => handleFeaturePress('FAAB Optimizer')}
-      >
-        <Text style={styles.featureTitle}>FAAB Optimizer</Text>
-        <Text style={styles.featureDescription}>
-          Calculate optimal bid amounts based on player value, remaining budget, and league competition.
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.featureCard}
-        onPress={() => handleFeaturePress('Budget Tracker')}
-      >
-        <Text style={styles.featureTitle}>Budget Tracker</Text>
-        <Text style={styles.featureDescription}>
-          Track FAAB spending across the league and identify budget management strategies.
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.featureCard}
-        onPress={() => handleFeaturePress('Bidding Analyzer')}
-      >
-        <Text style={styles.featureTitle}>Bidding Analyzer</Text>
-        <Text style={styles.featureDescription}>
-          Analyze historical bidding patterns to predict optimal bid amounts for waiver targets.
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
-  );
-
-  const renderWaiversTab = () => (
-    <ScrollView style={styles.tabContent}>
-      <Text style={styles.sectionTitle}>Waiver Analysis</Text>
-      
-      <TouchableOpacity 
-        style={styles.featureCard}
-        onPress={() => handleFeaturePress('Waiver Suggestions')}
-      >
-        <Text style={styles.featureTitle}>Smart Waiver Suggestions</Text>
-        <Text style={styles.featureDescription}>
-          Get personalized waiver wire recommendations based on your roster needs and league trends.
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.featureCard}
-        onPress={() => handleFeaturePress('Priority Scorer')}
-      >
-        <Text style={styles.featureTitle}>Priority Scorer</Text>
-        <Text style={styles.featureDescription}>
-          Rank waiver targets by priority score considering your roster, league format, and matchups.
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.featureCard}
-        onPress={() => handleFeaturePress('Waiver Checker')}
-      >
-        <Text style={styles.featureTitle}>Waiver Checker</Text>
-        <Text style={styles.featureDescription}>
-          Monitor waiver wire activity and get notifications for high-value player drops.
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
-  );
+  const [activeTab, setActiveTab] = useState<TabType>('trades');
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Analytics</Text>
-        
-        <View style={styles.tabButtons}>
-          <TouchableOpacity
-            style={[styles.tabButton, activeTab === 'trades' && styles.activeTabButton]}
-            onPress={() => setActiveTab('trades')}
-          >
-            <Text style={[styles.tabButtonText, activeTab === 'trades' && styles.activeTabButtonText]}>
-              Trades
-            </Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={[styles.tabButton, activeTab === 'faab' && styles.activeTabButton]}
-            onPress={() => setActiveTab('faab')}
-          >
-            <Text style={[styles.tabButtonText, activeTab === 'faab' && styles.activeTabButtonText]}>
-              FAAB
-            </Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={[styles.tabButton, activeTab === 'waivers' && styles.activeTabButton]}
-            onPress={() => setActiveTab('waivers')}
-          >
-            <Text style={[styles.tabButtonText, activeTab === 'waivers' && styles.activeTabButtonText]}>
-              Waivers
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {activeTab === 'trades' && renderTradesTab()}
-        {activeTab === 'faab' && renderFaabTab()}
-        {activeTab === 'waivers' && renderWaiversTab()}
+      <View 
+        style={styles.content}
+        accessibilityRole="none"
+        accessibilityLabel="Analytics screen content"
+      >
+        <Text 
+          style={styles.title}
+          accessibilityRole="header"
+          accessibilityLabel="Analytics - Fantasy football analysis tools"
+        >
+          Analytics
+        </Text>
+        <TabButtons activeTab={activeTab} setActiveTab={setActiveTab} />
+        {renderTabContent(activeTab)}
       </View>
     </SafeAreaView>
   );
@@ -166,21 +225,21 @@ export function AnalyticsScreen(): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f5f5f5'
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: 20
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 20,
+    marginBottom: 20
   },
   tabButtons: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: 20
   },
   tabButton: {
     flex: 1,
@@ -190,28 +249,28 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     alignItems: 'center',
-    marginHorizontal: 2,
+    marginHorizontal: 2
   },
   activeTabButton: {
     backgroundColor: '#2196F3',
-    borderColor: '#2196F3',
+    borderColor: '#2196F3'
   },
   tabButtonText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#666',
+    color: '#666'
   },
   activeTabButtonText: {
-    color: 'white',
+    color: 'white'
   },
   tabContent: {
-    flex: 1,
+    flex: 1
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 15,
+    marginBottom: 15
   },
   featureCard: {
     backgroundColor: 'white',
@@ -222,17 +281,17 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
-    elevation: 2,
+    elevation: 2
   },
   featureTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 8,
+    marginBottom: 8
   },
   featureDescription: {
     fontSize: 14,
     color: '#666',
-    lineHeight: 20,
-  },
+    lineHeight: 20
+  }
 });
