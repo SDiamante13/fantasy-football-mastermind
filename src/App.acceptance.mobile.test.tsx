@@ -1,44 +1,24 @@
 import React from 'react';
+
 import { 
   render, 
   screen, 
-  waitFor, 
   setupUser, 
   expectVisible,
   typeInField,
   pressElement,
-  waitForElementToAppear,
-  createSleeperApiMocks
+  waitForElementToAppear
 } from './test-utils';
 import { HomeScreen } from './screens/HomeScreen';
 import { LeaguesScreen } from './screens/LeaguesScreen';
 import { PlayersScreen } from './screens/PlayersScreen';
+import { mockSleeperApi } from './test-utils/mock-api';
 
 // Mock the hooks to avoid actual API calls and skeleton animations
-jest.mock('./hooks/useSleeperApi', () => ({
-  useAllPlayers: () => ({
-    players: { 
-      'test-player-1': { 
-        player_id: 'test-player-1', 
-        full_name: 'Test Player', 
-        position: 'QB', 
-        team: 'TEST', 
-        active: true 
-      }
-    },
-    loading: false,
-    error: null
-  }),
-  useSleeperUser: (submittedUsername: string) => ({ 
-    user: submittedUsername ? { user_id: 'test-user-id', username: submittedUsername, display_name: submittedUsername } : null, 
-    loading: false, 
-    error: null 
-  }),
-  useUserLeagues: () => ({ leagues: [], loading: false, error: null })
-}));
+jest.mock('./hooks/useSleeperApi', () => mockSleeperApi);
 
 describe('Fantasy Football App', () => {
-  it('displays the home screen with welcome message', () => {
+  it('displays the home screen with welcome message', (): void => {
     render(<HomeScreen />);
     
     expectVisible(screen.getByRole('header', { name: /Fantasy Football Mastermind/i }));
@@ -46,7 +26,7 @@ describe('Fantasy Football App', () => {
     expectVisible(screen.getByRole('header', { name: /Features/i }));
   });
 
-  it('allows user to enter username and see their leagues', async () => {
+  it('allows user to enter username and see their leagues', async (): Promise<void> => {
     const user = setupUser();
     render(<LeaguesScreen />);
     
@@ -59,7 +39,7 @@ describe('Fantasy Football App', () => {
     await waitForElementToAppear(() => screen.getByText('testuser (@testuser)'));
   });
 
-  it('allows user to search and filter players by position', async () => {
+  it('allows user to search and filter players by position', async (): Promise<void> => {
     const user = setupUser();
     render(<PlayersScreen />);
     

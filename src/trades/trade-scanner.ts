@@ -1,4 +1,4 @@
-type TradeOpportunityDetector = {
+export type TradeOpportunityDetector = {
   findTradeOpportunities: (leagueId: string) => Array<{
     teamA: string;
     teamB: string;
@@ -11,7 +11,7 @@ type TradeProposal = {
   teamB: { playersGiving: string[]; playersReceiving: string[] };
 };
 
-type TradeValueCalculator = {
+export type TradeValueCalculator = {
   assessTrade: (proposal: TradeProposal) => {
     teamAValueDiff: number;
     teamBValueDiff: number;
@@ -20,7 +20,7 @@ type TradeValueCalculator = {
   };
 };
 
-type RosterAnalyzer = {
+export type RosterAnalyzer = {
   analyzeRoster: (playerIds: string[]) => {
     strengths: string[];
     weaknesses: string[];
@@ -29,7 +29,7 @@ type RosterAnalyzer = {
   };
 };
 
-type Services = {
+export type Services = {
   tradeOpportunityDetector: TradeOpportunityDetector;
   tradeValueCalculator: TradeValueCalculator;
   rosterAnalyzer: RosterAnalyzer;

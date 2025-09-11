@@ -1,10 +1,16 @@
+import { commonExpectations, tradeServiceMocks } from '../test-utils';
+import { TradeOpportunityDetector, TradeValueCalculator, RosterAnalyzer } from './trade-scanner';
+
 import { createTradeScanner } from './trade-scanner';
-import { createTradeServiceMocks, commonExpectations } from '../test-utils/unit-test-helpers';
 
 
 describe('Trade Scanner', () => {
   it('[TEST] provides comprehensive trade opportunity analysis for league', () => {
-    const mockServices = createTradeServiceMocks();
+    const mockServices = {
+      tradeOpportunityDetector: tradeServiceMocks.tradeOpportunityDetector() as TradeOpportunityDetector,
+      tradeValueCalculator: tradeServiceMocks.tradeValueCalculator() as TradeValueCalculator,
+      rosterAnalyzer: tradeServiceMocks.rosterAnalyzer() as RosterAnalyzer,
+    };
     const scanner = createTradeScanner(mockServices);
     
     const results = scanner.scanForTrades('league_456');

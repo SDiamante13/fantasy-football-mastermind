@@ -1,19 +1,16 @@
-// Setup for mobile tests
+import React from 'react';
 
-jest.mock('@react-navigation/native', () => {
-  const React = require('react');
-  return {
-    NavigationContainer: ({ children }: { children: React.ReactNode }) => children,
-  };
-});
+// Setup for mobile tests
+jest.mock('@react-navigation/native', () => ({
+  NavigationContainer: ({ children }: { children: React.ReactNode }) => children,
+}));
 
 jest.mock('@react-navigation/bottom-tabs', () => {
-  const React = require('react');
   let isFirstScreen = true;
   return {
     createBottomTabNavigator: () => ({
       Navigator: ({ children }: { children: React.ReactNode }) => children,
-      Screen: ({ component: Component, name }: { component?: React.ComponentType; name?: string }) => {
+      Screen: ({ component: Component }: { component?: React.ComponentType }) => {
         // Only render the first screen (Home) by default in tests
         if (Component && isFirstScreen) {
           isFirstScreen = false;

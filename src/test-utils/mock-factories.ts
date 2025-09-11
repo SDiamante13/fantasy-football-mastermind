@@ -1,9 +1,4 @@
 /**
- * Generic factory for creating consistent mock services
- */
-type MockFactory<T> = () => T;
-
-/**
  * Creates a mock service with predictable return values
  */
 export const createMockService = <T extends Record<string, (...args: any[]) => any>>(
@@ -170,24 +165,10 @@ export const faabServiceMocks = {
   })
 };
 
-/**
- * Creates a complete mock service collection for trade tests
- */
-export const createTradeServiceMocks = () => ({
-  tradeOpportunityDetector: tradeServiceMocks.tradeOpportunityDetector(),
-  tradeValueCalculator: tradeServiceMocks.tradeValueCalculator(),
-  rosterAnalyzer: tradeServiceMocks.rosterAnalyzer()
-});
+import { Services as FaabServices } from '../faab/faab-optimizer';
+import { Services as TradeServices } from '../trades/trade-scanner';
 
-/**
- * Creates a complete mock service collection for FAAB tests
- */
-export const createFaabServiceMocks = () => ({
-  biddingAnalyzer: faabServiceMocks.biddingAnalyzer(),
-  playerValueAssessor: faabServiceMocks.playerValueAssessor(),
-  budgetTracker: faabServiceMocks.budgetTracker(),
-  bidCalculator: faabServiceMocks.bidCalculator()
-});
+
 
 /**
  * Generic test helper for service tests

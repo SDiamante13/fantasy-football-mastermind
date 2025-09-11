@@ -68,7 +68,7 @@ type BidCalculator = {
   };
 };
 
-type Services = {
+export type Services = {
   biddingAnalyzer: BiddingAnalyzer;
   playerValueAssessor: PlayerValueAssessor;
   budgetTracker: BudgetTracker;

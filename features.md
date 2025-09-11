@@ -37,6 +37,24 @@
 **When** I select them for pickup  
 **Then** system shows optimal bid based on: league's bid patterns, player value, my remaining budget
 
+### Feature: Safe Drop Analyzer
+**As a** competitive fantasy player  
+**I want** AI-powered analysis of which players I can safely drop  
+**So that** I can make roster moves with confidence and avoid dropping breakout candidates
+
+**Given** my current roster and available waiver targets  
+**When** I need to drop a player for a pickup  
+**Then** system ranks my droppable players by: declining snap share, target trends, injury risk, schedule difficulty, and breakout probability
+
+### Feature: 4-Game Opportunity Projections  
+**As a** strategic fantasy player  
+**I want** AI-powered projections for next 4 games based on opportunity metrics  
+**So that** I can identify buy-low candidates and make proactive roster moves
+
+**Given** current target share, carry trends, and upcoming matchups  
+**When** I view a player's outlook  
+**Then** system projects opportunities (targets/carries) for weeks 3-6 with confidence levels and key factors driving predictions
+
 ---
 
 ## Trade Analyzer

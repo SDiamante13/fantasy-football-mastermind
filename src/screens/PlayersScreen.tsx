@@ -38,6 +38,24 @@ const filterPlayers = (
     .slice(0, 50);
 };
 
+const PlayerHeader = ({ item }: { item: Player }): React.JSX.Element => (
+  <View style={styles.playerHeader}>
+    <Text 
+      style={styles.playerName}
+      accessibilityRole="header"
+    >
+      {item.full_name}
+    </Text>
+    <View 
+      style={styles.playerBadge}
+      accessibilityRole="text"
+      accessibilityLabel={`Position: ${item.position}`}
+    >
+      <Text style={styles.positionText}>{item.position}</Text>
+    </View>
+  </View>
+);
+
 const renderPlayer = ({ item }: { item: Player }): React.JSX.Element => {
   const team = item.team || 'Free Agent';
   const experience = item.years_exp !== undefined ? `${item.years_exp} years experience` : 'Experience not available';
@@ -49,21 +67,7 @@ const renderPlayer = ({ item }: { item: Player }): React.JSX.Element => {
       accessibilityRole="none"
       accessibilityLabel={accessibilityLabel}
     >
-      <View style={styles.playerHeader}>
-        <Text 
-          style={styles.playerName}
-          accessibilityRole="header"
-        >
-          {item.full_name}
-        </Text>
-        <View 
-          style={styles.playerBadge}
-          accessibilityRole="text"
-          accessibilityLabel={`Position: ${item.position}`}
-        >
-          <Text style={styles.positionText}>{item.position}</Text>
-        </View>
-      </View>
+      <PlayerHeader item={item} />
       <Text 
         style={styles.playerTeam}
         accessibilityRole="text"
@@ -82,19 +86,11 @@ const renderPlayer = ({ item }: { item: Player }): React.JSX.Element => {
   );
 };
 
-const SkeletonBox = ({ 
-  width, 
-  height, 
-  style 
-}: { 
-  width: number | string; 
-  height: number; 
-  style?: any;
-}): React.JSX.Element => {
+const useSkeletonAnimation = () => {
   const animatedValue = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
-    const startAnimation = () => {
+    const startAnimation = (): void => {
       Animated.sequence([
         Animated.timing(animatedValue, {
           toValue: 1,
@@ -111,10 +107,22 @@ const SkeletonBox = ({
     startAnimation();
   }, [animatedValue]);
 
-  const backgroundColor = animatedValue.interpolate({
+  return animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['#e0e0e0', '#f0f0f0'],
   });
+};
+
+const SkeletonBox = ({ 
+  width, 
+  height, 
+  style 
+}: { 
+  width: number | string; 
+  height: number; 
+  style?: import('react-native').ViewStyle;
+}): React.JSX.Element => {
+  const backgroundColor = useSkeletonAnimation();
 
   return (
     <Animated.View
@@ -124,7 +132,7 @@ const SkeletonBox = ({
           height,
           backgroundColor,
           borderRadius: 4,
-        },
+        } as any,
         style,
       ]}
     />
@@ -188,6 +196,14 @@ const LoadingView = (): React.JSX.Element => (
   </SafeAreaView>
 );
 
+const ErrorMessage = ({ error }: { error: string }): React.JSX.Element => (
+  <Text style={styles.errorMessage}>
+    {error.includes('network') || error.includes('fetch') 
+      ? 'Please check your internet connection and try again.' 
+      : 'There was a problem loading player data from Sleeper API.'}
+  </Text>
+);
+
 const ErrorView = ({ error }: { error: string }): React.JSX.Element => (
   <SafeAreaView style={styles.container}>
     <View style={styles.content}>
@@ -196,11 +212,7 @@ const ErrorView = ({ error }: { error: string }): React.JSX.Element => (
           <Text style={styles.errorIconText}>⚠️</Text>
         </View>
         <Text style={styles.errorTitle}>Unable to Load Players</Text>
-        <Text style={styles.errorMessage}>
-          {error.includes('network') || error.includes('fetch') 
-            ? 'Please check your internet connection and try again.' 
-            : 'There was a problem loading player data from Sleeper API.'}
-        </Text>
+        <ErrorMessage error={error} />
         <View style={styles.errorActions}>
           <Text style={styles.errorSuggestion}>
             • Check your internet connection{'\n'}
@@ -345,6 +357,13 @@ const PlayersContentLayout = ({ children }: { children: React.ReactNode }): Reac
   </View>
 );
 
+const PlayersListContainer = ({ players }: { players: Player[] }): React.JSX.Element => (
+  <>
+    <PlayersResultCount count={players.length} />
+    <PlayersList players={players} />
+  </>
+);
+
 const PlayersContent = ({
   searchTerm,
   setSearchTerm,
@@ -361,8 +380,7 @@ const PlayersContent = ({
       selectedPosition={selectedPosition}
       setSelectedPosition={setSelectedPosition}
     />
-    <PlayersResultCount count={filteredPlayers.length} />
-    <PlayersList players={filteredPlayers} />
+    <PlayersListContainer players={filteredPlayers} />
   </PlayersContentLayout>
 );
 

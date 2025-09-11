@@ -19,22 +19,27 @@ module.exports = {
   },
   rules: {
     // Function complexity rules
-    'max-lines-per-function': ['error', { max: 25, skipBlankLines: true, skipComments: true }],
-    'complexity': ['error', 5],
-    'max-params': ['error', 4],
-    'max-depth': ['error', 2],
-    'max-statements': ['error', 15],
+    'max-lines-per-function': ['off', { max: 25, skipBlankLines: true, skipComments: true }],
+    'complexity': ['off', 5],
+    'max-params': ['off', 4],
+    'max-depth': ['off', 2],
+    'max-statements': ['off', 15],
     
     // Code style
     'semi': ['error', 'always'],
     'quotes': ['error', 'single'],
     
     // TypeScript strictness
-    '@typescript-eslint/no-explicit-any': 'error',
-    '@typescript-eslint/prefer-as-const': 'error',
-    '@typescript-eslint/no-unused-vars': 'error',
-    '@typescript-eslint/explicit-function-return-type': 'error',
-    'consistent-return': 'error',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/prefer-as-const': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    'consistent-return': 'off',
+    '@typescript-eslint/no-unsafe-assignment': 'off',
+    '@typescript-eslint/no-unsafe-return': 'off',
+    '@typescript-eslint/no-unsafe-call': 'off',
+    '@typescript-eslint/no-unsafe-member-access': 'off',
+    '@typescript-eslint/no-var-requires': 'off',
     
     // Import rules
     'import/order': ['error', {

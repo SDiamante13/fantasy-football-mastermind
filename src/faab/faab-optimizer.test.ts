@@ -1,5 +1,6 @@
+import { commonExpectations } from '../test-utils';
+
 import { createFAABOptimizer } from './faab-optimizer';
-import { createFaabServiceMocks, commonExpectations } from '../test-utils/unit-test-helpers';
 
 type MockServices = {
   biddingAnalyzer: {
@@ -113,16 +114,16 @@ const createMockBidCalculator = (): MockServices['bidCalculator'] => ({
   })
 });
 
-const createMockServices = (): MockServices => ({
-  biddingAnalyzer: createMockBiddingAnalyzer(),
-  playerValueAssessor: createMockPlayerValueAssessor(),
-  budgetTracker: createMockBudgetTracker(),
-  bidCalculator: createMockBidCalculator()
-});
+
 
 describe('FAAB Optimizer', () => {
   it('provides comprehensive bid recommendations integrating all services', () => {
-    const mockServices = createFaabServiceMocks();
+    const mockServices = {
+      biddingAnalyzer: createMockBiddingAnalyzer(),
+      playerValueAssessor: createMockPlayerValueAssessor(),
+      budgetTracker: createMockBudgetTracker(),
+      bidCalculator: createMockBidCalculator(),
+    };
     const optimizer = createFAABOptimizer(mockServices);
     
     const recommendation = optimizer.getOptimalBid({
