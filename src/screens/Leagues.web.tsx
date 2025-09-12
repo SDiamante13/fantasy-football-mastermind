@@ -71,7 +71,7 @@ export function LeaguesWeb(): React.JSX.Element {
             </button>
           </div>
         </form>
-        
+
         <div id="username-help" style={styles.helpText}>
           Enter your Sleeper username to view your fantasy leagues and rosters
         </div>
@@ -101,7 +101,7 @@ export function LeaguesWeb(): React.JSX.Element {
                     ...(selectedLeague === league.league_id ? styles.selectedLeagueCard : {})
                   }}
                   onClick={() => setSelectedLeague(league.league_id)}
-                  onKeyDown={(e) => handleLeagueKeyDown(e, league.league_id)}
+                  onKeyDown={e => handleLeagueKeyDown(e, league.league_id)}
                   tabIndex={0}
                   role="button"
                   aria-pressed={selectedLeague === league.league_id}
