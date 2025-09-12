@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 
 import { HomeScreenWeb } from './screens/HomeScreen.web';
+import { PlayersWeb } from './screens/Players.web';
 
-type TabName = 'Home' | 'Leagues' | 'Players' | 'Analytics' | 'Test';
+type TabName = 'Home' | 'Leagues' | 'Players' | 'Analytics';
 
-const tabNames: TabName[] = ['Home', 'Leagues', 'Players', 'Analytics', 'Test'];
+const tabNames: TabName[] = ['Home', 'Leagues', 'Players', 'Analytics'];
 
 const TabNavigation: React.FC<{
   activeTab: TabName;
@@ -40,27 +41,12 @@ const TabScreen: React.FC<{ tab: TabName }> = ({ tab }) => {
         </div>
       );
     case 'Players':
-      return (
-        <div style={styles.screenContainer}>
-          <h1>🏈 Players</h1>
-          <p>Player analysis and data will be shown here.</p>
-        </div>
-      );
+      return <PlayersWeb />;
     case 'Analytics':
       return (
         <div style={styles.screenContainer}>
           <h1>📊 Analytics</h1>
           <p>Fantasy analytics and insights coming soon.</p>
-        </div>
-      );
-    case 'Test':
-      return (
-        <div style={styles.screenContainer}>
-          <h1>🧪 Test</h1>
-          <div style={styles.testBox}>
-            <p style={styles.testBoxText}>Pure React Test Component</p>
-          </div>
-          <p>If you see this styled box, pure React rendering is working!</p>
         </div>
       );
     default:
