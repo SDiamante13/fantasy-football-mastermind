@@ -26,9 +26,12 @@ const AnalyticsTabNavigation: React.FC<{
   </div>
 );
 
-const OverviewCard: React.FC<{ title: string; value: string; description: string; icon: string }> = ({ 
-  title, value, description, icon 
-}) => (
+const OverviewCard: React.FC<{
+  title: string;
+  value: string;
+  description: string;
+  icon: string;
+}> = ({ title, value, description, icon }) => (
   <div style={styles.overviewCard}>
     <div style={styles.overviewCardIcon}>{icon}</div>
     <h3 style={styles.overviewCardTitle}>{title}</h3>
@@ -39,7 +42,7 @@ const OverviewCard: React.FC<{ title: string; value: string; description: string
 
 const OverviewTab: React.FC = () => {
   const { players, loading } = useAllPlayers();
-  
+
   if (loading) {
     return (
       <div style={styles.loadingContainer}>
@@ -82,7 +85,7 @@ const OverviewTab: React.FC = () => {
           icon="🎪"
         />
       </div>
-      
+
       <div style={styles.insightsSection}>
         <h2 style={styles.insightsTitle}>🔍 Fantasy Insights</h2>
         <div style={styles.insightsList}>
@@ -180,7 +183,7 @@ export function AnalyticsWeb(): React.JSX.Element {
       </header>
 
       <AnalyticsTabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-      
+
       <main style={styles.mainContent}>
         <AnalyticsTabContent tab={activeTab} />
       </main>

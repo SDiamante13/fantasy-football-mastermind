@@ -25,7 +25,7 @@ const mockLeagues: MockLeague[] = [
     maxParticipants: 12
   },
   {
-    id: '2', 
+    id: '2',
     name: 'Friends & Family League',
     format: 'Standard',
     size: '10-Team',
@@ -37,7 +37,7 @@ const mockLeagues: MockLeague[] = [
     id: '3',
     name: 'High Stakes Superflex',
     format: 'Superflex',
-    size: '12-Team', 
+    size: '12-Team',
     status: 'Draft',
     draftDate: '2024-09-01',
     participants: 10,
@@ -48,19 +48,27 @@ const mockLeagues: MockLeague[] = [
 const LeagueCard: React.FC<{ league: MockLeague }> = ({ league }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Active': return '#28a745';
-      case 'Draft': return '#ffc107';
-      case 'Complete': return '#6c757d';
-      default: return '#007bff';
+      case 'Active':
+        return '#28a745';
+      case 'Draft':
+        return '#ffc107';
+      case 'Complete':
+        return '#6c757d';
+      default:
+        return '#007bff';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'Active': return '🏆';
-      case 'Draft': return '📝';
-      case 'Complete': return '✅';
-      default: return '⚽';
+      case 'Active':
+        return '🏆';
+      case 'Draft':
+        return '📝';
+      case 'Complete':
+        return '✅';
+      default:
+        return '⚽';
     }
   };
 
@@ -68,7 +76,7 @@ const LeagueCard: React.FC<{ league: MockLeague }> = ({ league }) => {
     <div style={styles.leagueCard}>
       <div style={styles.leagueHeader}>
         <h3 style={styles.leagueName}>{league.name}</h3>
-        <div 
+        <div
           style={{
             ...styles.statusBadge,
             backgroundColor: getStatusColor(league.status)
@@ -78,7 +86,7 @@ const LeagueCard: React.FC<{ league: MockLeague }> = ({ league }) => {
           {league.status}
         </div>
       </div>
-      
+
       <div style={styles.leagueDetails}>
         <div style={styles.detailRow}>
           <span style={styles.detailLabel}>Format:</span>
@@ -90,7 +98,9 @@ const LeagueCard: React.FC<{ league: MockLeague }> = ({ league }) => {
         </div>
         <div style={styles.detailRow}>
           <span style={styles.detailLabel}>Participants:</span>
-          <span style={styles.detailValue}>{league.participants}/{league.maxParticipants}</span>
+          <span style={styles.detailValue}>
+            {league.participants}/{league.maxParticipants}
+          </span>
         </div>
         {league.draftDate && (
           <div style={styles.detailRow}>
@@ -99,7 +109,7 @@ const LeagueCard: React.FC<{ league: MockLeague }> = ({ league }) => {
           </div>
         )}
       </div>
-      
+
       <div style={styles.leagueActions}>
         <button style={styles.primaryButton}>View League</button>
         <button style={styles.secondaryButton}>Manage</button>
@@ -109,7 +119,7 @@ const LeagueCard: React.FC<{ league: MockLeague }> = ({ league }) => {
 };
 
 const CreateLeagueCard: React.FC<{ onClick: () => void }> = ({ onClick }) => (
-  <div style={{...styles.leagueCard, ...styles.createLeagueCard}} onClick={onClick}>
+  <div style={{ ...styles.leagueCard, ...styles.createLeagueCard }} onClick={onClick}>
     <div style={styles.createLeagueContent}>
       <div style={styles.createLeagueIcon}>➕</div>
       <h3 style={styles.createLeagueTitle}>Create New League</h3>
@@ -169,10 +179,7 @@ export function LeaguesWeb(): React.JSX.Element {
       <section style={styles.leaguesSection}>
         <div style={styles.sectionHeader}>
           <h2 style={styles.sectionTitle}>My Leagues</h2>
-          <button 
-            style={styles.primaryButton}
-            onClick={handleCreateLeague}
-          >
+          <button style={styles.primaryButton} onClick={handleCreateLeague}>
             ➕ Create League
           </button>
         </div>
