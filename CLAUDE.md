@@ -8,8 +8,45 @@ This app uses Sleeper API. Read the docs in docs/sleeper-api.md.
 - React Native
 - Typescript
 - @testing-library/react-native
+- @testing-library/react (for web)
+- Mock Service Worker (MSW) for API stubbing
 
-## Methodology
+## Testing & Quality Methodology
+
+### Core Testing Philosophy
+- **Outside-In TDD**: Start with RTL acceptance tests (user behavior), then unit tests for business logic
+- **Pragmatic Testing**: Don't over-test; focus on user-facing behavior and business logic
+- **Quality Gates**: All tests must pass before commit/push via Husky hooks
+
+### Test Strategy & Organization
+
+#### Test Types & File Structure:
+```
+src/
+├── __mocks__/api/*.json          # MSW stub data (obvious data source)
+├── **/*.contract.test.ts         # API contract tests (separate npm command)
+├── **/*.test.ts                  # Unit tests (business logic, calculations)
+├── **/*.web.test.tsx            # RTL acceptance tests (user behavior)
+└── setupTests.web.ts            # RTL + MSW configuration
+```
+
+#### TDD Workflow:
+1. **Contract Tests First** - For new APIs, establish contract with *.contract.test.ts
+2. **RTL Acceptance Tests** - Focus on "what user sees/does", not implementation details
+3. **Unit Tests** - Business logic, calculations, shared utilities only
+4. **MSW Stubbing** - All API calls stubbed with .json files for clear data sources
+
+#### Pragmatic Testing Guidelines:
+- **Test**: User interactions, business logic, shared components, error states
+- **Don't Test**: Simple presentational components, obvious getters/setters, trivial code
+- **Shared Components**: Test once to reduce redundant tests across features
+
+### Quality Enforcement:
+- Pre-commit: `npm run setup` + all tests pass
+- Focus on behavior over implementation details
+- Use RTL + MSW for realistic user scenarios
+
+## Development Methodology
 
 - Follow the test-driven development process
 - Clean up code as you go, code should be expressive (no need for comments, extract small functions)
