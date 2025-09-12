@@ -159,16 +159,16 @@ export function useAllPlayers(): UseAllPlayersReturn {
 
     const fetchPlayers = async (): Promise<void> => {
       if (!isMounted) return;
-      
+
       setLoading(true);
       setError(null);
-      
+
       try {
         const sleeperService = new SleeperApiService();
         const playersData = await sleeperService.getAllPlayers();
-        
+
         console.log('✅ Players loaded:', Object.keys(playersData).length, 'players');
-        
+
         if (isMounted && playersData) {
           setPlayers(prevPlayers => ({ ...playersData }));
           console.log('✅ Players state updated, new count:', Object.keys(playersData).length);

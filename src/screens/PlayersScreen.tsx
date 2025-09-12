@@ -63,15 +63,22 @@ const filterPlayers = (
   const searchFiltered = validPlayers.filter((player: Player) => matchesSearch(player, searchTerm));
   console.log('🔍 filterPlayers: After search filter:', searchFiltered.length);
 
-  const positionFiltered = searchFiltered.filter((player: Player) => matchesPosition(player, selectedPosition));
+  const positionFiltered = searchFiltered.filter((player: Player) =>
+    matchesPosition(player, selectedPosition)
+  );
   console.log('🔍 filterPlayers: After position filter:', positionFiltered.length);
 
-  const sorted = positionFiltered.sort((a: Player, b: Player) => a.full_name.localeCompare(b.full_name));
+  const sorted = positionFiltered.sort((a: Player, b: Player) =>
+    a.full_name.localeCompare(b.full_name)
+  );
   const final = sorted.slice(0, 50);
-  
+
   console.log('🔍 filterPlayers: Final result:', final.length, 'players');
   if (final.length > 0) {
-    console.log('🔍 filterPlayers: First few players:', final.slice(0, 3).map(p => p.full_name));
+    console.log(
+      '🔍 filterPlayers: First few players:',
+      final.slice(0, 3).map(p => p.full_name)
+    );
   }
 
   return final;
@@ -437,8 +444,12 @@ export function PlayersScreen(): React.JSX.Element {
     return <ErrorView error={error} />;
   }
 
-  console.log('📱 PlayersScreen: Rendering main content with', filteredPlayers.length, 'filtered players');
-  
+  console.log(
+    '📱 PlayersScreen: Rendering main content with',
+    filteredPlayers.length,
+    'filtered players'
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <PlayersContent

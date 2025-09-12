@@ -20,10 +20,10 @@ const filterPlayers = (
   const filtered = Object.values(players)
     .filter((player: Player) => {
       const hasName = Boolean(player.full_name);
-      const matchesSearch = searchTerm === '' || 
-        player.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch =
+        searchTerm === '' || player.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesPosition = selectedPosition === 'ALL' || player.position === selectedPosition;
-      
+
       return hasName && matchesSearch && matchesPosition;
     })
     .sort((a: Player, b: Player) => a.full_name.localeCompare(b.full_name))
@@ -44,7 +44,7 @@ const renderPlayer = ({ item }: { item: Player }): React.JSX.Element => (
 
 export function PlayersScreenWeb(): React.JSX.Element {
   console.log('🌐 PlayersScreenWeb: Component mounting');
-  
+
   const { players, loading, error } = useAllPlayers();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<string>('ALL');
@@ -82,7 +82,7 @@ export function PlayersScreenWeb(): React.JSX.Element {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🌐 Players (Web Test)</Text>
-      
+
       <TextInput
         style={styles.searchInput}
         value={searchTerm}
@@ -100,10 +100,12 @@ export function PlayersScreenWeb(): React.JSX.Element {
             ]}
             onPress={() => setSelectedPosition(position)}
           >
-            <Text style={[
-              styles.positionButtonText,
-              selectedPosition === position && styles.selectedPositionButtonText
-            ]}>
+            <Text
+              style={[
+                styles.positionButtonText,
+                selectedPosition === position && styles.selectedPositionButtonText
+              ]}
+            >
               {position}
             </Text>
           </TouchableOpacity>
