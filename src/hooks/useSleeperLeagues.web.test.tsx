@@ -5,11 +5,11 @@ import { useSleeperLeagues } from './useSleeperLeagues';
 describe('useSleeperLeagues', () => {
   it('should fetch Sleeper leagues when valid user ID provided', async () => {
     const { result } = renderHook(() => useSleeperLeagues());
-    
+
     await act(async () => {
       await result.current.fetchLeagues('123456');
     });
-    
+
     await waitFor(() => {
       expect(result.current.leagues).toHaveLength(2);
       expect(result.current.leagues[0]).toEqual({
@@ -23,11 +23,11 @@ describe('useSleeperLeagues', () => {
 
   it('should handle error when fetching leagues fails', async () => {
     const { result } = renderHook(() => useSleeperLeagues());
-    
+
     await act(async () => {
       await result.current.fetchLeagues('invalid');
     });
-    
+
     await waitFor(() => {
       expect(result.current.leagues).toEqual([]);
       expect(result.current.error).toBe('Failed to fetch leagues');

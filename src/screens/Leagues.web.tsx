@@ -7,7 +7,12 @@ export function LeaguesWeb(): React.JSX.Element {
   const [username, setUsername] = useState('');
   const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
   const { user, error, loading, fetchUser } = useSleeperUser();
-  const { leagues, error: leaguesError, loading: leaguesLoading, fetchLeagues } = useSleeperLeagues();
+  const {
+    leagues,
+    error: leaguesError,
+    loading: leaguesLoading,
+    fetchLeagues
+  } = useSleeperLeagues();
 
   useEffect(() => {
     if (user?.user_id) {
@@ -26,13 +31,18 @@ export function LeaguesWeb(): React.JSX.Element {
     setUsername(e.target.value);
   };
 
+  const handleLeagueKeyDown = (e: React.KeyboardEvent, leagueId: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setSelectedLeague(leagueId);
+    }
+  };
+
   return (
     <div style={styles.container}>
       <header style={styles.header}>
         <h1 style={styles.title}>⚡ Your Fantasy Leagues</h1>
-        <p style={styles.subtitle}>
-          Enter your Sleeper username to view your leagues and rosters
-        </p>
+        <p style={styles.subtitle}>Enter your Sleeper username to view your leagues and rosters</p>
       </header>
 
       <section style={styles.usernameSection}>
@@ -45,6 +55,9 @@ export function LeaguesWeb(): React.JSX.Element {
               placeholder="Enter your Sleeper username"
               style={styles.usernameInput}
               disabled={loading}
+              aria-label="Sleeper username"
+              aria-describedby="username-help"
+              aria-required="true"
             />
             <button
               type="submit"
@@ -58,12 +71,12 @@ export function LeaguesWeb(): React.JSX.Element {
             </button>
           </div>
         </form>
+        
+        <div id="username-help" style={styles.helpText}>
+          Enter your Sleeper username to view your fantasy leagues and rosters
+        </div>
 
-        {error && (
-          <div style={styles.errorMessage}>
-            {error}
-          </div>
-        )}
+        {error && <div style={styles.errorMessage}>{error}</div>}
 
         {user && (
           <div style={styles.userInfo}>
@@ -72,30 +85,27 @@ export function LeaguesWeb(): React.JSX.Element {
           </div>
         )}
 
-        {leaguesLoading && (
-          <div style={styles.loadingMessage}>
-            Loading your leagues...
-          </div>
-        )}
+        {leaguesLoading && <div style={styles.loadingMessage}>Loading your leagues...</div>}
 
-        {leaguesError && (
-          <div style={styles.errorMessage}>
-            {leaguesError}
-          </div>
-        )}
+        {leaguesError && <div style={styles.errorMessage}>{leaguesError}</div>}
 
         {leagues.length > 0 && (
           <div style={styles.leaguesSection}>
             <h3>Your Leagues ({leagues.length})</h3>
             <div style={styles.leaguesList}>
-              {leagues.map((league) => (
-                <div 
-                  key={league.league_id} 
+              {leagues.map(league => (
+                <div
+                  key={league.league_id}
                   style={{
                     ...styles.leagueCard,
                     ...(selectedLeague === league.league_id ? styles.selectedLeagueCard : {})
                   }}
                   onClick={() => setSelectedLeague(league.league_id)}
+                  onKeyDown={(e) => handleLeagueKeyDown(e, league.league_id)}
+                  tabIndex={0}
+                  role="button"
+                  aria-pressed={selectedLeague === league.league_id}
+                  aria-label={`Select ${league.name} league`}
                 >
                   <h4 style={styles.leagueName}>{league.name}</h4>
                   <div style={styles.leagueDetails}>
@@ -103,7 +113,7 @@ export function LeaguesWeb(): React.JSX.Element {
                     <span style={styles.leagueDetail}>Status: {league.status}</span>
                   </div>
                   {selectedLeague === league.league_id && (
-                    <div style={styles.selectedIndicator}>
+                    <div style={styles.selectedIndicator} aria-live="polite">
                       ✓ Selected - Loading roster...
                     </div>
                   )}
@@ -149,7 +159,13 @@ const styles = {
     boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
   },
   usernameForm: {
-    marginBottom: '1.5rem'
+    marginBottom: '1rem'
+  },
+  helpText: {
+    fontSize: '0.875rem',
+    color: '#666',
+    marginBottom: '1.5rem',
+    textAlign: 'center' as const
   },
   inputGroup: {
     display: 'flex',
@@ -163,7 +179,11 @@ const styles = {
     borderRadius: '8px',
     fontSize: '1rem',
     outline: 'none',
-    transition: 'border-color 0.2s ease'
+    transition: 'border-color 0.2s ease',
+    ':focus': {
+      borderColor: '#007bff',
+      boxShadow: '0 0 0 3px rgba(0,123,255,0.1)'
+    }
   },
   submitButton: {
     padding: '0.75rem 1.5rem',
@@ -215,7 +235,15 @@ const styles = {
     border: '1px solid #dee2e6',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     cursor: 'pointer',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
+    ':focus': {
+      outline: '2px solid #007bff',
+      outlineOffset: '2px'
+    },
+    ':hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 4px 8px rgba(0,0,0,0.15)'
+    }
   },
   selectedLeagueCard: {
     backgroundColor: '#e7f3ff',

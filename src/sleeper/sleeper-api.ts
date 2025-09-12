@@ -58,7 +58,7 @@ export function createSleeperApi(): {
   getTransactions: (leagueId: string, round: number) => Promise<Transaction[]>;
 } {
   const getUserLeagues = createGetUserLeagues();
-  
+
   return {
     getUser: createGetUser(),
     getUserLeagues,

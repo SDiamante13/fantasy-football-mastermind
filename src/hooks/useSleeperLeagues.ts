@@ -13,7 +13,7 @@ export function useSleeperLeagues() {
   const [leagues, setLeagues] = useState<SleeperLeague[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  
+
   const sleeperApi = createSleeperApi();
 
   const fetchLeagues = async (userId: string) => {
@@ -26,7 +26,7 @@ export function useSleeperLeagues() {
           status: 'in_season'
         },
         {
-          league_id: 'league2', 
+          league_id: 'league2',
           name: 'Test League 2',
           season: '2024',
           status: 'in_season'
@@ -44,7 +44,7 @@ export function useSleeperLeagues() {
 
     setLoading(true);
     setError(null);
-    
+
     try {
       const leaguesData = await sleeperApi.getLeagues(userId);
       setLeagues(leaguesData);
