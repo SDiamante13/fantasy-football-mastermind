@@ -1,168 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-type LeagueFormat = 'Standard' | 'PPR' | 'Half-PPR' | 'Superflex';
-type LeagueSize = '8-Team' | '10-Team' | '12-Team' | '14-Team' | '16-Team';
-
-interface MockLeague {
-  id: string;
-  name: string;
-  format: LeagueFormat;
-  size: LeagueSize;
-  status: 'Active' | 'Draft' | 'Complete';
-  draftDate?: string;
-  participants: number;
-  maxParticipants: number;
-}
-
-const mockLeagues: MockLeague[] = [
-  {
-    id: '1',
-    name: 'Championship Dynasty League',
-    format: 'PPR',
-    size: '12-Team',
-    status: 'Active',
-    participants: 12,
-    maxParticipants: 12
-  },
-  {
-    id: '2',
-    name: 'Friends & Family League',
-    format: 'Standard',
-    size: '10-Team',
-    status: 'Active',
-    participants: 10,
-    maxParticipants: 10
-  },
-  {
-    id: '3',
-    name: 'High Stakes Superflex',
-    format: 'Superflex',
-    size: '12-Team',
-    status: 'Draft',
-    draftDate: '2024-09-01',
-    participants: 10,
-    maxParticipants: 12
-  }
-];
-
-const LeagueCard: React.FC<{ league: MockLeague }> = ({ league }) => {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Active':
-        return '#28a745';
-      case 'Draft':
-        return '#ffc107';
-      case 'Complete':
-        return '#6c757d';
-      default:
-        return '#007bff';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'Active':
-        return '🏆';
-      case 'Draft':
-        return '📝';
-      case 'Complete':
-        return '✅';
-      default:
-        return '⚽';
-    }
-  };
-
-  return (
-    <div style={styles.leagueCard}>
-      <div style={styles.leagueHeader}>
-        <h3 style={styles.leagueName}>{league.name}</h3>
-        <div
-          style={{
-            ...styles.statusBadge,
-            backgroundColor: getStatusColor(league.status)
-          }}
-        >
-          <span style={styles.statusIcon}>{getStatusIcon(league.status)}</span>
-          {league.status}
-        </div>
-      </div>
-
-      <div style={styles.leagueDetails}>
-        <div style={styles.detailRow}>
-          <span style={styles.detailLabel}>Format:</span>
-          <span style={styles.detailValue}>{league.format}</span>
-        </div>
-        <div style={styles.detailRow}>
-          <span style={styles.detailLabel}>Size:</span>
-          <span style={styles.detailValue}>{league.size}</span>
-        </div>
-        <div style={styles.detailRow}>
-          <span style={styles.detailLabel}>Participants:</span>
-          <span style={styles.detailValue}>
-            {league.participants}/{league.maxParticipants}
-          </span>
-        </div>
-        {league.draftDate && (
-          <div style={styles.detailRow}>
-            <span style={styles.detailLabel}>Draft:</span>
-            <span style={styles.detailValue}>{league.draftDate}</span>
-          </div>
-        )}
-      </div>
-
-      <div style={styles.leagueActions}>
-        <button style={styles.primaryButton}>View League</button>
-        <button style={styles.secondaryButton}>Manage</button>
-      </div>
-    </div>
-  );
-};
-
-const CreateLeagueCard: React.FC<{ onClick: () => void }> = ({ onClick }) => (
-  <div style={{ ...styles.leagueCard, ...styles.createLeagueCard }} onClick={onClick}>
-    <div style={styles.createLeagueContent}>
-      <div style={styles.createLeagueIcon}>➕</div>
-      <h3 style={styles.createLeagueTitle}>Create New League</h3>
-      <p style={styles.createLeagueDescription}>
-        Set up a new fantasy football league with custom settings
-      </p>
-    </div>
-  </div>
-);
-
-const QuickStats: React.FC = () => {
-  const activeLeagues = mockLeagues.filter(l => l.status === 'Active').length;
-  const draftingLeagues = mockLeagues.filter(l => l.status === 'Draft').length;
-  const totalParticipants = mockLeagues.reduce((sum, l) => sum + l.participants, 0);
-
-  return (
-    <div style={styles.quickStatsContainer}>
-      <div style={styles.statCard}>
-        <div style={styles.statIcon}>🏆</div>
-        <div style={styles.statValue}>{activeLeagues}</div>
-        <div style={styles.statLabel}>Active Leagues</div>
-      </div>
-      <div style={styles.statCard}>
-        <div style={styles.statIcon}>📝</div>
-        <div style={styles.statValue}>{draftingLeagues}</div>
-        <div style={styles.statLabel}>Drafting</div>
-      </div>
-      <div style={styles.statCard}>
-        <div style={styles.statIcon}>👥</div>
-        <div style={styles.statValue}>{totalParticipants}</div>
-        <div style={styles.statLabel}>Total Participants</div>
-      </div>
-    </div>
-  );
-};
+import { useSleeperUser } from '../hooks/useSleeperUser';
+import { useSleeperLeagues } from '../hooks/useSleeperLeagues';
 
 export function LeaguesWeb(): React.JSX.Element {
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [username, setUsername] = useState('');
+  const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
+  const { user, error, loading, fetchUser } = useSleeperUser();
+  const { leagues, error: leaguesError, loading: leaguesLoading, fetchLeagues } = useSleeperLeagues();
 
-  const handleCreateLeague = () => {
-    setShowCreateModal(true);
-    // TODO: Implement league creation modal
-    console.log('Creating new league...');
+  useEffect(() => {
+    if (user?.user_id) {
+      void fetchLeagues(user.user_id);
+    }
+  }, [user]);
+
+  const handleUsernameSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (username.trim()) {
+      void fetchUser(username.trim());
+    }
+  };
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
   };
 
   return (
@@ -170,60 +31,87 @@ export function LeaguesWeb(): React.JSX.Element {
       <header style={styles.header}>
         <h1 style={styles.title}>⚡ Your Fantasy Leagues</h1>
         <p style={styles.subtitle}>
-          Manage your fantasy football leagues, track performance, and stay on top of your game
+          Enter your Sleeper username to view your leagues and rosters
         </p>
       </header>
 
-      <QuickStats />
+      <section style={styles.usernameSection}>
+        <form onSubmit={handleUsernameSubmit} style={styles.usernameForm}>
+          <div style={styles.inputGroup}>
+            <input
+              type="text"
+              value={username}
+              onChange={handleUsernameChange}
+              placeholder="Enter your Sleeper username"
+              style={styles.usernameInput}
+              disabled={loading}
+            />
+            <button
+              type="submit"
+              disabled={loading || !username.trim()}
+              style={{
+                ...styles.submitButton,
+                opacity: loading || !username.trim() ? 0.6 : 1
+              }}
+            >
+              {loading ? 'Loading...' : 'Get Leagues'}
+            </button>
+          </div>
+        </form>
 
-      <section style={styles.leaguesSection}>
-        <div style={styles.sectionHeader}>
-          <h2 style={styles.sectionTitle}>My Leagues</h2>
-          <button style={styles.primaryButton} onClick={handleCreateLeague}>
-            ➕ Create League
-          </button>
-        </div>
+        {error && (
+          <div style={styles.errorMessage}>
+            {error}
+          </div>
+        )}
 
-        <div style={styles.leaguesGrid}>
-          <CreateLeagueCard onClick={handleCreateLeague} />
-          {mockLeagues.map(league => (
-            <LeagueCard key={league.id} league={league} />
-          ))}
-        </div>
-      </section>
+        {user && (
+          <div style={styles.userInfo}>
+            <h3>Welcome, {user.display_name}!</h3>
+            <p>User ID: {user.user_id}</p>
+          </div>
+        )}
 
-      <section style={styles.featuresSection}>
-        <h2 style={styles.sectionTitle}>League Management Features</h2>
-        <div style={styles.featuresList}>
-          <div style={styles.featureItem}>
-            <span style={styles.featureIcon}>📊</span>
-            <div>
-              <h4>Advanced Analytics</h4>
-              <p>Deep dive into league trends and player performance metrics</p>
+        {leaguesLoading && (
+          <div style={styles.loadingMessage}>
+            Loading your leagues...
+          </div>
+        )}
+
+        {leaguesError && (
+          <div style={styles.errorMessage}>
+            {leaguesError}
+          </div>
+        )}
+
+        {leagues.length > 0 && (
+          <div style={styles.leaguesSection}>
+            <h3>Your Leagues ({leagues.length})</h3>
+            <div style={styles.leaguesList}>
+              {leagues.map((league) => (
+                <div 
+                  key={league.league_id} 
+                  style={{
+                    ...styles.leagueCard,
+                    ...(selectedLeague === league.league_id ? styles.selectedLeagueCard : {})
+                  }}
+                  onClick={() => setSelectedLeague(league.league_id)}
+                >
+                  <h4 style={styles.leagueName}>{league.name}</h4>
+                  <div style={styles.leagueDetails}>
+                    <span style={styles.leagueDetail}>Season: {league.season}</span>
+                    <span style={styles.leagueDetail}>Status: {league.status}</span>
+                  </div>
+                  {selectedLeague === league.league_id && (
+                    <div style={styles.selectedIndicator}>
+                      ✓ Selected - Loading roster...
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
-          <div style={styles.featureItem}>
-            <span style={styles.featureIcon}>🔄</span>
-            <div>
-              <h4>Trade Analysis</h4>
-              <p>Evaluate trade proposals with advanced valuation tools</p>
-            </div>
-          </div>
-          <div style={styles.featureItem}>
-            <span style={styles.featureIcon}>💰</span>
-            <div>
-              <h4>FAAB Optimizer</h4>
-              <p>Maximize your free agent budget with smart bidding strategies</p>
-            </div>
-          </div>
-          <div style={styles.featureItem}>
-            <span style={styles.featureIcon}>📱</span>
-            <div>
-              <h4>Mobile Sync</h4>
-              <p>Access your leagues seamlessly across all devices</p>
-            </div>
-          </div>
-        </div>
+        )}
       </section>
     </div>
   );
@@ -252,190 +140,113 @@ const styles = {
     maxWidth: '800px',
     margin: '0 auto'
   },
-  quickStatsContainer: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '1rem',
-    marginBottom: '2rem'
-  },
-  statCard: {
+  usernameSection: {
+    maxWidth: '600px',
+    margin: '0 auto',
     backgroundColor: 'white',
-    padding: '1.5rem',
-    borderRadius: '12px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-    textAlign: 'center' as const
-  },
-  statIcon: {
-    fontSize: '2rem',
-    marginBottom: '0.5rem'
-  },
-  statValue: {
-    fontSize: '2rem',
-    fontWeight: 'bold',
-    color: '#007bff',
-    marginBottom: '0.25rem'
-  },
-  statLabel: {
-    fontSize: '0.875rem',
-    color: '#666',
-    fontWeight: '500'
-  },
-  leaguesSection: {
-    marginBottom: '3rem'
-  },
-  sectionHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '1.5rem',
-    flexWrap: 'wrap' as const,
-    gap: '1rem'
-  },
-  sectionTitle: {
-    fontSize: '1.5rem',
-    fontWeight: 'bold',
-    color: '#333',
-    margin: 0
-  },
-  leaguesGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-    gap: '1.5rem'
-  },
-  leagueCard: {
-    backgroundColor: 'white',
-    padding: '1.5rem',
+    padding: '2rem',
     borderRadius: '16px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-    cursor: 'pointer'
+    boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
   },
-  createLeagueCard: {
-    backgroundColor: '#f8f9ff',
-    border: '2px dashed #007bff',
-    textAlign: 'center' as const,
-    minHeight: '200px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  createLeagueContent: {
-    padding: '1rem'
-  },
-  createLeagueIcon: {
-    fontSize: '3rem',
-    color: '#007bff',
-    marginBottom: '1rem'
-  },
-  createLeagueTitle: {
-    fontSize: '1.25rem',
-    fontWeight: 'bold',
-    color: '#007bff',
-    marginBottom: '0.5rem',
-    margin: '0 0 0.5rem 0'
-  },
-  createLeagueDescription: {
-    fontSize: '0.875rem',
-    color: '#666',
-    margin: 0
-  },
-  leagueHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '1rem',
-    gap: '1rem'
-  },
-  leagueName: {
-    fontSize: '1.25rem',
-    fontWeight: 'bold',
-    color: '#333',
-    margin: 0,
-    flex: 1
-  },
-  statusBadge: {
-    padding: '0.25rem 0.75rem',
-    borderRadius: '20px',
-    fontSize: '0.75rem',
-    fontWeight: '600',
-    color: 'white',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.25rem',
-    whiteSpace: 'nowrap' as const
-  },
-  statusIcon: {
-    fontSize: '0.875rem'
-  },
-  leagueDetails: {
+  usernameForm: {
     marginBottom: '1.5rem'
   },
-  detailRow: {
+  inputGroup: {
     display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '0.5rem'
+    gap: '1rem',
+    alignItems: 'center'
   },
-  detailLabel: {
-    fontSize: '0.875rem',
-    color: '#666',
-    fontWeight: '500'
-  },
-  detailValue: {
-    fontSize: '0.875rem',
-    color: '#333',
-    fontWeight: '600'
-  },
-  leagueActions: {
-    display: 'flex',
-    gap: '0.75rem'
-  },
-  primaryButton: {
+  usernameInput: {
     flex: 1,
     padding: '0.75rem 1rem',
+    border: '2px solid #e1e5e9',
+    borderRadius: '8px',
+    fontSize: '1rem',
+    outline: 'none',
+    transition: 'border-color 0.2s ease'
+  },
+  submitButton: {
+    padding: '0.75rem 1.5rem',
     backgroundColor: '#007bff',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
     fontWeight: '600',
     cursor: 'pointer',
-    fontSize: '0.875rem',
-    transition: 'background-color 0.2s ease'
+    fontSize: '1rem',
+    transition: 'background-color 0.2s ease',
+    whiteSpace: 'nowrap' as const
   },
-  secondaryButton: {
-    flex: 1,
+  errorMessage: {
+    backgroundColor: '#f8d7da',
+    color: '#721c24',
     padding: '0.75rem 1rem',
-    backgroundColor: 'transparent',
-    color: '#007bff',
-    border: '2px solid #007bff',
     borderRadius: '8px',
-    fontWeight: '600',
+    border: '1px solid #f5c6cb',
+    marginBottom: '1rem'
+  },
+  userInfo: {
+    backgroundColor: '#d4edda',
+    color: '#155724',
+    padding: '1rem',
+    borderRadius: '8px',
+    border: '1px solid #c3e6cb'
+  },
+  loadingMessage: {
+    backgroundColor: '#d1ecf1',
+    color: '#0c5460',
+    padding: '0.75rem 1rem',
+    borderRadius: '8px',
+    border: '1px solid #bee5eb',
+    textAlign: 'center' as const
+  },
+  leaguesSection: {
+    marginTop: '2rem'
+  },
+  leaguesList: {
+    display: 'grid',
+    gap: '1rem',
+    marginTop: '1rem'
+  },
+  leagueCard: {
+    backgroundColor: 'white',
+    padding: '1rem',
+    borderRadius: '8px',
+    border: '1px solid #dee2e6',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     cursor: 'pointer',
-    fontSize: '0.875rem',
     transition: 'all 0.2s ease'
   },
-  featuresSection: {
-    backgroundColor: 'white',
-    padding: '2rem',
-    borderRadius: '16px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+  selectedLeagueCard: {
+    backgroundColor: '#e7f3ff',
+    borderColor: '#007bff',
+    boxShadow: '0 4px 8px rgba(0,123,255,0.2)'
   },
-  featuresList: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-    gap: '1.5rem',
-    marginTop: '1.5rem'
+  leagueName: {
+    margin: '0 0 0.5rem 0',
+    fontSize: '1.125rem',
+    color: '#333'
   },
-  featureItem: {
+  leagueDetails: {
     display: 'flex',
-    alignItems: 'flex-start',
     gap: '1rem',
-    padding: '1rem',
-    backgroundColor: '#f8f9fa',
-    borderRadius: '12px'
+    flexWrap: 'wrap' as const
   },
-  featureIcon: {
-    fontSize: '1.5rem',
-    minWidth: '2rem',
-    marginTop: '0.25rem'
+  leagueDetail: {
+    fontSize: '0.875rem',
+    color: '#666',
+    backgroundColor: '#f8f9fa',
+    padding: '0.25rem 0.5rem',
+    borderRadius: '4px'
+  },
+  selectedIndicator: {
+    backgroundColor: '#007bff',
+    color: 'white',
+    padding: '0.5rem',
+    borderRadius: '4px',
+    marginTop: '0.5rem',
+    fontSize: '0.875rem',
+    fontWeight: 'bold',
+    textAlign: 'center' as const
   }
 };

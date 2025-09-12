@@ -54,11 +54,15 @@ function createGetTransactions() {
 export function createSleeperApi(): {
   getUser: (username: string) => Promise<SleeperUser>;
   getUserLeagues: (userId: string, sport: string, season: string) => Promise<SleeperLeague[]>;
+  getLeagues: (userId: string) => Promise<SleeperLeague[]>;
   getTransactions: (leagueId: string, round: number) => Promise<Transaction[]>;
 } {
+  const getUserLeagues = createGetUserLeagues();
+  
   return {
     getUser: createGetUser(),
-    getUserLeagues: createGetUserLeagues(),
+    getUserLeagues,
+    getLeagues: (userId: string) => getUserLeagues(userId, 'nfl', '2024'),
     getTransactions: createGetTransactions()
   };
 }

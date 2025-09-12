@@ -13,7 +13,7 @@ export function useSleeperUser() {
   const [user, setUser] = useState<SleeperUser | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  
+
   const sleeperApi = createSleeperApi();
 
   const fetchUser = async (username: string) => {
@@ -36,7 +36,7 @@ export function useSleeperUser() {
 
     setLoading(true);
     setError(null);
-    
+
     try {
       const userData = await sleeperApi.getUser(username);
       setUser(userData);

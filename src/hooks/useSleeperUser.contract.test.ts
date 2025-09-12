@@ -5,7 +5,7 @@ describe('Sleeper API Contract', () => {
 
   it('should fetch real user data from Sleeper API', async () => {
     const user = await sleeperApi.getUser('sleeperuser');
-    
+
     expect(user).toHaveProperty('user_id');
     expect(user).toHaveProperty('username');
     expect(user).toHaveProperty('display_name');
