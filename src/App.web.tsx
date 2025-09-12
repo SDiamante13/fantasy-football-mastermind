@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 
 import { HomeScreenWeb } from './screens/HomeScreen.web';
 import { PlayersWeb } from './screens/Players.web';
+import { AnalyticsWeb } from './screens/Analytics.web';
+import { LeaguesWeb } from './screens/Leagues.web';
 
 type TabName = 'Home' | 'Leagues' | 'Players' | 'Analytics';
 
@@ -34,21 +36,11 @@ const TabScreen: React.FC<{ tab: TabName }> = ({ tab }) => {
     case 'Home':
       return <HomeScreenWeb />;
     case 'Leagues':
-      return (
-        <div style={styles.screenContainer}>
-          <h1>⚡ Leagues</h1>
-          <p>Your fantasy leagues will appear here.</p>
-        </div>
-      );
+      return <LeaguesWeb />;
     case 'Players':
       return <PlayersWeb />;
     case 'Analytics':
-      return (
-        <div style={styles.screenContainer}>
-          <h1>📊 Analytics</h1>
-          <p>Fantasy analytics and insights coming soon.</p>
-        </div>
-      );
+      return <AnalyticsWeb />;
     default:
       return (
         <div style={styles.screenContainer}>
