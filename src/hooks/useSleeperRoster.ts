@@ -15,7 +15,7 @@ export function useSleeperRoster() {
   const [roster, setRoster] = useState<SleeperRosterPlayer[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  
+
   const sleeperApi = createSleeperApi();
 
   const fetchRoster = async (leagueId: string) => {
@@ -36,7 +36,7 @@ export function useSleeperRoster() {
         },
         {
           player_id: 'player2',
-          name: 'Test Player 2', 
+          name: 'Test Player 2',
           position: 'RB',
           team: 'SF',
           projected_points: 18.3,
@@ -56,7 +56,7 @@ export function useSleeperRoster() {
       setLoading(false);
       return;
     }
-    
+
     try {
       const rosterData = await sleeperApi.getRoster(leagueId);
       setRoster(rosterData);

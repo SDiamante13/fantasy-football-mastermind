@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import { useSleeperUser } from '../hooks/useSleeperUser';
 import { useSleeperLeagues } from '../hooks/useSleeperLeagues';
+import { useSleeperRoster } from '../hooks/useSleeperRoster';
 
 export function LeaguesWeb(): React.JSX.Element {
   const [username, setUsername] = useState('');
@@ -13,12 +14,24 @@ export function LeaguesWeb(): React.JSX.Element {
     loading: leaguesLoading,
     fetchLeagues
   } = useSleeperLeagues();
+  const {
+    roster,
+    error: rosterError,
+    loading: rosterLoading,
+    fetchRoster
+  } = useSleeperRoster();
 
   useEffect(() => {
     if (user?.user_id) {
       void fetchLeagues(user.user_id);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (selectedLeague) {
+      void fetchRoster(selectedLeague);
+    }
+  }, [selectedLeague]);
 
   const handleUsernameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,13 +127,58 @@ export function LeaguesWeb(): React.JSX.Element {
                   </div>
                   {selectedLeague === league.league_id && (
                     <div style={styles.selectedIndicator} aria-live="polite">
-                      ✓ Selected - Loading roster...
+                      ✓ Selected
                     </div>
                   )}
                 </div>
               ))}
             </div>
           </div>
+        )}
+
+        {selectedLeague && (
+          <section style={styles.rosterSection}>
+            <h3>League Roster</h3>
+            
+            {rosterLoading && (
+              <div style={styles.loadingMessage}>
+                Loading roster...
+              </div>
+            )}
+            
+            {rosterError && (
+              <div style={styles.errorMessage}>
+                {rosterError}
+              </div>
+            )}
+            
+            {roster.length > 0 && (
+              <div style={styles.rosterGrid}>
+                {roster.map(player => (
+                  <div key={player.player_id} style={styles.playerCard}>
+                    <div style={styles.playerHeader}>
+                      <h4 style={styles.playerName}>{player.name}</h4>
+                      <span style={styles.playerPosition}>{player.position}</span>
+                    </div>
+                    <div style={styles.playerDetails}>
+                      <div style={styles.playerDetail}>
+                        <span style={styles.detailLabel}>Team:</span>
+                        <span style={styles.detailValue}>{player.team}</span>
+                      </div>
+                      <div style={styles.playerDetail}>
+                        <span style={styles.detailLabel}>Projected:</span>
+                        <span style={styles.detailValue}>{player.projected_points} pts</span>
+                      </div>
+                      <div style={styles.playerDetail}>
+                        <span style={styles.detailLabel}>Matchup:</span>
+                        <span style={styles.detailValue}>{player.matchup}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         )}
       </section>
     </div>
@@ -276,5 +334,61 @@ const styles = {
     fontSize: '0.875rem',
     fontWeight: 'bold',
     textAlign: 'center' as const
+  },
+  rosterSection: {
+    marginTop: '2rem'
+  },
+  rosterGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gap: '1rem',
+    marginTop: '1rem'
+  },
+  playerCard: {
+    backgroundColor: 'white',
+    padding: '1rem',
+    borderRadius: '8px',
+    border: '1px solid #dee2e6',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+  },
+  playerHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '0.75rem'
+  },
+  playerName: {
+    margin: 0,
+    fontSize: '1rem',
+    fontWeight: 'bold',
+    color: '#333'
+  },
+  playerPosition: {
+    backgroundColor: '#007bff',
+    color: 'white',
+    padding: '0.25rem 0.5rem',
+    borderRadius: '12px',
+    fontSize: '0.75rem',
+    fontWeight: 'bold'
+  },
+  playerDetails: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '0.5rem'
+  },
+  playerDetail: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  detailLabel: {
+    fontSize: '0.875rem',
+    color: '#666',
+    fontWeight: '500'
+  },
+  detailValue: {
+    fontSize: '0.875rem',
+    color: '#333',
+    fontWeight: '600'
   }
 };

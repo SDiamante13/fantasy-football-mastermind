@@ -68,16 +68,19 @@ function createGetRoster() {
     }
     const rosters = await response.json();
     // Transform raw Sleeper roster data to our format with mock player details
-    return rosters.flatMap((roster: any) => 
-      roster.players?.slice(0, 2).map((playerId: string, index: number) => ({
-        player_id: playerId,
-        name: `Player ${playerId.slice(-4)}`,
-        position: index === 0 ? 'QB' : 'RB',
-        team: index === 0 ? 'KC' : 'SF',
-        projected_points: index === 0 ? 25.5 : 18.3,
-        matchup: index === 0 ? 'KC vs LAC' : 'SF vs SEA'
-      })) || []
-    ).slice(0, 10); // Limit to 10 players for display
+    return rosters
+      .flatMap(
+        (roster: any) =>
+          roster.players?.slice(0, 2).map((playerId: string, index: number) => ({
+            player_id: playerId,
+            name: `Player ${playerId.slice(-4)}`,
+            position: index === 0 ? 'QB' : 'RB',
+            team: index === 0 ? 'KC' : 'SF',
+            projected_points: index === 0 ? 25.5 : 18.3,
+            matchup: index === 0 ? 'KC vs LAC' : 'SF vs SEA'
+          })) || []
+      )
+      .slice(0, 10); // Limit to 10 players for display
   };
 }
 
