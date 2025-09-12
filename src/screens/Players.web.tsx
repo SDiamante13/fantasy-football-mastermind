@@ -10,15 +10,15 @@ const isRelevantPlayer = (player: Player): boolean => {
   if (!player.team && player.years_exp && player.years_exp > 15) {
     return false; // Likely retired veteran
   }
-  
+
   // Keep players with teams (active roster)
   if (player.team) return true;
-  
+
   // Keep young free agents (rookies, 2nd year players)
   if (!player.team && (!player.years_exp || player.years_exp <= 2)) {
     return true;
   }
-  
+
   // Keep free agents with recent activity (this is a simplified filter)
   return false;
 };
@@ -40,13 +40,10 @@ const filterPlayers = (
     .filter((player: Player) => {
       const hasName = Boolean(player.full_name);
       const isRelevant = isRelevantPlayer(player);
-      const matchesSearch = 
-        searchTerm === '' || 
-        player.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesPosition = 
-        selectedPosition === 'ALL' || 
-        player.position === selectedPosition;
-      
+      const matchesSearch =
+        searchTerm === '' || player.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesPosition = selectedPosition === 'ALL' || player.position === selectedPosition;
+
       return hasName && isRelevant && matchesSearch && matchesPosition;
     })
     .sort((a: Player, b: Player) => {
@@ -134,7 +131,7 @@ const ErrorView: React.FC<{ error: string }> = ({ error }) => (
 
 export function PlayersWeb(): React.JSX.Element {
   console.log('🏈 PlayersWeb: Component mounting');
-  
+
   const { players, loading, error } = useAllPlayers();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<Position>('ALL');
@@ -166,21 +163,16 @@ export function PlayersWeb(): React.JSX.Element {
       <header style={styles.header}>
         <h1 style={styles.title}>🏈 NFL Player Database</h1>
         <p style={styles.subtitle}>
-          Search active NFL players for fantasy analysis, trade research, and roster planning. 
-          Find player stats, team affiliations, and experience levels.
+          Search active NFL players for fantasy analysis, trade research, and roster planning. Find
+          player stats, team affiliations, and experience levels.
         </p>
         <div style={styles.statsContainer}>
-          <span style={styles.statsText}>
-            Active Players: {filteredPlayers.length}
-          </span>
+          <span style={styles.statsText}>Active Players: {filteredPlayers.length}</span>
         </div>
       </header>
 
       <div style={styles.controls}>
-        <SearchInput 
-          value={searchTerm} 
-          onChange={setSearchTerm} 
-        />
+        <SearchInput value={searchTerm} onChange={setSearchTerm} />
         <PositionFilter
           positions={positions}
           selectedPosition={selectedPosition}
@@ -194,9 +186,7 @@ export function PlayersWeb(): React.JSX.Element {
             <p>No players found matching your criteria</p>
           </div>
         ) : (
-          filteredPlayers.map((player) => (
-            <PlayerCard key={player.player_id} player={player} />
-          ))
+          filteredPlayers.map(player => <PlayerCard key={player.player_id} player={player} />)
         )}
       </div>
     </div>
@@ -207,18 +197,18 @@ const styles = {
   container: {
     minHeight: '100%',
     backgroundColor: '#f8f9fa',
-    padding: '1rem',
+    padding: '1rem'
   },
   header: {
     marginBottom: '2rem',
-    textAlign: 'center' as const,
+    textAlign: 'center' as const
   },
   title: {
     fontSize: '2.5rem',
     fontWeight: 'bold',
     color: '#333',
     marginBottom: '0.5rem',
-    margin: 0,
+    margin: 0
   },
   subtitle: {
     fontSize: '1.125rem',
@@ -226,10 +216,10 @@ const styles = {
     lineHeight: '1.6',
     marginBottom: '1rem',
     maxWidth: '800px',
-    margin: '0 auto 1rem auto',
+    margin: '0 auto 1rem auto'
   },
   statsContainer: {
-    marginTop: '0.5rem',
+    marginTop: '0.5rem'
   },
   statsText: {
     fontSize: '1rem',
@@ -237,17 +227,17 @@ const styles = {
     backgroundColor: 'white',
     padding: '0.5rem 1rem',
     borderRadius: '20px',
-    border: '1px solid #e0e0e0',
+    border: '1px solid #e0e0e0'
   },
   controls: {
     marginBottom: '2rem',
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '1rem',
+    gap: '1rem'
   },
   searchContainer: {
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   searchInput: {
     width: '100%',
@@ -257,13 +247,13 @@ const styles = {
     border: '2px solid #e0e0e0',
     borderRadius: '25px',
     outline: 'none',
-    transition: 'border-color 0.2s ease',
+    transition: 'border-color 0.2s ease'
   },
   positionFilters: {
     display: 'flex',
     flexWrap: 'wrap' as const,
     justifyContent: 'center',
-    gap: '0.5rem',
+    gap: '0.5rem'
   },
   positionButton: {
     padding: '0.5rem 1rem',
@@ -274,17 +264,17 @@ const styles = {
     fontSize: '0.875rem',
     fontWeight: '500',
     transition: 'all 0.2s ease',
-    color: '#666',
+    color: '#666'
   },
   selectedPositionButton: {
     backgroundColor: '#007bff',
     color: 'white',
-    borderColor: '#007bff',
+    borderColor: '#007bff'
   },
   playersGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-    gap: '1rem',
+    gap: '1rem'
   },
   playerCard: {
     backgroundColor: 'white',
@@ -293,19 +283,19 @@ const styles = {
     border: '1px solid #e0e0e0',
     boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
     transition: 'box-shadow 0.2s ease',
-    cursor: 'pointer',
+    cursor: 'pointer'
   },
   playerName: {
     fontSize: '1.25rem',
     fontWeight: 'bold',
     color: '#333',
     marginBottom: '0.5rem',
-    margin: '0 0 0.5rem 0',
+    margin: '0 0 0.5rem 0'
   },
   playerDetails: {
     display: 'flex',
     gap: '1rem',
-    marginBottom: '0.5rem',
+    marginBottom: '0.5rem'
   },
   position: {
     backgroundColor: '#007bff',
@@ -313,7 +303,7 @@ const styles = {
     padding: '0.25rem 0.5rem',
     borderRadius: '12px',
     fontSize: '0.75rem',
-    fontWeight: 'bold',
+    fontWeight: 'bold'
   },
   team: {
     backgroundColor: '#f8f9fa',
@@ -321,12 +311,12 @@ const styles = {
     padding: '0.25rem 0.5rem',
     borderRadius: '12px',
     fontSize: '0.75rem',
-    fontWeight: '500',
+    fontWeight: '500'
   },
   playerStats: {
     fontSize: '0.875rem',
     color: '#666',
-    marginTop: '0.5rem',
+    marginTop: '0.5rem'
   },
   centerContainer: {
     display: 'flex',
@@ -334,31 +324,31 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: '50vh',
-    textAlign: 'center' as const,
+    textAlign: 'center' as const
   },
   loadingSpinner: {
     fontSize: '3rem',
     marginBottom: '1rem',
-    animation: 'spin 2s linear infinite',
+    animation: 'spin 2s linear infinite'
   },
   loadingText: {
     fontSize: '1.25rem',
     color: '#666',
-    margin: 0,
+    margin: 0
   },
   errorIcon: {
     fontSize: '3rem',
-    marginBottom: '1rem',
+    marginBottom: '1rem'
   },
   errorText: {
     fontSize: '1.25rem',
     color: '#d32f2f',
-    margin: 0,
+    margin: 0
   },
   noResults: {
     gridColumn: '1 / -1',
     textAlign: 'center' as const,
     padding: '2rem',
-    color: '#666',
-  },
+    color: '#666'
+  }
 };
