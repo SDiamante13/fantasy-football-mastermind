@@ -1,15 +1,16 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { AppRegistry } from 'react-native';
-import { App } from './src/App';
+import { AppWeb } from './src/App.web';
 
-// Register the main component
-AppRegistry.registerComponent('fantasy-football-mastermind', () => App);
-
-// Get the app container
+console.log('Script loaded, finding container...');
 const container = document.getElementById('app-root');
-const root = createRoot(container);
+if (!container) {
+  console.error('Root container not found');
+  throw new Error('Root container not found');
+}
 
-// Render the app
-const AppComponent = () => <App />;
-root.render(<AppComponent />);
+console.log('Container found, creating root...');
+const root = createRoot(container);
+console.log('Rendering AppWeb...');
+root.render(<AppWeb />);
+console.log('AppWeb rendered!');

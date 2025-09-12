@@ -6,7 +6,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { HomeScreen } from './screens/HomeScreen';
 import { LeaguesScreen } from './screens/LeaguesScreen';
 import { PlayersScreen } from './screens/PlayersScreen';
+import { PlayersScreenWeb } from './screens/PlayersScreenWeb';
 import { AnalyticsScreen } from './screens/AnalyticsScreen';
+import { TestScreen } from './screens/TestScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -24,13 +26,18 @@ const createTabScreens = (): React.JSX.Element => (
     />
     <Tab.Screen
       name="Players"
-      component={PlayersScreen}
-      options={{ title: 'Players' }}
+      component={PlayersScreenWeb}
+      options={{ title: 'Players (Web)' }}
     />
     <Tab.Screen
       name="Analytics"
       component={AnalyticsScreen}
       options={{ title: 'Analytics' }}
+    />
+    <Tab.Screen
+      name="Test"
+      component={TestScreen}
+      options={{ title: 'Test' }}
     />
   </>
 );

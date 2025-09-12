@@ -24,7 +24,18 @@ const matchesPosition = (player: Player, selectedPosition: string): boolean => {
 };
 
 const isValidPlayer = (player: Player): boolean => {
-  return Boolean(player.full_name && player.active);
+  // Temporarily make this less strict to debug
+  const valid = Boolean(player.full_name);
+  // Log first few invalid players for debugging
+  if (!valid && Math.random() < 0.01) {
+    console.log('🚫 Invalid player sample:', {
+      id: player.player_id,
+      name: player.full_name,
+      active: player.active,
+      position: player.position
+    });
+  }
+  return valid;
 };
 
 const filterPlayers = (
@@ -32,18 +43,38 @@ const filterPlayers = (
   searchTerm: string,
   selectedPosition: string
 ): Player[] => {
-  if (!players) return [];
+  console.log('🔍 filterPlayers called with:', {
+    playersCount: Object.keys(players).length,
+    searchTerm,
+    selectedPosition
+  });
 
-  return Object.values(players)
-    .filter((player: Player) => {
-      return (
-        isValidPlayer(player) &&
-        matchesSearch(player, searchTerm) &&
-        matchesPosition(player, selectedPosition)
-      );
-    })
-    .sort((a: Player, b: Player) => a.full_name.localeCompare(b.full_name))
-    .slice(0, 50);
+  if (!players) {
+    console.log('🔍 filterPlayers: No players data');
+    return [];
+  }
+
+  const allPlayers = Object.values(players);
+  console.log('🔍 filterPlayers: Total players:', allPlayers.length);
+
+  const validPlayers = allPlayers.filter(isValidPlayer);
+  console.log('🔍 filterPlayers: Valid players:', validPlayers.length);
+
+  const searchFiltered = validPlayers.filter((player: Player) => matchesSearch(player, searchTerm));
+  console.log('🔍 filterPlayers: After search filter:', searchFiltered.length);
+
+  const positionFiltered = searchFiltered.filter((player: Player) => matchesPosition(player, selectedPosition));
+  console.log('🔍 filterPlayers: After position filter:', positionFiltered.length);
+
+  const sorted = positionFiltered.sort((a: Player, b: Player) => a.full_name.localeCompare(b.full_name));
+  const final = sorted.slice(0, 50);
+  
+  console.log('🔍 filterPlayers: Final result:', final.length, 'players');
+  if (final.length > 0) {
+    console.log('🔍 filterPlayers: First few players:', final.slice(0, 3).map(p => p.full_name));
+  }
+
+  return final;
 };
 
 const PlayerHeader = ({ item }: { item: Player }): React.JSX.Element => (
@@ -388,9 +419,26 @@ export function PlayersScreen(): React.JSX.Element {
     [players, searchTerm, selectedPosition]
   );
 
-  if (loading) return <LoadingView />;
-  if (error) return <ErrorView error={error} />;
+  console.log('📱 PlayersScreen render:', {
+    loading,
+    error,
+    playersCount: Object.keys(players || {}).length,
+    filteredCount: filteredPlayers.length,
+    searchTerm,
+    selectedPosition
+  });
 
+  if (loading) {
+    console.log('📱 PlayersScreen: Showing LoadingView');
+    return <LoadingView />;
+  }
+  if (error) {
+    console.log('📱 PlayersScreen: Showing ErrorView with error:', error);
+    return <ErrorView error={error} />;
+  }
+
+  console.log('📱 PlayersScreen: Rendering main content with', filteredPlayers.length, 'filtered players');
+  
   return (
     <SafeAreaView style={styles.container}>
       <PlayersContent
@@ -412,7 +460,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20
+    padding: 20,
+    minHeight: 500, // Ensure minimum content height
+    width: '100%'
   },
   centerContent: {
     flex: 1,

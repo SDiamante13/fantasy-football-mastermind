@@ -4,50 +4,92 @@ const SLEEPER_BASE_URL = 'https://api.sleeper.app/v1';
 
 export class SleeperApiService {
   async getUserByUsername(username: string): Promise<User | null> {
-    const response = await fetch(`${SLEEPER_BASE_URL}/user/${username}`);
-    if (!response.ok) {
-      return null;
+    try {
+      const response = await fetch(`${SLEEPER_BASE_URL}/user/${username}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json() as Promise<User>;
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      throw new Error(
+        `Failed to fetch user: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
-    return response.json() as Promise<User>;
   }
 
   async getUserLeagues(userId: string, season: string): Promise<League[]> {
-    const response = await fetch(`${SLEEPER_BASE_URL}/user/${userId}/leagues/nfl/${season}`);
-    if (!response.ok) {
-      return [];
+    try {
+      const response = await fetch(`${SLEEPER_BASE_URL}/user/${userId}/leagues/nfl/${season}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json() as Promise<League[]>;
+    } catch (error) {
+      console.error('Error fetching user leagues:', error);
+      throw new Error(
+        `Failed to fetch leagues: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
-    return response.json() as Promise<League[]>;
   }
 
   async getLeagueRosters(leagueId: string): Promise<Roster[]> {
-    const response = await fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/rosters`);
-    if (!response.ok) {
-      return [];
+    try {
+      const response = await fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/rosters`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json() as Promise<Roster[]>;
+    } catch (error) {
+      console.error('Error fetching league rosters:', error);
+      throw new Error(
+        `Failed to fetch rosters: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
-    return response.json() as Promise<Roster[]>;
   }
 
   async getAllPlayers(): Promise<Record<string, Player>> {
-    const response = await fetch(`${SLEEPER_BASE_URL}/players/nfl`);
-    if (!response.ok) {
-      return {};
+    try {
+      const response = await fetch(`${SLEEPER_BASE_URL}/players/nfl`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json() as Promise<Record<string, Player>>;
+    } catch (error) {
+      console.error('Error fetching all players:', error);
+      throw new Error(
+        `Failed to fetch players: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
-    return response.json() as Promise<Record<string, Player>>;
   }
 
   async getLeagueUsers(leagueId: string): Promise<User[]> {
-    const response = await fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/users`);
-    if (!response.ok) {
-      return [];
+    try {
+      const response = await fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/users`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json() as Promise<User[]>;
+    } catch (error) {
+      console.error('Error fetching league users:', error);
+      throw new Error(
+        `Failed to fetch users: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
-    return response.json() as Promise<User[]>;
   }
 
   async getLeague(leagueId: string): Promise<League> {
-    const response = await fetch(`${SLEEPER_BASE_URL}/league/${leagueId}`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch league: ${response.statusText}`);
+    try {
+      const response = await fetch(`${SLEEPER_BASE_URL}/league/${leagueId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json() as Promise<League>;
+    } catch (error) {
+      console.error('Error fetching league:', error);
+      throw new Error(
+        `Failed to fetch league: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
-    return response.json() as Promise<League>;
   }
 }

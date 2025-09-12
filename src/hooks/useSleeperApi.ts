@@ -25,7 +25,9 @@ export function useSleeperUser(username: string): UseSleeperUserReturn {
         const userData = await sleeperService.getUserByUsername(username);
         setUser(userData);
       } catch (err) {
+        console.error('useSleeperUser error:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch user');
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -43,7 +45,7 @@ type UseUserLeaguesReturn = {
   error: string | null;
 };
 
-export function useUserLeagues(userId: string | null, season = '2024'): UseUserLeaguesReturn {
+export function useUserLeagues(userId: string | null, season = '2025'): UseUserLeaguesReturn {
   const [leagues, setLeagues] = useState<League[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +61,9 @@ export function useUserLeagues(userId: string | null, season = '2024'): UseUserL
         const leaguesData = await sleeperService.getUserLeagues(userId, season);
         setLeagues(leaguesData);
       } catch (err) {
+        console.error('useUserLeagues error:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch leagues');
+        setLeagues([]);
       } finally {
         setLoading(false);
       }
@@ -108,6 +112,7 @@ const createLeagueDataFetcher =
       setRosters(rostersData);
       setUsers(usersData);
     } catch (err) {
+      console.error('useLeagueData error:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch league data');
     } finally {
       setLoading(false);
@@ -150,21 +155,42 @@ export function useAllPlayers(): UseAllPlayersReturn {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchPlayers = async (): Promise<void> => {
+      if (!isMounted) return;
+      
       setLoading(true);
       setError(null);
+      
       try {
         const sleeperService = new SleeperApiService();
         const playersData = await sleeperService.getAllPlayers();
-        setPlayers(playersData);
+        
+        console.log('✅ Players loaded:', Object.keys(playersData).length, 'players');
+        
+        if (isMounted && playersData) {
+          setPlayers(prevPlayers => ({ ...playersData }));
+          console.log('✅ Players state updated, new count:', Object.keys(playersData).length);
+        }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch players');
+        console.error('🚨 useAllPlayers error:', err);
+        if (isMounted) {
+          setError(err instanceof Error ? err.message : 'Failed to fetch players');
+          setPlayers({});
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     void fetchPlayers();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return { players, loading, error };
