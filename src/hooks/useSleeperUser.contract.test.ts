@@ -15,6 +15,7 @@ describe('Sleeper API Contract', () => {
   });
 
   it('should handle invalid username from Sleeper API', async () => {
-    await expect(sleeperApi.getUser('nonexistentuser123456789')).rejects.toThrow();
+    const user = await sleeperApi.getUser('nonexistentuser123456789');
+    expect(user).toBeNull();
   });
 });
