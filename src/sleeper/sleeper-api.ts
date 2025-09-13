@@ -98,7 +98,7 @@ function createGetRoster() {
 
     // Find the specific roster for this user
     const userRoster = rosters.find((roster: any) => roster.owner_id === userId);
-    
+
     if (!userRoster || !userRoster.players) {
       return [];
     }
