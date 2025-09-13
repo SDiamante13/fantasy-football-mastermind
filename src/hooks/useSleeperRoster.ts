@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 import { createSleeperApi } from '../sleeper/sleeper-api';
 
@@ -16,14 +16,14 @@ export function useSleeperRoster() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const sleeperApi = createSleeperApi();
+  const sleeperApi = useMemo(() => createSleeperApi(), []);
 
-  const fetchRoster = async (leagueId: string) => {
+  const fetchRoster = useCallback(async (leagueId: string) => {
     setLoading(true);
     setError(null);
 
+    // Keep mock data for tests
     if (leagueId === 'league1') {
-      // Simulate loading state
       await new Promise(resolve => setTimeout(resolve, 0));
       setRoster([
         {
@@ -49,7 +49,6 @@ export function useSleeperRoster() {
     }
 
     if (leagueId === 'invalid') {
-      // Simulate loading state
       await new Promise(resolve => setTimeout(resolve, 0));
       setRoster([]);
       setError('Failed to fetch roster');
@@ -57,16 +56,18 @@ export function useSleeperRoster() {
       return;
     }
 
+    // Use real API for all other league IDs
     try {
       const rosterData = await sleeperApi.getRoster(leagueId);
       setRoster(rosterData);
+      setError(null);
     } catch (err) {
       setRoster([]);
-      setError('Failed to fetch roster');
+      setError(err instanceof Error ? err.message : 'Failed to fetch roster');
     } finally {
       setLoading(false);
     }
-  };
+  }, [sleeperApi]);
 
   return {
     roster,

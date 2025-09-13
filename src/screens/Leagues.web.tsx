@@ -14,12 +14,7 @@ export function LeaguesWeb(): React.JSX.Element {
     loading: leaguesLoading,
     fetchLeagues
   } = useSleeperLeagues();
-  const {
-    roster,
-    error: rosterError,
-    loading: rosterLoading,
-    fetchRoster
-  } = useSleeperRoster();
+  const { roster, error: rosterError, loading: rosterLoading, fetchRoster } = useSleeperRoster();
 
   useEffect(() => {
     if (user?.user_id) {
@@ -31,7 +26,7 @@ export function LeaguesWeb(): React.JSX.Element {
     if (selectedLeague) {
       void fetchRoster(selectedLeague);
     }
-  }, [selectedLeague]);
+  }, [selectedLeague, fetchRoster]);
 
   const handleUsernameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,19 +134,11 @@ export function LeaguesWeb(): React.JSX.Element {
         {selectedLeague && (
           <section style={styles.rosterSection}>
             <h3>League Roster</h3>
-            
-            {rosterLoading && (
-              <div style={styles.loadingMessage}>
-                Loading roster...
-              </div>
-            )}
-            
-            {rosterError && (
-              <div style={styles.errorMessage}>
-                {rosterError}
-              </div>
-            )}
-            
+
+            {rosterLoading && <div style={styles.loadingMessage}>Loading roster...</div>}
+
+            {rosterError && <div style={styles.errorMessage}>{rosterError}</div>}
+
             {roster.length > 0 && (
               <div style={styles.rosterGrid}>
                 {roster.map(player => (

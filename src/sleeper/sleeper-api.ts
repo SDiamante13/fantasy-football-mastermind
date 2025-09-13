@@ -21,6 +21,15 @@ type Transaction = {
   created: number;
 };
 
+type SleeperPlayer = {
+  player_id: string;
+  first_name: string;
+  last_name: string;
+  position: string;
+  team: string;
+  fantasy_positions?: string[];
+};
+
 type SleeperRosterPlayer = {
   player_id: string;
   name: string;
@@ -60,27 +69,62 @@ function createGetTransactions() {
   };
 }
 
+function createGetAllPlayers() {
+  return async (): Promise<Record<string, SleeperPlayer>> => {
+    const response = await fetch(`${SLEEPER_BASE_URL}/players/nfl`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch players: ${response.status}`);
+    }
+    return response.json() as Promise<Record<string, SleeperPlayer>>;
+  };
+}
+
 function createGetRoster() {
   return async (leagueId: string): Promise<SleeperRosterPlayer[]> => {
-    const response = await fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/rosters`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch roster: ${response.status}`);
+    const [rostersResponse, playersData] = await Promise.all([
+      fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/rosters`),
+      fetch(`${SLEEPER_BASE_URL}/players/nfl`)
+    ]);
+
+    if (!rostersResponse.ok) {
+      throw new Error(`Failed to fetch roster: ${rostersResponse.status}`);
     }
-    const rosters = await response.json();
-    // Transform raw Sleeper roster data to our format with mock player details
+    if (!playersData.ok) {
+      throw new Error(`Failed to fetch players: ${playersData.status}`);
+    }
+
+    const rosters = await rostersResponse.json();
+    const players: Record<string, SleeperPlayer> = await playersData.json();
+
     return rosters
-      .flatMap(
-        (roster: any) =>
-          roster.players?.slice(0, 2).map((playerId: string, index: number) => ({
+      .flatMap((roster: any) =>
+        roster.players?.slice(0, 15).map((playerId: string) => {
+          const player = players[playerId];
+          if (!player) {
+            return {
+              player_id: playerId,
+              name: `Player ${playerId.slice(-4)}`,
+              position: 'UNKNOWN',
+              team: 'FA',
+              projected_points: 0,
+              matchup: 'TBD'
+            };
+          }
+
+          const fullName = `${player.first_name || ''} ${player.last_name || ''}`.trim();
+          const position = player.fantasy_positions?.[0] || player.position || 'UNKNOWN';
+          
+          return {
             player_id: playerId,
-            name: `Player ${playerId.slice(-4)}`,
-            position: index === 0 ? 'QB' : 'RB',
-            team: index === 0 ? 'KC' : 'SF',
-            projected_points: index === 0 ? 25.5 : 18.3,
-            matchup: index === 0 ? 'KC vs LAC' : 'SF vs SEA'
-          })) || []
+            name: fullName || `Player ${playerId.slice(-4)}`,
+            position,
+            team: player.team || 'FA',
+            projected_points: Math.round(Math.random() * 20 + 5), // Mock projection for now
+            matchup: `${player.team || 'FA'} vs TBD`
+          };
+        }) || []
       )
-      .slice(0, 10); // Limit to 10 players for display
+      .slice(0, 15); // Show more players
   };
 }
 
@@ -90,6 +134,7 @@ export function createSleeperApi(): {
   getLeagues: (userId: string) => Promise<SleeperLeague[]>;
   getRoster: (leagueId: string) => Promise<SleeperRosterPlayer[]>;
   getTransactions: (leagueId: string, round: number) => Promise<Transaction[]>;
+  getAllPlayers: () => Promise<Record<string, SleeperPlayer>>;
 } {
   const getUserLeagues = createGetUserLeagues();
 
@@ -98,6 +143,7 @@ export function createSleeperApi(): {
     getUserLeagues,
     getLeagues: (userId: string) => getUserLeagues(userId, 'nfl', '2024'),
     getRoster: createGetRoster(),
-    getTransactions: createGetTransactions()
+    getTransactions: createGetTransactions(),
+    getAllPlayers: createGetAllPlayers()
   };
 }
