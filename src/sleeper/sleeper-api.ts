@@ -1,5 +1,3 @@
-import { createPlayerProjectionService, type Position } from '../projections/player-projections';
-
 const SLEEPER_BASE_URL = 'https://api.sleeper.app/v1';
 
 type SleeperUser = {
@@ -30,6 +28,23 @@ type SleeperPlayer = {
   position: string;
   team: string;
   fantasy_positions?: string[];
+};
+
+type SleeperProjection = {
+  player_id: string;
+  stats: {
+    pts_ppr: number;
+    pts_half_ppr: number;
+    pts_std: number;
+  };
+  player: {
+    first_name: string;
+    last_name: string;
+    position: string;
+    team: string;
+  };
+  week: number;
+  season: string;
 };
 
 type SleeperRosterPlayer = {
@@ -81,11 +96,41 @@ function createGetAllPlayers() {
   };
 }
 
+function createGetProjections() {
+  return async (season: string, week: number): Promise<Record<string, SleeperProjection>> => {
+    const url = `https://api.sleeper.app/projections/nfl/${season}/${week}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE&position[]=K&position[]=DEF`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch projections: ${response.status}`);
+    }
+
+    const projectionsArray = await response.json();
+
+    // Convert array to keyed object by player_id for easier lookup
+    const projectionsMap: Record<string, SleeperProjection> = {};
+    projectionsArray.forEach((proj: SleeperProjection) => {
+      if (proj.player_id) {
+        projectionsMap[proj.player_id] = proj;
+      }
+    });
+
+    return projectionsMap;
+  };
+}
+
 function createGetRoster() {
-  return async (leagueId: string, userId: string): Promise<SleeperRosterPlayer[]> => {
-    const [rostersResponse, playersData] = await Promise.all([
+  return async (
+    leagueId: string,
+    userId: string,
+    week: number = 1
+  ): Promise<SleeperRosterPlayer[]> => {
+    const currentSeason = new Date().getFullYear().toString();
+
+    const [rostersResponse, playersData, projectionsData] = await Promise.all([
       fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/rosters`),
-      fetch(`${SLEEPER_BASE_URL}/players/nfl`)
+      fetch(`${SLEEPER_BASE_URL}/players/nfl`),
+      createGetProjections()(currentSeason, week)
     ]);
 
     if (!rostersResponse.ok) {
@@ -97,7 +142,7 @@ function createGetRoster() {
 
     const rosters = await rostersResponse.json();
     const players: Record<string, SleeperPlayer> = await playersData.json();
-    const projectionService = createPlayerProjectionService();
+    const projections = projectionsData;
 
     // Find the specific roster for this user
     const userRoster = rosters.find((roster: any) => roster.owner_id === userId);
@@ -106,18 +151,18 @@ function createGetRoster() {
       return [];
     }
 
-    // Process only the user's players with real projections
-    const rosterPromises = userRoster.players.map(async (playerId: string) => {
+    // Process only the user's players with real Sleeper projections
+    return userRoster.players.map((playerId: string) => {
       const player = players[playerId];
+      const projection = projections[playerId];
 
       if (!player) {
-        const projectedPoints = await projectionService.getWeeklyProjection('unknown', 'WR' as Position, 'FA');
         return {
           player_id: playerId,
           name: `Player ${playerId.slice(-4)}`,
           position: 'UNKNOWN',
           team: 'FA',
-          projected_points: projectedPoints,
+          projected_points: 0,
           matchup: 'TBD'
         };
       }
@@ -126,11 +171,12 @@ function createGetRoster() {
       const position = player.fantasy_positions?.[0] || player.position || 'UNKNOWN';
       const team = player.team || 'FA';
 
-      const projectedPoints = await projectionService.getWeeklyProjection(
-        playerId,
-        position as Position,
-        team
-      );
+      // Use real Sleeper projections or fallback to 0
+      let projectedPoints = 0;
+      if (projection?.stats) {
+        // Default to PPR scoring, fallback to standard
+        projectedPoints = Math.round(projection.stats.pts_ppr || projection.stats.pts_std || 0);
+      }
 
       return {
         player_id: playerId,
@@ -141,8 +187,6 @@ function createGetRoster() {
         matchup: `${team} vs TBD`
       };
     });
-
-    return Promise.all(rosterPromises);
   };
 }
 
@@ -150,7 +194,8 @@ export function createSleeperApi(): {
   getUser: (username: string) => Promise<SleeperUser>;
   getUserLeagues: (userId: string, sport: string, season: string) => Promise<SleeperLeague[]>;
   getLeagues: (userId: string) => Promise<SleeperLeague[]>;
-  getRoster: (leagueId: string, userId: string) => Promise<SleeperRosterPlayer[]>;
+  getRoster: (leagueId: string, userId: string, week?: number) => Promise<SleeperRosterPlayer[]>;
+  getProjections: (season: string, week: number) => Promise<Record<string, SleeperProjection>>;
   getTransactions: (leagueId: string, round: number) => Promise<Transaction[]>;
   getAllPlayers: () => Promise<Record<string, SleeperPlayer>>;
 } {
@@ -162,6 +207,7 @@ export function createSleeperApi(): {
     getLeagues: (userId: string) =>
       getUserLeagues(userId, 'nfl', new Date().getFullYear().toString()),
     getRoster: createGetRoster(),
+    getProjections: createGetProjections(),
     getTransactions: createGetTransactions(),
     getAllPlayers: createGetAllPlayers()
   };
