@@ -97,32 +97,33 @@ function createGetRoster() {
     const players: Record<string, SleeperPlayer> = await playersData.json();
 
     return rosters
-      .flatMap((roster: any) =>
-        roster.players?.slice(0, 15).map((playerId: string) => {
-          const player = players[playerId];
-          if (!player) {
+      .flatMap(
+        (roster: any) =>
+          roster.players?.slice(0, 15).map((playerId: string) => {
+            const player = players[playerId];
+            if (!player) {
+              return {
+                player_id: playerId,
+                name: `Player ${playerId.slice(-4)}`,
+                position: 'UNKNOWN',
+                team: 'FA',
+                projected_points: 0,
+                matchup: 'TBD'
+              };
+            }
+
+            const fullName = `${player.first_name || ''} ${player.last_name || ''}`.trim();
+            const position = player.fantasy_positions?.[0] || player.position || 'UNKNOWN';
+
             return {
               player_id: playerId,
-              name: `Player ${playerId.slice(-4)}`,
-              position: 'UNKNOWN',
-              team: 'FA',
-              projected_points: 0,
-              matchup: 'TBD'
+              name: fullName || `Player ${playerId.slice(-4)}`,
+              position,
+              team: player.team || 'FA',
+              projected_points: Math.round(Math.random() * 20 + 5), // Mock projection for now
+              matchup: `${player.team || 'FA'} vs TBD`
             };
-          }
-
-          const fullName = `${player.first_name || ''} ${player.last_name || ''}`.trim();
-          const position = player.fantasy_positions?.[0] || player.position || 'UNKNOWN';
-          
-          return {
-            player_id: playerId,
-            name: fullName || `Player ${playerId.slice(-4)}`,
-            position,
-            team: player.team || 'FA',
-            projected_points: Math.round(Math.random() * 20 + 5), // Mock projection for now
-            matchup: `${player.team || 'FA'} vs TBD`
-          };
-        }) || []
+          }) || []
       )
       .slice(0, 15); // Show more players
   };
@@ -141,7 +142,7 @@ export function createSleeperApi(): {
   return {
     getUser: createGetUser(),
     getUserLeagues,
-    getLeagues: (userId: string) => getUserLeagues(userId, 'nfl', '2024'),
+    getLeagues: (userId: string) => getUserLeagues(userId, 'nfl', '2025'),
     getRoster: createGetRoster(),
     getTransactions: createGetTransactions(),
     getAllPlayers: createGetAllPlayers()
