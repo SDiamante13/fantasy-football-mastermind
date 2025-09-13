@@ -142,7 +142,7 @@ export function createSleeperApi(): {
   return {
     getUser: createGetUser(),
     getUserLeagues,
-    getLeagues: (userId: string) => getUserLeagues(userId, 'nfl', '2025'),
+    getLeagues: (userId: string) => getUserLeagues(userId, 'nfl', new Date().getFullYear().toString()),
     getRoster: createGetRoster(),
     getTransactions: createGetTransactions(),
     getAllPlayers: createGetAllPlayers()
