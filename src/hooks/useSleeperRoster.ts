@@ -19,7 +19,7 @@ export function useSleeperRoster() {
   const sleeperApi = useMemo(() => createSleeperApi(), []);
 
   const fetchRoster = useCallback(
-    async (leagueId: string) => {
+    async (leagueId: string, userId: string) => {
       setLoading(true);
       setError(null);
 
@@ -59,7 +59,7 @@ export function useSleeperRoster() {
 
       // Use real API for all other league IDs
       try {
-        const rosterData = await sleeperApi.getRoster(leagueId);
+        const rosterData = await sleeperApi.getRoster(leagueId, userId);
         setRoster(rosterData);
         setError(null);
       } catch (err) {

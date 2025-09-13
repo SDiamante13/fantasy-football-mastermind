@@ -23,10 +23,10 @@ export function LeaguesWeb(): React.JSX.Element {
   }, [user]);
 
   useEffect(() => {
-    if (selectedLeague) {
-      void fetchRoster(selectedLeague);
+    if (selectedLeague && user?.user_id) {
+      void fetchRoster(selectedLeague, user.user_id);
     }
-  }, [selectedLeague, fetchRoster]);
+  }, [selectedLeague, user?.user_id, fetchRoster]);
 
   const handleUsernameSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -80,7 +80,7 @@ function createGetAllPlayers() {
 }
 
 function createGetRoster() {
-  return async (leagueId: string): Promise<SleeperRosterPlayer[]> => {
+  return async (leagueId: string, userId: string): Promise<SleeperRosterPlayer[]> => {
     const [rostersResponse, playersData] = await Promise.all([
       fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/rosters`),
       fetch(`${SLEEPER_BASE_URL}/players/nfl`)
@@ -96,36 +96,39 @@ function createGetRoster() {
     const rosters = await rostersResponse.json();
     const players: Record<string, SleeperPlayer> = await playersData.json();
 
-    return rosters
-      .flatMap(
-        (roster: any) =>
-          roster.players?.slice(0, 15).map((playerId: string) => {
-            const player = players[playerId];
-            if (!player) {
-              return {
-                player_id: playerId,
-                name: `Player ${playerId.slice(-4)}`,
-                position: 'UNKNOWN',
-                team: 'FA',
-                projected_points: 0,
-                matchup: 'TBD'
-              };
-            }
+    // Find the specific roster for this user
+    const userRoster = rosters.find((roster: any) => roster.owner_id === userId);
+    
+    if (!userRoster || !userRoster.players) {
+      return [];
+    }
 
-            const fullName = `${player.first_name || ''} ${player.last_name || ''}`.trim();
-            const position = player.fantasy_positions?.[0] || player.position || 'UNKNOWN';
+    // Process only the user's players
+    return userRoster.players.map((playerId: string) => {
+      const player = players[playerId];
+      if (!player) {
+        return {
+          player_id: playerId,
+          name: `Player ${playerId.slice(-4)}`,
+          position: 'UNKNOWN',
+          team: 'FA',
+          projected_points: 0,
+          matchup: 'TBD'
+        };
+      }
 
-            return {
-              player_id: playerId,
-              name: fullName || `Player ${playerId.slice(-4)}`,
-              position,
-              team: player.team || 'FA',
-              projected_points: Math.round(Math.random() * 20 + 5), // Mock projection for now
-              matchup: `${player.team || 'FA'} vs TBD`
-            };
-          }) || []
-      )
-      .slice(0, 15); // Show more players
+      const fullName = `${player.first_name || ''} ${player.last_name || ''}`.trim();
+      const position = player.fantasy_positions?.[0] || player.position || 'UNKNOWN';
+
+      return {
+        player_id: playerId,
+        name: fullName || `Player ${playerId.slice(-4)}`,
+        position,
+        team: player.team || 'FA',
+        projected_points: Math.round(Math.random() * 20 + 5), // Mock projection for now
+        matchup: `${player.team || 'FA'} vs TBD`
+      };
+    });
   };
 }
 
@@ -133,7 +136,7 @@ export function createSleeperApi(): {
   getUser: (username: string) => Promise<SleeperUser>;
   getUserLeagues: (userId: string, sport: string, season: string) => Promise<SleeperLeague[]>;
   getLeagues: (userId: string) => Promise<SleeperLeague[]>;
-  getRoster: (leagueId: string) => Promise<SleeperRosterPlayer[]>;
+  getRoster: (leagueId: string, userId: string) => Promise<SleeperRosterPlayer[]>;
   getTransactions: (leagueId: string, round: number) => Promise<Transaction[]>;
   getAllPlayers: () => Promise<Record<string, SleeperPlayer>>;
 } {
@@ -142,7 +145,8 @@ export function createSleeperApi(): {
   return {
     getUser: createGetUser(),
     getUserLeagues,
-    getLeagues: (userId: string) => getUserLeagues(userId, 'nfl', new Date().getFullYear().toString()),
+    getLeagues: (userId: string) =>
+      getUserLeagues(userId, 'nfl', new Date().getFullYear().toString()),
     getRoster: createGetRoster(),
     getTransactions: createGetTransactions(),
     getAllPlayers: createGetAllPlayers()

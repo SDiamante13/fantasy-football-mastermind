@@ -7,7 +7,7 @@ describe('useSleeperRoster', () => {
     const { result } = renderHook(() => useSleeperRoster());
 
     await act(async () => {
-      await result.current.fetchRoster('league1');
+      await result.current.fetchRoster('league1', 'mockUserId');
     });
 
     await waitFor(() => {
@@ -27,7 +27,7 @@ describe('useSleeperRoster', () => {
     const { result } = renderHook(() => useSleeperRoster());
 
     await act(async () => {
-      await result.current.fetchRoster('invalid');
+      await result.current.fetchRoster('invalid', 'mockUserId');
     });
 
     await waitFor(() => {
@@ -40,7 +40,7 @@ describe('useSleeperRoster', () => {
     const { result } = renderHook(() => useSleeperRoster());
 
     act(() => {
-      void result.current.fetchRoster('league1');
+      void result.current.fetchRoster('league1', 'mockUserId');
     });
 
     expect(result.current.loading).toBe(true);
