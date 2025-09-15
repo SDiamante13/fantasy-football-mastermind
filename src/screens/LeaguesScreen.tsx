@@ -25,6 +25,42 @@ const renderLeague = ({ item }: { item: League }): React.JSX.Element => (
   </View>
 );
 
+const UsernameTextInput: React.FC<{
+  username: string;
+  setUsername: (value: string) => void;
+  isLoading?: boolean;
+}> = ({ username, setUsername, isLoading }) => (
+  <TextInput
+    style={styles.input}
+    value={username}
+    onChangeText={setUsername}
+    placeholder="Enter your Sleeper username"
+    autoCapitalize="none"
+    autoCorrect={false}
+    editable={!isLoading}
+  />
+);
+
+const LoadLeaguesButton: React.FC<{
+  onPress: () => void;
+  isLoading?: boolean;
+  disabled: boolean;
+}> = ({ onPress, isLoading, disabled }) => (
+  <TouchableOpacity
+    style={[styles.button, isLoading && styles.buttonDisabled]}
+    onPress={onPress}
+    disabled={disabled}
+    accessibilityLabel="Load leagues for the entered username"
+    accessibilityRole="button"
+  >
+    {isLoading ? (
+      <ActivityIndicator size="small" color="white" />
+    ) : (
+      <Text style={styles.buttonText}>Load Leagues</Text>
+    )}
+  </TouchableOpacity>
+);
+
 const UserInputSection = ({
   username,
   setUsername,
@@ -37,28 +73,12 @@ const UserInputSection = ({
   isLoading?: boolean;
 }): React.JSX.Element => (
   <View style={styles.inputContainer}>
-    <TextInput
-      style={styles.input}
-      value={username}
-      onChangeText={setUsername}
-      placeholder="Enter your Sleeper username"
-      autoCapitalize="none"
-      autoCorrect={false}
-      editable={!isLoading}
-    />
-    <TouchableOpacity
-      style={[styles.button, isLoading && styles.buttonDisabled]}
+    <UsernameTextInput username={username} setUsername={setUsername} isLoading={isLoading} />
+    <LoadLeaguesButton
       onPress={handleSubmit}
-      disabled={isLoading || !username.trim()}
-      accessibilityLabel="Load leagues for the entered username"
-      accessibilityRole="button"
-    >
-      {isLoading ? (
-        <ActivityIndicator size="small" color="white" />
-      ) : (
-        <Text style={styles.buttonText}>Load Leagues</Text>
-      )}
-    </TouchableOpacity>
+      isLoading={isLoading}
+      disabled={!!isLoading || !username.trim()}
+    />
   </View>
 );
 
@@ -87,6 +107,30 @@ const ErrorCard = ({
   </View>
 );
 
+const UserErrorCard: React.FC = () => (
+  <ErrorCard
+    title="User Not Found"
+    message="We couldn't find a Sleeper user with that username."
+    suggestions={[
+      'Double-check the spelling of the username',
+      'Make sure the user has a Sleeper account',
+      'Try a different username'
+    ]}
+  />
+);
+
+const LeaguesErrorCard: React.FC = () => (
+  <ErrorCard
+    title="Unable to Load Leagues"
+    message="There was a problem loading leagues for this user."
+    suggestions={[
+      'Check your internet connection',
+      'Try again in a few moments',
+      'The user may not be in any leagues this season'
+    ]}
+  />
+);
+
 const ErrorDisplay = ({
   userError,
   leaguesError
@@ -98,28 +142,8 @@ const ErrorDisplay = ({
 
   return (
     <>
-      {userError && (
-        <ErrorCard
-          title="User Not Found"
-          message="We couldn't find a Sleeper user with that username."
-          suggestions={[
-            'Double-check the spelling of the username',
-            'Make sure the user has a Sleeper account',
-            'Try a different username'
-          ]}
-        />
-      )}
-      {leaguesError && (
-        <ErrorCard
-          title="Unable to Load Leagues"
-          message="There was a problem loading leagues for this user."
-          suggestions={[
-            'Check your internet connection',
-            'Try again in a few moments',
-            'The user may not be in any leagues this season'
-          ]}
-        />
-      )}
+      {userError && <UserErrorCard />}
+      {leaguesError && <LeaguesErrorCard />}
     </>
   );
 };
@@ -243,34 +267,38 @@ const LeaguesContent = ({
   </LeaguesContentLayout>
 );
 
-export function LeaguesScreen(): React.JSX.Element {
+const useLeaguesScreenData = () => {
   const [username, setUsername] = useState('');
   const [submittedUsername, setSubmittedUsername] = useState('');
 
   const { user, loading: userLoading, error: userError } = useSleeperUser(submittedUsername);
-  const {
-    leagues,
-    loading: leaguesLoading,
-    error: leaguesError
-  } = useUserLeagues(user?.user_id || null);
+  const { leagues, loading: leaguesLoading, error: leaguesError } = useUserLeagues(
+    user?.user_id || null
+  );
 
   const handleSubmit = (): void => {
     setSubmittedUsername(username.trim());
   };
 
+  return {
+    username,
+    setUsername,
+    handleSubmit,
+    userError,
+    leaguesError,
+    userLoading,
+    user,
+    leaguesLoading,
+    leagues
+  };
+};
+
+export function LeaguesScreen(): React.JSX.Element {
+  const data = useLeaguesScreenData();
+
   return (
     <SafeAreaView style={styles.container}>
-      <LeaguesContent
-        username={username}
-        setUsername={setUsername}
-        handleSubmit={handleSubmit}
-        userError={userError}
-        leaguesError={leaguesError}
-        userLoading={userLoading}
-        user={user}
-        leaguesLoading={leaguesLoading}
-        leagues={leagues}
-      />
+      <LeaguesContent {...data} />
     </SafeAreaView>
   );
 }

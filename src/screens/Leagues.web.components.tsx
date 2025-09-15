@@ -80,6 +80,25 @@ const SubmitButton: React.FC<{
   );
 };
 
+const UsernameInput: React.FC<{
+  username: string;
+  loading: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  styles: Record<string, React.CSSProperties>;
+}> = ({ username, loading, onChange, styles }) => (
+  <input
+    type="text"
+    value={username}
+    onChange={onChange}
+    placeholder="Enter your Sleeper username"
+    style={styles.usernameInput}
+    disabled={loading}
+    aria-label="Sleeper username"
+    aria-describedby="username-help"
+    aria-required="true"
+  />
+);
+
 export const UsernameForm: React.FC<UsernameFormProps> = ({
   username,
   loading,
@@ -92,16 +111,11 @@ export const UsernameForm: React.FC<UsernameFormProps> = ({
   return (
     <form onSubmit={onSubmit} style={styles.usernameForm}>
       <div style={styles.inputGroup}>
-        <input
-          type="text"
-          value={username}
+        <UsernameInput
+          username={username}
+          loading={loading}
           onChange={onUsernameChange}
-          placeholder="Enter your Sleeper username"
-          style={styles.usernameInput}
-          disabled={loading}
-          aria-label="Sleeper username"
-          aria-describedby="username-help"
-          aria-required="true"
+          styles={styles}
         />
         <SubmitButton loading={loading} disabled={isDisabled} styles={styles} />
       </div>
@@ -126,6 +140,12 @@ const LeagueCardDetails: React.FC<{ league: League; styles: Record<string, React
   </>
 );
 
+const SelectedIndicator: React.FC<{ styles: Record<string, React.CSSProperties> }> = ({ styles }) => (
+  <div style={styles.selectedIndicator} aria-live="polite">
+    ✓ Selected
+  </div>
+);
+
 export const LeagueCard: React.FC<LeagueCardProps> = ({
   league,
   isSelected,
@@ -133,27 +153,20 @@ export const LeagueCard: React.FC<LeagueCardProps> = ({
   onKeyDown,
   styles
 }) => {
-  const cardStyle = {
-    ...styles.leagueCard,
-    ...(isSelected ? styles.selectedLeagueCard : {})
+  const cardProps = {
+    style: { ...styles.leagueCard, ...(isSelected ? styles.selectedLeagueCard : {}) },
+    onClick: onSelect,
+    onKeyDown,
+    tabIndex: 0,
+    role: "button" as const,
+    "aria-pressed": isSelected,
+    "aria-label": `Select ${league.name} league`
   };
 
   return (
-    <div
-      style={cardStyle}
-      onClick={onSelect}
-      onKeyDown={onKeyDown}
-      tabIndex={0}
-      role="button"
-      aria-pressed={isSelected}
-      aria-label={`Select ${league.name} league`}
-    >
+    <div {...cardProps}>
       <LeagueCardDetails league={league} styles={styles} />
-      {isSelected && (
-        <div style={styles.selectedIndicator} aria-live="polite">
-          ✓ Selected
-        </div>
-      )}
+      {isSelected && <SelectedIndicator styles={styles} />}
     </div>
   );
 };

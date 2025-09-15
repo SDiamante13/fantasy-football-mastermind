@@ -134,10 +134,12 @@ const MainContent: React.FC<{
   </section>
 );
 
-export function LeaguesWeb(): React.JSX.Element {
-  const [username, setUsername] = useState('');
-  const { userData, leaguesData, rosterData, selectedLeague, setSelectedLeague } = useLeaguesData();
-
+const useLeaguesHandlers = (
+  username: string,
+  setUsername: (value: string) => void,
+  userData: ReturnType<typeof useSleeperUser>,
+  setSelectedLeague: (id: string | null) => void
+) => {
   const handleUsernameSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
     if (username.trim()) void userData.fetchUser(username.trim());
@@ -153,6 +155,15 @@ export function LeaguesWeb(): React.JSX.Element {
       setSelectedLeague(leagueId);
     }
   };
+
+  return { handleUsernameSubmit, handleUsernameChange, handleLeagueKeyDown };
+};
+
+export function LeaguesWeb(): React.JSX.Element {
+  const [username, setUsername] = useState('');
+  const { userData, leaguesData, rosterData, selectedLeague, setSelectedLeague } = useLeaguesData();
+  const { handleUsernameSubmit, handleUsernameChange, handleLeagueKeyDown } =
+    useLeaguesHandlers(username, setUsername, userData, setSelectedLeague);
 
   return (
     <div style={styles.container}>

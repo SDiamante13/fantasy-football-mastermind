@@ -42,13 +42,47 @@ const renderPlayer = ({ item }: { item: Player }): React.JSX.Element => (
   </View>
 );
 
-export function PlayersScreenWeb(): React.JSX.Element {
-  console.log('🌐 PlayersScreenWeb: Component mounting');
+const LoadingView: React.FC = () => (
+  <View style={styles.container}>
+    <Text style={styles.loadingText}>Loading players...</Text>
+  </View>
+);
 
+const ErrorView: React.FC<{ error: string }> = ({ error }) => (
+  <View style={styles.container}>
+    <Text style={styles.errorText}>Error: {error}</Text>
+  </View>
+);
+
+const PositionFilter: React.FC<{
+  position: string;
+  isSelected: boolean;
+  onPress: () => void;
+}> = ({ position, isSelected, onPress }) => (
+  <TouchableOpacity
+    style={[styles.positionButton, isSelected && styles.selectedPositionButton]}
+    onPress={onPress}
+  >
+    <Text style={[styles.positionButtonText, isSelected && styles.selectedPositionButtonText]}>
+      {position}
+    </Text>
+  </TouchableOpacity>
+);
+
+const usePlayersWebData = (): {
+  players: Record<string, Player>;
+  loading: boolean;
+  error: string | null;
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
+  selectedPosition: string;
+  setSelectedPosition: (value: string) => void;
+  positions: string[];
+  filteredPlayers: Player[];
+} => {
   const { players, loading, error } = useAllPlayers();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<string>('ALL');
-
   const positions = ['ALL', 'QB', 'RB', 'WR', 'TE'];
 
   const filteredPlayers = useMemo(
@@ -56,66 +90,57 @@ export function PlayersScreenWeb(): React.JSX.Element {
     [players, searchTerm, selectedPosition]
   );
 
-  console.log('🌐 PlayersScreenWeb render:', {
+  return {
+    players,
     loading,
     error,
-    playersCount: Object.keys(players || {}).length,
-    filteredCount: filteredPlayers.length
-  });
+    searchTerm,
+    setSearchTerm,
+    selectedPosition,
+    setSelectedPosition,
+    positions,
+    filteredPlayers
+  };
+};
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading players...</Text>
-      </View>
-    );
-  }
+export function PlayersScreenWeb(): React.JSX.Element {
+  const {
+    players,
+    loading,
+    error,
+    searchTerm,
+    setSearchTerm,
+    selectedPosition,
+    setSelectedPosition,
+    positions,
+    filteredPlayers
+  } = usePlayersWebData();
 
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>Error: {error}</Text>
-      </View>
-    );
-  }
+  if (loading) return <LoadingView />;
+  if (error) return <ErrorView error={error} />;
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🌐 Players (Web Test)</Text>
-
       <TextInput
         style={styles.searchInput}
         value={searchTerm}
         onChangeText={setSearchTerm}
         placeholder="Search players..."
       />
-
       <View style={styles.positionFilters}>
         {positions.map(position => (
-          <TouchableOpacity
+          <PositionFilter
             key={position}
-            style={[
-              styles.positionButton,
-              selectedPosition === position && styles.selectedPositionButton
-            ]}
+            position={position}
+            isSelected={selectedPosition === position}
             onPress={() => setSelectedPosition(position)}
-          >
-            <Text
-              style={[
-                styles.positionButtonText,
-                selectedPosition === position && styles.selectedPositionButtonText
-              ]}
-            >
-              {position}
-            </Text>
-          </TouchableOpacity>
+          />
         ))}
       </View>
-
       <Text style={styles.resultCount}>
         Players loaded: {Object.keys(players || {}).length}, Showing: {filteredPlayers.length}
       </Text>
-
       <FlatList
         data={filteredPlayers}
         renderItem={renderPlayer}
