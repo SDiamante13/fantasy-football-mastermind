@@ -149,47 +149,76 @@ type UseAllPlayersReturn = {
   error: string | null;
 };
 
+const handlePlayersSuccess = (
+  playersData: Record<string, Player>,
+  isMounted: boolean,
+  setPlayers: (players: Record<string, Player>) => void
+): void => {
+  console.log('✅ Players loaded:', Object.keys(playersData).length, 'players');
+
+  if (isMounted && playersData) {
+    setPlayers({ ...playersData });
+    console.log('✅ Players state updated, new count:', Object.keys(playersData).length);
+  }
+};
+
+const handlePlayersError = (
+  err: unknown,
+  isMounted: boolean,
+  setError: (error: string | null) => void,
+  setPlayers: (players: Record<string, Player>) => void
+): void => {
+  console.error('🚨 useAllPlayers error:', err);
+  if (isMounted) {
+    setError(err instanceof Error ? err.message : 'Failed to fetch players');
+    setPlayers({});
+  }
+};
+
+const createPlayersDataFetcher = (
+  isMountedRef: { current: boolean },
+  setLoading: (loading: boolean) => void,
+  setError: (error: string | null) => void,
+  setPlayers: (players: Record<string, Player>) => void
+) => async (): Promise<void> => {
+  if (!isMountedRef.current) return;
+
+  setLoading(true);
+  setError(null);
+
+  try {
+    const sleeperService = new SleeperApiService();
+    const playersData = await sleeperService.getAllPlayers();
+
+    handlePlayersSuccess(playersData, isMountedRef.current, setPlayers);
+  } catch (err) {
+    handlePlayersError(err, isMountedRef.current, setError, setPlayers);
+  } finally {
+    if (isMountedRef.current) {
+      setLoading(false);
+    }
+  }
+};
+
 export function useAllPlayers(): UseAllPlayersReturn {
   const [players, setPlayers] = useState<Record<string, Player>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let isMounted = true;
+    const isMountedRef = { current: true };
 
-    const fetchPlayers = async (): Promise<void> => {
-      if (!isMounted) return;
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const sleeperService = new SleeperApiService();
-        const playersData = await sleeperService.getAllPlayers();
-
-        console.log('✅ Players loaded:', Object.keys(playersData).length, 'players');
-
-        if (isMounted && playersData) {
-          setPlayers(prevPlayers => ({ ...playersData }));
-          console.log('✅ Players state updated, new count:', Object.keys(playersData).length);
-        }
-      } catch (err) {
-        console.error('🚨 useAllPlayers error:', err);
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Failed to fetch players');
-          setPlayers({});
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
+    const fetchPlayers = createPlayersDataFetcher(
+      isMountedRef,
+      setLoading,
+      setError,
+      setPlayers
+    );
 
     void fetchPlayers();
 
-    return () => {
-      isMounted = false;
+    return (): void => {
+      isMountedRef.current = false;
     };
   }, []);
 

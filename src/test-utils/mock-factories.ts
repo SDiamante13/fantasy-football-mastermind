@@ -1,8 +1,10 @@
 /**
  * Creates a mock service with predictable return values
  */
+type ServiceMethod = (...args: unknown[]) => unknown;
+
 export const createMockService = <
-  T extends Record<string, (...args: any[]) => any>
+  T extends Record<string, ServiceMethod>
 >(serviceMethods: { [K in keyof T]: ReturnType<T[K]> }): T => {
   const mock = {} as T;
 
@@ -18,7 +20,7 @@ export const createMockService = <
  */
 export const mockData = {
   player: {
-    basic: () => ({
+    basic: (): { player_id: string; full_name: string; position: string; team: string; active: boolean } => ({
       player_id: 'test-player-1',
       full_name: 'Test Player',
       position: 'QB',
@@ -26,7 +28,7 @@ export const mockData = {
       active: true
     }),
 
-    withStats: (overrides?: Partial<any>) => ({
+    withStats: (overrides?: Record<string, unknown>): Record<string, unknown> => ({
       ...mockData.player.basic(),
       years_exp: 5,
       injury_status: 'Healthy',
@@ -35,7 +37,7 @@ export const mockData = {
   },
 
   user: {
-    basic: (username = 'testuser') => ({
+    basic: (username = 'testuser'): { user_id: string; username: string; display_name: string } => ({
       user_id: 'test-user-id',
       username,
       display_name: username
@@ -43,7 +45,7 @@ export const mockData = {
   },
 
   league: {
-    basic: () => ({
+    basic: (): { league_id: string; name: string; season: string; status: string } => ({
       league_id: 'test-league-1',
       name: 'Test League',
       season: '2025',
