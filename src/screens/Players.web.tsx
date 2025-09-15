@@ -20,18 +20,26 @@ const isRelevantPlayer = (player: Player): boolean => {
   return false;
 };
 
+const hasValidName = (player: Player): boolean => Boolean(player.full_name);
+
+const matchesSearch = (player: Player, searchTerm: string): boolean => {
+  if (searchTerm === '') return true;
+  return player.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false;
+};
+
+const matchesPosition = (player: Player, selectedPosition: Position): boolean => {
+  return selectedPosition === 'ALL' || player.position === selectedPosition;
+};
+
 const matchesSearchCriteria = (
   player: Player,
   searchTerm: string,
   selectedPosition: Position
 ): boolean => {
-  const hasName = Boolean(player.full_name);
-  const isRelevant = isRelevantPlayer(player);
-  const matchesSearch =
-    searchTerm === '' || player.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
-  const matchesPosition = selectedPosition === 'ALL' || player.position === selectedPosition;
-
-  return hasName && isRelevant && matchesSearch && matchesPosition;
+  if (!hasValidName(player)) return false;
+  if (!isRelevantPlayer(player)) return false;
+  if (!matchesSearch(player, searchTerm)) return false;
+  return matchesPosition(player, selectedPosition);
 };
 
 const sortPlayers = (a: Player, b: Player): number => {
@@ -155,11 +163,21 @@ const PlayersGrid: React.FC<{ players: Player[] }> = ({ players }) => {
   );
 };
 
-export function PlayersWeb(): React.JSX.Element {
+type PlayersWebData = {
+  loading: boolean;
+  error: string | null;
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
+  selectedPosition: Position;
+  setSelectedPosition: (value: Position) => void;
+  positions: Position[];
+  filteredPlayers: Player[];
+};
+
+const usePlayersWebData = (): PlayersWebData => {
   const { players, loading, error } = useAllPlayers();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<Position>('ALL');
-
   const positions: Position[] = ['ALL', 'QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
 
   const filteredPlayers = useMemo(
@@ -167,21 +185,35 @@ export function PlayersWeb(): React.JSX.Element {
     [players, searchTerm, selectedPosition]
   );
 
-  if (loading) return <LoadingView />;
-  if (error) return <ErrorView error={error} />;
+  return {
+    loading,
+    error,
+    searchTerm,
+    setSearchTerm,
+    selectedPosition,
+    setSelectedPosition,
+    positions,
+    filteredPlayers
+  };
+};
+
+export function PlayersWeb(): React.JSX.Element {
+  const data = usePlayersWebData();
+  if (data.loading) return <LoadingView />;
+  if (data.error) return <ErrorView error={data.error} />;
 
   return (
     <div style={styles.container}>
-      <PlayersHeader playerCount={filteredPlayers.length} />
+      <PlayersHeader playerCount={data.filteredPlayers.length} />
       <div style={styles.controls}>
-        <SearchInput value={searchTerm} onChange={setSearchTerm} />
+        <SearchInput value={data.searchTerm} onChange={data.setSearchTerm} />
         <PositionFilter
-          positions={positions}
-          selectedPosition={selectedPosition}
-          onPositionChange={setSelectedPosition}
+          positions={data.positions}
+          selectedPosition={data.selectedPosition}
+          onPositionChange={data.setSelectedPosition}
         />
       </div>
-      <PlayersGrid players={filteredPlayers} />
+      <PlayersGrid players={data.filteredPlayers} />
     </div>
   );
 }

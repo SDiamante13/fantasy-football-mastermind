@@ -48,38 +48,31 @@ const RosterSection: React.FC<{
   );
 };
 
-const useLeaguesData = (): {
+type LeaguesData = {
   userData: ReturnType<typeof useSleeperUser>;
   leaguesData: ReturnType<typeof useSleeperLeagues>;
   rosterData: ReturnType<typeof useSleeperRoster>;
   selectedLeague: string | null;
   setSelectedLeague: (id: string | null) => void;
-} => {
+};
+
+const useLeaguesData = (): LeaguesData => {
   const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
   const userData = useSleeperUser();
   const leaguesData = useSleeperLeagues();
   const rosterData = useSleeperRoster();
-
   useEffect(() => {
     if (userData.user?.user_id) void leaguesData.fetchLeagues(userData.user.user_id);
   }, [userData.user, leaguesData.fetchLeagues]);
-
   useEffect(() => {
     if (selectedLeague && userData.user?.user_id) {
       void rosterData.fetchRoster(selectedLeague, userData.user.user_id);
     }
   }, [selectedLeague, userData.user?.user_id, rosterData.fetchRoster]);
-
-  return {
-    userData,
-    leaguesData,
-    rosterData,
-    selectedLeague,
-    setSelectedLeague
-  };
+  return { userData, leaguesData, rosterData, selectedLeague, setSelectedLeague };
 };
 
-const MainContent: React.FC<{
+type MainContentData = {
   username: string;
   userData: ReturnType<typeof useSleeperUser>;
   leaguesData: ReturnType<typeof useSleeperLeagues>;
@@ -89,57 +82,82 @@ const MainContent: React.FC<{
   onUsernameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   onLeagueKeyDown: (e: React.KeyboardEvent, id: string) => void;
-}> = ({
-  username,
-  userData,
-  leaguesData,
-  rosterData,
-  selectedLeague,
-  setSelectedLeague,
-  onUsernameChange,
-  onSubmit,
-  onLeagueKeyDown
-}) => (
+};
+
+const UserSection: React.FC<{
+  userData: ReturnType<typeof useSleeperUser>;
+  leaguesData: ReturnType<typeof useSleeperLeagues>;
+}> = ({ userData, leaguesData }) => (
+  <>
+    {userData.error && <ErrorMessage error={userData.error} styles={styles} />}
+    {userData.user && <UserInfo user={userData.user} styles={styles} />}
+    {leaguesData.loading && <LoadingMessage message="Loading your leagues..." styles={styles} />}
+    {leaguesData.error && <ErrorMessage error={leaguesData.error} styles={styles} />}
+  </>
+);
+
+const LeaguesDisplay: React.FC<{
+  leaguesData: ReturnType<typeof useSleeperLeagues>;
+  rosterData: ReturnType<typeof useSleeperRoster>;
+  selectedLeague: string | null;
+  setSelectedLeague: (id: string) => void;
+  onLeagueKeyDown: (e: React.KeyboardEvent, id: string) => void;
+}> = props => (
+  <>
+    {props.leaguesData.leagues.length > 0 && (
+      <LeaguesList
+        leagues={props.leaguesData.leagues}
+        selectedLeague={props.selectedLeague}
+        onLeagueSelect={props.setSelectedLeague}
+        onLeagueKeyDown={props.onLeagueKeyDown}
+        styles={styles}
+      />
+    )}
+    <RosterSection
+      selectedLeague={props.selectedLeague}
+      roster={props.rosterData.roster}
+      rosterLoading={props.rosterData.loading}
+      rosterError={props.rosterData.error}
+      styles={styles}
+    />
+  </>
+);
+
+const MainContent: React.FC<MainContentData> = props => (
   <section style={styles.usernameSection}>
     <UsernameForm
-      username={username}
-      loading={userData.loading}
-      onUsernameChange={onUsernameChange}
-      onSubmit={onSubmit}
+      username={props.username}
+      loading={props.userData.loading}
+      onUsernameChange={props.onUsernameChange}
+      onSubmit={props.onSubmit}
       styles={styles}
     />
     <div id="username-help" style={styles.helpText}>
       Enter your Sleeper username to view your fantasy leagues and rosters
     </div>
-    {userData.error && <ErrorMessage error={userData.error} styles={styles} />}
-    {userData.user && <UserInfo user={userData.user} styles={styles} />}
-    {leaguesData.loading && <LoadingMessage message="Loading your leagues..." styles={styles} />}
-    {leaguesData.error && <ErrorMessage error={leaguesData.error} styles={styles} />}
-    {leaguesData.leagues.length > 0 && (
-      <LeaguesList
-        leagues={leaguesData.leagues}
-        selectedLeague={selectedLeague}
-        onLeagueSelect={setSelectedLeague}
-        onLeagueKeyDown={onLeagueKeyDown}
-        styles={styles}
-      />
-    )}
-    <RosterSection
-      selectedLeague={selectedLeague}
-      roster={rosterData.roster}
-      rosterLoading={rosterData.loading}
-      rosterError={rosterData.error}
-      styles={styles}
+    <UserSection userData={props.userData} leaguesData={props.leaguesData} />
+    <LeaguesDisplay
+      leaguesData={props.leaguesData}
+      rosterData={props.rosterData}
+      selectedLeague={props.selectedLeague}
+      setSelectedLeague={props.setSelectedLeague}
+      onLeagueKeyDown={props.onLeagueKeyDown}
     />
   </section>
 );
+
+type LeaguesHandlers = {
+  handleUsernameSubmit: (e: React.FormEvent) => void;
+  handleUsernameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleLeagueKeyDown: (e: React.KeyboardEvent, leagueId: string) => void;
+};
 
 const useLeaguesHandlers = (
   username: string,
   setUsername: (value: string) => void,
   userData: ReturnType<typeof useSleeperUser>,
   setSelectedLeague: (id: string | null) => void
-) => {
+): LeaguesHandlers => {
   const handleUsernameSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
     if (username.trim()) void userData.fetchUser(username.trim());

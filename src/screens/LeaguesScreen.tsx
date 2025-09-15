@@ -267,29 +267,29 @@ const LeaguesContent = ({
   </LeaguesContentLayout>
 );
 
-const useLeaguesScreenData = () => {
+type LeaguesScreenData = {
+  username: string;
+  setUsername: (value: string) => void;
+  handleSubmit: () => void;
+  userError: string | null;
+  leaguesError: string | null;
+  userLoading: boolean;
+  user: User | null;
+  leaguesLoading: boolean;
+  leagues: League[];
+};
+
+const useLeaguesScreenData = (): LeaguesScreenData => {
   const [username, setUsername] = useState('');
   const [submittedUsername, setSubmittedUsername] = useState('');
-
   const { user, loading: userLoading, error: userError } = useSleeperUser(submittedUsername);
   const { leagues, loading: leaguesLoading, error: leaguesError } = useUserLeagues(
     user?.user_id || null
   );
-
-  const handleSubmit = (): void => {
-    setSubmittedUsername(username.trim());
-  };
-
+  const handleSubmit = (): void => setSubmittedUsername(username.trim());
   return {
-    username,
-    setUsername,
-    handleSubmit,
-    userError,
-    leaguesError,
-    userLoading,
-    user,
-    leaguesLoading,
-    leagues
+    username, setUsername, handleSubmit, userError, leaguesError,
+    userLoading, user, leaguesLoading, leagues
   };
 };
 

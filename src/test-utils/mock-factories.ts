@@ -9,7 +9,7 @@ export const createMockService = <
   const mock = {} as T;
 
   for (const [methodName, returnValue] of Object.entries(serviceMethods)) {
-    mock[methodName as keyof T] = (() => returnValue) as T[keyof T];
+    mock[methodName as keyof T] = (() => returnValue) as unknown as T[keyof T];
   }
 
   return mock;

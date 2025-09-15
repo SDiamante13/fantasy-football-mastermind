@@ -6,7 +6,8 @@ import {
   FlatList,
   TextInput,
   TouchableOpacity,
-  Animated
+  Animated,
+  ViewStyle
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -247,29 +248,30 @@ const ErrorView = ({ error }: { error: string }): React.JSX.Element => (
   </SafeAreaView>
 );
 
-const PositionButton = ({
-  position,
-  selectedPosition,
-  setSelectedPosition
-}: {
+type PositionButtonProps = {
   position: string;
   selectedPosition: string;
   setSelectedPosition: (position: string) => void;
-}): React.JSX.Element => {
-  const isSelected = selectedPosition === position;
-  const positionLabel = position === 'ALL' ? 'All positions' : `${position} position`;
+};
+
+const PositionButton: React.FC<PositionButtonProps> = props => {
+  const isSelected = props.selectedPosition === props.position;
+  const positionLabel = props.position === 'ALL' ? 'All positions' : `${props.position} position`;
+  const accessibilityProps = {
+    accessibilityRole: 'button' as const,
+    accessibilityLabel: `Filter by ${positionLabel}`,
+    accessibilityState: { selected: isSelected },
+    accessibilityHint: `Tap to ${isSelected ? 'keep' : 'filter by'} ${positionLabel}`
+  };
 
   return (
     <TouchableOpacity
       style={[styles.positionButton, isSelected && styles.selectedPositionButton]}
-      onPress={() => setSelectedPosition(position)}
-      accessibilityRole="button"
-      accessibilityLabel={`Filter by ${positionLabel}`}
-      accessibilityState={{ selected: isSelected }}
-      accessibilityHint={`Tap to ${isSelected ? 'keep' : 'filter by'} ${positionLabel}`}
+      onPress={() => props.setSelectedPosition(props.position)}
+      {...accessibilityProps}
     >
       <Text style={[styles.positionButtonText, isSelected && styles.selectedPositionButtonText]}>
-        {position}
+        {props.position}
       </Text>
     </TouchableOpacity>
   );
@@ -397,7 +399,7 @@ const PlayersContent = ({
   </PlayersContentLayout>
 );
 
-const usePlayersData = (): {
+type PlayersData = {
   loading: boolean;
   error: string | null;
   searchTerm: string;
@@ -406,54 +408,36 @@ const usePlayersData = (): {
   setSelectedPosition: (value: string) => void;
   positions: string[];
   filteredPlayers: Player[];
-} => {
+};
+
+const usePlayersData = (): PlayersData => {
   const { players, loading, error } = useAllPlayers();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<string>('ALL');
-
   const positions = ['ALL', 'QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
-
   const filteredPlayers = useMemo(
     () => filterPlayers(players, searchTerm, selectedPosition),
     [players, searchTerm, selectedPosition]
   );
-
   return {
-    loading,
-    error,
-    searchTerm,
-    setSearchTerm,
-    selectedPosition,
-    setSelectedPosition,
-    positions,
-    filteredPlayers
+    loading, error, searchTerm, setSearchTerm,
+    selectedPosition, setSelectedPosition, positions, filteredPlayers
   };
 };
 
 export function PlayersScreen(): React.JSX.Element {
-  const {
-    loading,
-    error,
-    searchTerm,
-    setSearchTerm,
-    selectedPosition,
-    setSelectedPosition,
-    positions,
-    filteredPlayers
-  } = usePlayersData();
-
-  if (loading) return <LoadingView />;
-  if (error) return <ErrorView error={error} />;
-
+  const data = usePlayersData();
+  if (data.loading) return <LoadingView />;
+  if (data.error) return <ErrorView error={data.error} />;
   return (
     <SafeAreaView style={styles.container}>
       <PlayersContent
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        positions={positions}
-        selectedPosition={selectedPosition}
-        setSelectedPosition={setSelectedPosition}
-        filteredPlayers={filteredPlayers}
+        searchTerm={data.searchTerm}
+        setSearchTerm={data.setSearchTerm}
+        positions={data.positions}
+        selectedPosition={data.selectedPosition}
+        setSelectedPosition={data.setSelectedPosition}
+        filteredPlayers={data.filteredPlayers}
       />
     </SafeAreaView>
   );

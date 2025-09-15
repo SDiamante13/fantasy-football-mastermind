@@ -10,14 +10,14 @@ jest.mock('@react-navigation/bottom-tabs', () => {
   return {
     createBottomTabNavigator: (): {
       Navigator: ({ children }: { children: React.ReactNode }) => React.ReactNode;
-      Screen: ({ component: Component }: { component?: React.ComponentType }) => React.ReactElement | null;
+      Screen: ({ component }: { component?: React.ComponentType }) => React.ReactElement | null;
     } => ({
       Navigator: ({ children }: { children: React.ReactNode }): React.ReactNode => children,
-      Screen: ({ component: Component }: { component?: React.ComponentType }): React.ReactElement | null => {
+      Screen: ({ component }: { component?: React.ComponentType }): React.ReactElement | null => {
         // Only render the first screen (Home) by default in tests
-        if (Component && isFirstScreen) {
+        if (component && isFirstScreen) {
           isFirstScreen = false;
-          return React.createElement(Component);
+          return React.createElement(component);
         }
         return null;
       },

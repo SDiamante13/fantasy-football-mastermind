@@ -111,7 +111,7 @@ function createGetProjections() {
       throw new Error(`Failed to fetch projections: ${response.status}`);
     }
 
-    const projectionsArray = await response.json();
+    const projectionsArray = await response.json() as SleeperProjection[];
 
     // Convert array to keyed object by player_id for easier lookup
     const projectionsMap: Record<string, SleeperProjection> = {};

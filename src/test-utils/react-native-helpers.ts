@@ -21,7 +21,7 @@ export const expectVisible = (element: TestElement): void => {
  * Wraps user interactions in act() for proper React state updates
  */
 export const performUserAction = async (action: () => Promise<void>): Promise<void> => {
-  await act(async () => {
+  await (act as (callback: () => Promise<void>) => Promise<void>)(async () => {
     await action();
   });
 };

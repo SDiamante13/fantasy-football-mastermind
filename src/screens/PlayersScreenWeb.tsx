@@ -69,7 +69,7 @@ const PositionFilter: React.FC<{
   </TouchableOpacity>
 );
 
-const usePlayersWebData = (): {
+type PlayersWebData = {
   players: Record<string, Player>;
   loading: boolean;
   error: string | null;
@@ -79,74 +79,67 @@ const usePlayersWebData = (): {
   setSelectedPosition: (value: string) => void;
   positions: string[];
   filteredPlayers: Player[];
-} => {
+};
+
+const usePlayersWebData = (): PlayersWebData => {
   const { players, loading, error } = useAllPlayers();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<string>('ALL');
   const positions = ['ALL', 'QB', 'RB', 'WR', 'TE'];
-
   const filteredPlayers = useMemo(
     () => filterPlayers(players, searchTerm, selectedPosition),
     [players, searchTerm, selectedPosition]
   );
-
   return {
-    players,
-    loading,
-    error,
-    searchTerm,
-    setSearchTerm,
-    selectedPosition,
-    setSelectedPosition,
-    positions,
-    filteredPlayers
+    players, loading, error, searchTerm, setSearchTerm,
+    selectedPosition, setSelectedPosition, positions, filteredPlayers
   };
 };
 
+const PlayersHeader: React.FC<{ data: PlayersWebData }> = ({ data }) => (
+  <>
+    <Text style={styles.title}>🌐 Players (Web Test)</Text>
+    <TextInput
+      style={styles.searchInput}
+      value={data.searchTerm}
+      onChangeText={data.setSearchTerm}
+      placeholder="Search players..."
+    />
+    <View style={styles.positionFilters}>
+      {data.positions.map(position => (
+        <PositionFilter
+          key={position}
+          position={position}
+          isSelected={data.selectedPosition === position}
+          onPress={() => data.setSelectedPosition(position)}
+        />
+      ))}
+    </View>
+    <Text style={styles.resultCount}>
+      Players: {Object.keys(data.players || {}).length}, Showing: {data.filteredPlayers.length}
+    </Text>
+  </>
+);
+
+const PlayersList: React.FC<{ data: PlayersWebData }> = ({ data }) => (
+  <>
+    <PlayersHeader data={data} />
+    <FlatList
+      data={data.filteredPlayers}
+      renderItem={renderPlayer}
+      keyExtractor={item => item.player_id}
+      style={styles.playersList}
+    />
+  </>
+);
+
 export function PlayersScreenWeb(): React.JSX.Element {
-  const {
-    players,
-    loading,
-    error,
-    searchTerm,
-    setSearchTerm,
-    selectedPosition,
-    setSelectedPosition,
-    positions,
-    filteredPlayers
-  } = usePlayersWebData();
-
-  if (loading) return <LoadingView />;
-  if (error) return <ErrorView error={error} />;
-
+  const data = usePlayersWebData();
+  if (data.loading) return <LoadingView />;
+  if (data.error) return <ErrorView error={data.error} />;
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🌐 Players (Web Test)</Text>
-      <TextInput
-        style={styles.searchInput}
-        value={searchTerm}
-        onChangeText={setSearchTerm}
-        placeholder="Search players..."
-      />
-      <View style={styles.positionFilters}>
-        {positions.map(position => (
-          <PositionFilter
-            key={position}
-            position={position}
-            isSelected={selectedPosition === position}
-            onPress={() => setSelectedPosition(position)}
-          />
-        ))}
-      </View>
-      <Text style={styles.resultCount}>
-        Players loaded: {Object.keys(players || {}).length}, Showing: {filteredPlayers.length}
-      </Text>
-      <FlatList
-        data={filteredPlayers}
-        renderItem={renderPlayer}
-        keyExtractor={item => item.player_id}
-        style={styles.playersList}
-      />
+      <PlayersList data={data} />
     </View>
   );
 }

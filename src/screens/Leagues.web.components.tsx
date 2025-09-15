@@ -158,9 +158,9 @@ export const LeagueCard: React.FC<LeagueCardProps> = ({
     onClick: onSelect,
     onKeyDown,
     tabIndex: 0,
-    role: "button" as const,
-    "aria-pressed": isSelected,
-    "aria-label": `Select ${league.name} league`
+    role: 'button' as const,
+    'aria-pressed': isSelected,
+    'aria-label': `Select ${league.name} league`
   };
 
   return (
