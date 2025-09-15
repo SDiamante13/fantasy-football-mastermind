@@ -5,22 +5,39 @@ import type { Player } from '../sleeper/types';
 
 type Position = 'ALL' | 'QB' | 'RB' | 'WR' | 'TE' | 'K' | 'DEF';
 
+const isRetiredVeteran = (player: Player): boolean => {
+  return !player.team && !!player.years_exp && player.years_exp > 15;
+};
+
+const isYoungFreeAgent = (player: Player): boolean => {
+  return !player.team && (!player.years_exp || player.years_exp <= 2);
+};
+
 const isRelevantPlayer = (player: Player): boolean => {
-  // Filter out retired free agents and irrelevant players
-  if (!player.team && player.years_exp && player.years_exp > 15) {
-    return false; // Likely retired veteran
-  }
-
-  // Keep players with teams (active roster)
+  if (isRetiredVeteran(player)) return false;
   if (player.team) return true;
-
-  // Keep young free agents (rookies, 2nd year players)
-  if (!player.team && (!player.years_exp || player.years_exp <= 2)) {
-    return true;
-  }
-
-  // Keep free agents with recent activity (this is a simplified filter)
+  if (isYoungFreeAgent(player)) return true;
   return false;
+};
+
+const matchesSearchCriteria = (
+  player: Player,
+  searchTerm: string,
+  selectedPosition: Position
+): boolean => {
+  const hasName = Boolean(player.full_name);
+  const isRelevant = isRelevantPlayer(player);
+  const matchesSearch =
+    searchTerm === '' || player.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
+  const matchesPosition = selectedPosition === 'ALL' || player.position === selectedPosition;
+
+  return hasName && isRelevant && matchesSearch && matchesPosition;
+};
+
+const sortPlayers = (a: Player, b: Player): number => {
+  if (a.team && !b.team) return -1;
+  if (!a.team && b.team) return 1;
+  return a.full_name.localeCompare(b.full_name);
 };
 
 const filterPlayers = (
@@ -28,41 +45,19 @@ const filterPlayers = (
   searchTerm: string,
   selectedPosition: Position
 ): Player[] => {
-  console.log('🔍 Players.web filterPlayers:', {
-    playersCount: Object.keys(players).length,
-    searchTerm,
-    selectedPosition
-  });
-
   if (!players) return [];
 
-  const filtered = Object.values(players)
-    .filter((player: Player) => {
-      const hasName = Boolean(player.full_name);
-      const isRelevant = isRelevantPlayer(player);
-      const matchesSearch =
-        searchTerm === '' || player.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesPosition = selectedPosition === 'ALL' || player.position === selectedPosition;
-
-      return hasName && isRelevant && matchesSearch && matchesPosition;
-    })
-    .sort((a: Player, b: Player) => {
-      // Sort by: 1) Players with teams first, 2) Alphabetical
-      if (a.team && !b.team) return -1;
-      if (!a.team && b.team) return 1;
-      return a.full_name.localeCompare(b.full_name);
-    })
-    .slice(0, 150); // Show more relevant players
-
-  console.log('🔍 Players.web filtered result:', filtered.length);
-  return filtered;
+  return Object.values(players)
+    .filter(player => matchesSearchCriteria(player, searchTerm, selectedPosition))
+    .sort(sortPlayers)
+    .slice(0, 150);
 };
 
 const SearchInput: React.FC<{
   value: string;
   onChange: (value: string) => void;
 }> = ({ value, onChange }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     onChange(e.target.value);
   };
 
@@ -129,9 +124,38 @@ const ErrorView: React.FC<{ error: string }> = ({ error }) => (
   </div>
 );
 
-export function PlayersWeb(): React.JSX.Element {
-  console.log('🏈 PlayersWeb: Component mounting');
+const PlayersHeader: React.FC<{ playerCount: number }> = ({ playerCount }) => (
+  <header style={styles.header}>
+    <h1 style={styles.title}>🏈 NFL Player Database</h1>
+    <p style={styles.subtitle}>
+      Search active NFL players for fantasy analysis, trade research, and roster planning. Find
+      player stats, team affiliations, and experience levels.
+    </p>
+    <div style={styles.statsContainer}>
+      <span style={styles.statsText}>Active Players: {playerCount}</span>
+    </div>
+  </header>
+);
 
+const PlayersGrid: React.FC<{ players: Player[] }> = ({ players }) => {
+  if (players.length === 0) {
+    return (
+      <div style={styles.noResults}>
+        <p>No players found matching your criteria</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={styles.playersGrid}>
+      {players.map(player => (
+        <PlayerCard key={player.player_id} player={player} />
+      ))}
+    </div>
+  );
+};
+
+export function PlayersWeb(): React.JSX.Element {
   const { players, loading, error } = useAllPlayers();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<Position>('ALL');
@@ -143,34 +167,12 @@ export function PlayersWeb(): React.JSX.Element {
     [players, searchTerm, selectedPosition]
   );
 
-  console.log('🏈 PlayersWeb render:', {
-    loading,
-    error,
-    playersCount: Object.keys(players || {}).length,
-    filteredCount: filteredPlayers.length
-  });
-
-  if (loading) {
-    return <LoadingView />;
-  }
-
-  if (error) {
-    return <ErrorView error={error} />;
-  }
+  if (loading) return <LoadingView />;
+  if (error) return <ErrorView error={error} />;
 
   return (
     <div style={styles.container}>
-      <header style={styles.header}>
-        <h1 style={styles.title}>🏈 NFL Player Database</h1>
-        <p style={styles.subtitle}>
-          Search active NFL players for fantasy analysis, trade research, and roster planning. Find
-          player stats, team affiliations, and experience levels.
-        </p>
-        <div style={styles.statsContainer}>
-          <span style={styles.statsText}>Active Players: {filteredPlayers.length}</span>
-        </div>
-      </header>
-
+      <PlayersHeader playerCount={filteredPlayers.length} />
       <div style={styles.controls}>
         <SearchInput value={searchTerm} onChange={setSearchTerm} />
         <PositionFilter
@@ -179,16 +181,7 @@ export function PlayersWeb(): React.JSX.Element {
           onPositionChange={setSelectedPosition}
         />
       </div>
-
-      <div style={styles.playersGrid}>
-        {filteredPlayers.length === 0 ? (
-          <div style={styles.noResults}>
-            <p>No players found matching your criteria</p>
-          </div>
-        ) : (
-          filteredPlayers.map(player => <PlayerCard key={player.player_id} player={player} />)
-        )}
-      </div>
+      <PlayersGrid players={filteredPlayers} />
     </div>
   );
 }

@@ -13,24 +13,128 @@ import {
   ErrorMessage
 } from './Leagues.web.components';
 
+type SleeperRosterPlayer = {
+  player_id: string;
+  name: string;
+  position: string;
+  team: string;
+  projected_points: number;
+  matchup: string;
+};
+
+const LeaguesHeader: React.FC = () => (
+  <header style={styles.header}>
+    <h1 style={styles.title}>⚡ Your Fantasy Leagues</h1>
+    <p style={styles.subtitle}>Enter your Sleeper username to view your leagues and rosters</p>
+  </header>
+);
+
+const RosterSection: React.FC<{
+  selectedLeague: string | null;
+  roster: SleeperRosterPlayer[];
+  rosterLoading: boolean;
+  rosterError: string | null;
+  styles: Record<string, React.CSSProperties>;
+}> = ({ selectedLeague, roster, rosterLoading, rosterError, styles }) => {
+  if (!selectedLeague) return null;
+
+  return (
+    <section style={styles.rosterSection}>
+      <h3>League Roster</h3>
+      {rosterLoading && <LoadingMessage message="Loading roster..." styles={styles} />}
+      {rosterError && <ErrorMessage error={rosterError} styles={styles} />}
+      {roster.length > 0 && <RosterGrid roster={roster} styles={styles} />}
+    </section>
+  );
+};
+
+const useLeaguesData = () => {
+  const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
+  const userData = useSleeperUser();
+  const leaguesData = useSleeperLeagues();
+  const rosterData = useSleeperRoster();
+
+  useEffect(() => {
+    if (userData.user?.user_id) void leaguesData.fetchLeagues(userData.user.user_id);
+  }, [userData.user, leaguesData.fetchLeagues]);
+
+  useEffect(() => {
+    if (selectedLeague && userData.user?.user_id) {
+      void rosterData.fetchRoster(selectedLeague, userData.user.user_id);
+    }
+  }, [selectedLeague, userData.user?.user_id, rosterData.fetchRoster]);
+
+  return {
+    userData,
+    leaguesData,
+    rosterData,
+    selectedLeague,
+    setSelectedLeague
+  };
+};
+
+const MainContent: React.FC<{
+  username: string;
+  userData: ReturnType<typeof useSleeperUser>;
+  leaguesData: ReturnType<typeof useSleeperLeagues>;
+  rosterData: ReturnType<typeof useSleeperRoster>;
+  selectedLeague: string | null;
+  setSelectedLeague: (id: string) => void;
+  onUsernameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSubmit: (e: React.FormEvent) => void;
+  onLeagueKeyDown: (e: React.KeyboardEvent, id: string) => void;
+}> = ({
+  username,
+  userData,
+  leaguesData,
+  rosterData,
+  selectedLeague,
+  setSelectedLeague,
+  onUsernameChange,
+  onSubmit,
+  onLeagueKeyDown
+}) => (
+  <section style={styles.usernameSection}>
+    <UsernameForm
+      username={username}
+      loading={userData.loading}
+      onUsernameChange={onUsernameChange}
+      onSubmit={onSubmit}
+      styles={styles}
+    />
+    <div id="username-help" style={styles.helpText}>
+      Enter your Sleeper username to view your fantasy leagues and rosters
+    </div>
+    {userData.error && <ErrorMessage error={userData.error} styles={styles} />}
+    {userData.user && <UserInfo user={userData.user} styles={styles} />}
+    {leaguesData.loading && <LoadingMessage message="Loading your leagues..." styles={styles} />}
+    {leaguesData.error && <ErrorMessage error={leaguesData.error} styles={styles} />}
+    {leaguesData.leagues.length > 0 && (
+      <LeaguesList
+        leagues={leaguesData.leagues}
+        selectedLeague={selectedLeague}
+        onLeagueSelect={setSelectedLeague}
+        onLeagueKeyDown={onLeagueKeyDown}
+        styles={styles}
+      />
+    )}
+    <RosterSection
+      selectedLeague={selectedLeague}
+      roster={rosterData.roster}
+      rosterLoading={rosterData.loading}
+      rosterError={rosterData.error}
+      styles={styles}
+    />
+  </section>
+);
+
 export function LeaguesWeb(): React.JSX.Element {
   const [username, setUsername] = useState('');
-  const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
-  const { user, error, loading, fetchUser } = useSleeperUser();
-  const { leagues, error: leaguesError, loading: leaguesLoading, fetchLeagues } = useSleeperLeagues();
-  const { roster, error: rosterError, loading: rosterLoading, fetchRoster } = useSleeperRoster();
-
-  useEffect(() => {
-    if (user?.user_id) void fetchLeagues(user.user_id);
-  }, [user]);
-
-  useEffect(() => {
-    if (selectedLeague && user?.user_id) void fetchRoster(selectedLeague, user.user_id);
-  }, [selectedLeague, user?.user_id, fetchRoster]);
+  const { userData, leaguesData, rosterData, selectedLeague, setSelectedLeague } = useLeaguesData();
 
   const handleUsernameSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
-    if (username.trim()) void fetchUser(username.trim());
+    if (username.trim()) void userData.fetchUser(username.trim());
   };
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -46,48 +150,18 @@ export function LeaguesWeb(): React.JSX.Element {
 
   return (
     <div style={styles.container}>
-      <header style={styles.header}>
-        <h1 style={styles.title}>⚡ Your Fantasy Leagues</h1>
-        <p style={styles.subtitle}>Enter your Sleeper username to view your leagues and rosters</p>
-      </header>
-
-      <section style={styles.usernameSection}>
-        <UsernameForm
-          username={username}
-          loading={loading}
-          onUsernameChange={handleUsernameChange}
-          onSubmit={handleUsernameSubmit}
-          styles={styles}
-        />
-
-        <div id="username-help" style={styles.helpText}>
-          Enter your Sleeper username to view your fantasy leagues and rosters
-        </div>
-
-        {error && <ErrorMessage error={error} styles={styles} />}
-        {user && <UserInfo user={user} styles={styles} />}
-        {leaguesLoading && <LoadingMessage message="Loading your leagues..." styles={styles} />}
-        {leaguesError && <ErrorMessage error={leaguesError} styles={styles} />}
-
-        {leagues.length > 0 && (
-          <LeaguesList
-            leagues={leagues}
-            selectedLeague={selectedLeague}
-            onLeagueSelect={setSelectedLeague}
-            onLeagueKeyDown={handleLeagueKeyDown}
-            styles={styles}
-          />
-        )}
-
-        {selectedLeague && (
-          <section style={styles.rosterSection}>
-            <h3>League Roster</h3>
-            {rosterLoading && <LoadingMessage message="Loading roster..." styles={styles} />}
-            {rosterError && <ErrorMessage error={rosterError} styles={styles} />}
-            {roster.length > 0 && <RosterGrid roster={roster} styles={styles} />}
-          </section>
-        )}
-      </section>
+      <LeaguesHeader />
+      <MainContent
+        username={username}
+        userData={userData}
+        leaguesData={leaguesData}
+        rosterData={rosterData}
+        selectedLeague={selectedLeague}
+        setSelectedLeague={setSelectedLeague}
+        onUsernameChange={handleUsernameChange}
+        onSubmit={handleUsernameSubmit}
+        onLeagueKeyDown={handleLeagueKeyDown}
+      />
     </div>
   );
 }
