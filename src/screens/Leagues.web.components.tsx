@@ -63,39 +63,51 @@ interface RosterGridProps {
 }
 
 // Components
+const SubmitButton: React.FC<{
+  loading: boolean;
+  disabled: boolean;
+  styles: Record<string, React.CSSProperties>;
+}> = ({ loading, disabled, styles }) => {
+  const buttonStyle = {
+    ...styles.submitButton,
+    opacity: disabled ? 0.6 : 1
+  };
+
+  return (
+    <button type="submit" disabled={disabled} style={buttonStyle}>
+      {loading ? 'Loading...' : 'Get Leagues'}
+    </button>
+  );
+};
+
 export const UsernameForm: React.FC<UsernameFormProps> = ({
   username,
   loading,
   onUsernameChange,
   onSubmit,
   styles
-}) => (
-  <form onSubmit={onSubmit} style={styles.usernameForm}>
-    <div style={styles.inputGroup}>
-      <input
-        type="text"
-        value={username}
-        onChange={onUsernameChange}
-        placeholder="Enter your Sleeper username"
-        style={styles.usernameInput}
-        disabled={loading}
-        aria-label="Sleeper username"
-        aria-describedby="username-help"
-        aria-required="true"
-      />
-      <button
-        type="submit"
-        disabled={loading || !username.trim()}
-        style={{
-          ...styles.submitButton,
-          opacity: loading || !username.trim() ? 0.6 : 1
-        }}
-      >
-        {loading ? 'Loading...' : 'Get Leagues'}
-      </button>
-    </div>
-  </form>
-);
+}) => {
+  const isDisabled = loading || !username.trim();
+
+  return (
+    <form onSubmit={onSubmit} style={styles.usernameForm}>
+      <div style={styles.inputGroup}>
+        <input
+          type="text"
+          value={username}
+          onChange={onUsernameChange}
+          placeholder="Enter your Sleeper username"
+          style={styles.usernameInput}
+          disabled={loading}
+          aria-label="Sleeper username"
+          aria-describedby="username-help"
+          aria-required="true"
+        />
+        <SubmitButton loading={loading} disabled={isDisabled} styles={styles} />
+      </div>
+    </form>
+  );
+};
 
 export const UserInfo: React.FC<UserInfoProps> = ({ user, styles }) => (
   <div style={styles.userInfo}>
@@ -104,37 +116,47 @@ export const UserInfo: React.FC<UserInfoProps> = ({ user, styles }) => (
   </div>
 );
 
+const LeagueCardDetails: React.FC<{ league: League; styles: Record<string, React.CSSProperties> }> = ({ league, styles }) => (
+  <>
+    <h4 style={styles.leagueName}>{league.name}</h4>
+    <div style={styles.leagueDetails}>
+      <span style={styles.leagueDetail}>Season: {league.season}</span>
+      <span style={styles.leagueDetail}>Status: {league.status}</span>
+    </div>
+  </>
+);
+
 export const LeagueCard: React.FC<LeagueCardProps> = ({
   league,
   isSelected,
   onSelect,
   onKeyDown,
   styles
-}) => (
-  <div
-    style={{
-      ...styles.leagueCard,
-      ...(isSelected ? styles.selectedLeagueCard : {})
-    }}
-    onClick={onSelect}
-    onKeyDown={onKeyDown}
-    tabIndex={0}
-    role="button"
-    aria-pressed={isSelected}
-    aria-label={`Select ${league.name} league`}
-  >
-    <h4 style={styles.leagueName}>{league.name}</h4>
-    <div style={styles.leagueDetails}>
-      <span style={styles.leagueDetail}>Season: {league.season}</span>
-      <span style={styles.leagueDetail}>Status: {league.status}</span>
+}) => {
+  const cardStyle = {
+    ...styles.leagueCard,
+    ...(isSelected ? styles.selectedLeagueCard : {})
+  };
+
+  return (
+    <div
+      style={cardStyle}
+      onClick={onSelect}
+      onKeyDown={onKeyDown}
+      tabIndex={0}
+      role="button"
+      aria-pressed={isSelected}
+      aria-label={`Select ${league.name} league`}
+    >
+      <LeagueCardDetails league={league} styles={styles} />
+      {isSelected && (
+        <div style={styles.selectedIndicator} aria-live="polite">
+          ✓ Selected
+        </div>
+      )}
     </div>
-    {isSelected && (
-      <div style={styles.selectedIndicator} aria-live="polite">
-        ✓ Selected
-      </div>
-    )}
-  </div>
-);
+  );
+};
 
 export const LeaguesList: React.FC<LeaguesListProps> = ({
   leagues,

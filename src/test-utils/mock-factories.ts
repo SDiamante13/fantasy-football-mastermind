@@ -174,9 +174,6 @@ export const faabServiceMocks = {
     })
 };
 
-import { Services as FaabServices } from '../faab/faab-optimizer';
-import { Services as TradeServices } from '../trades/trade-scanner';
-
 /**
  * Generic test helper for service tests
  */

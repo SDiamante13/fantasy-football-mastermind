@@ -1,3 +1,9 @@
+import {
+  fetchRosterData,
+  findUserRoster,
+  processRosterPlayers
+} from './sleeper-api.helpers';
+
 const SLEEPER_BASE_URL = 'https://api.sleeper.app/v1';
 
 type SleeperUser = {
@@ -127,66 +133,19 @@ function createGetRoster() {
   ): Promise<SleeperRosterPlayer[]> => {
     const currentSeason = new Date().getFullYear().toString();
 
-    const [rostersResponse, playersData, projectionsData] = await Promise.all([
-      fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/rosters`),
-      fetch(`${SLEEPER_BASE_URL}/players/nfl`),
-      createGetProjections()(currentSeason, week)
-    ]);
+    const { rosters, players, projections } = await fetchRosterData(
+      leagueId,
+      week,
+      currentSeason
+    );
 
-    if (!rostersResponse.ok) {
-      throw new Error(`Failed to fetch roster: ${rostersResponse.status}`);
-    }
-    if (!playersData.ok) {
-      throw new Error(`Failed to fetch players: ${playersData.status}`);
-    }
-
-    const rosters = await rostersResponse.json();
-    const players: Record<string, SleeperPlayer> = await playersData.json();
-    const projections = projectionsData;
-
-    // Find the specific roster for this user
-    const userRoster = rosters.find((roster: any) => roster.owner_id === userId);
+    const userRoster = findUserRoster(rosters, userId);
 
     if (!userRoster || !userRoster.players) {
       return [];
     }
 
-    // Process only the user's players with real Sleeper projections
-    return userRoster.players.map((playerId: string) => {
-      const player = players[playerId];
-      const projection = projections[playerId];
-
-      if (!player) {
-        return {
-          player_id: playerId,
-          name: `Player ${playerId.slice(-4)}`,
-          position: 'UNKNOWN',
-          team: 'FA',
-          projected_points: 0,
-          matchup: 'TBD'
-        };
-      }
-
-      const fullName = `${player.first_name || ''} ${player.last_name || ''}`.trim();
-      const position = player.fantasy_positions?.[0] || player.position || 'UNKNOWN';
-      const team = player.team || 'FA';
-
-      // Use real Sleeper projections or fallback to 0
-      let projectedPoints = 0;
-      if (projection?.stats) {
-        // Default to PPR scoring, fallback to standard
-        projectedPoints = Math.round(projection.stats.pts_ppr || projection.stats.pts_std || 0);
-      }
-
-      return {
-        player_id: playerId,
-        name: fullName || `Player ${playerId.slice(-4)}`,
-        position,
-        team,
-        projected_points: projectedPoints,
-        matchup: `${team} vs TBD`
-      };
-    });
+    return processRosterPlayers(userRoster.players, players, projections);
   };
 }
 

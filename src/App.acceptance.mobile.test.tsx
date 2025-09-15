@@ -14,8 +14,6 @@ import { LeaguesScreen } from './screens/LeaguesScreen';
 import { PlayersScreen } from './screens/PlayersScreen';
 import { mockSleeperApi } from './test-utils/mock-api';
 
-type TestElement = ReturnType<typeof screen.getByText>;
-
 // Mock the hooks to avoid actual API calls and skeleton animations
 jest.mock('./hooks/useSleeperApi', () => mockSleeperApi);
 
@@ -28,24 +26,24 @@ const renderHomeScreenAndVerifyElements = (): void => {
 };
 
 const enterUsernameAndLoadLeagues = async (user: ReturnType<typeof setupUser>): Promise<void> => {
-  const usernameInput = screen.getByPlaceholderText('Enter your Sleeper username') as TestElement;
-  const loadButton = screen.getByRole('button', { name: /Load leagues/i }) as TestElement;
+  const usernameInput = screen.getByPlaceholderText('Enter your Sleeper username');
+  const loadButton = screen.getByRole('button', { name: /Load leagues/i });
 
   await typeInField(user, usernameInput, 'testuser');
   await pressElement(user, loadButton);
 
-  await waitForElementToAppear(() => screen.getByText('testuser (@testuser)') as TestElement);
+  await waitForElementToAppear(() => screen.getByText('testuser (@testuser)'));
 };
 
 const searchPlayersAndFilter = async (user: ReturnType<typeof setupUser>): Promise<void> => {
   expectVisible(screen.getByRole('header', { name: /Player Analysis/i }));
 
-  const searchInput = screen.getByRole('search', { name: /Search players/i }) as TestElement;
+  const searchInput = screen.getByRole('search', { name: /Search players/i });
   await typeInField(user, searchInput, 'Test');
 
   expectVisible(screen.getByText('Test Player'));
 
-  const qbFilterButton = screen.getByRole('button', { name: /Filter by QB/i }) as TestElement;
+  const qbFilterButton = screen.getByRole('button', { name: /Filter by QB/i });
   expectVisible(qbFilterButton);
 
   await pressElement(user, qbFilterButton);
