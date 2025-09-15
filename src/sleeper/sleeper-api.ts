@@ -27,7 +27,7 @@ type Transaction = {
   created: number;
 };
 
-type SleeperPlayer = {
+export type SleeperPlayer = {
   player_id: string;
   first_name: string;
   last_name: string;
@@ -36,7 +36,7 @@ type SleeperPlayer = {
   fantasy_positions?: string[];
 };
 
-type SleeperProjection = {
+export type SleeperProjection = {
   player_id: string;
   stats: {
     pts_ppr: number;
@@ -53,7 +53,7 @@ type SleeperProjection = {
   season: string;
 };
 
-type SleeperRosterPlayer = {
+export type SleeperRosterPlayer = {
   player_id: string;
   name: string;
   position: string;

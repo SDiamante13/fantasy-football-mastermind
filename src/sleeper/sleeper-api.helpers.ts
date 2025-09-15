@@ -1,4 +1,4 @@
-import { SleeperPlayer, SleeperRosterPlayer } from './types';
+import { SleeperPlayer, SleeperRosterPlayer } from './sleeper-api';
 
 interface ProjectionData {
   stats?: {

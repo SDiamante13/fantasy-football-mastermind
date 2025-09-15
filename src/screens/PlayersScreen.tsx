@@ -126,7 +126,7 @@ const renderPlayer = ({ item }: { item: Player }): React.JSX.Element => {
   );
 };
 
-const useSkeletonAnimation = () => {
+const useSkeletonAnimation = (): Animated.AnimatedInterpolation<string> => {
   const animatedValue = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
@@ -172,7 +172,7 @@ const SkeletonBox = ({
           height,
           backgroundColor,
           borderRadius: 4
-        } as any,
+        } as ViewStyle,
         style
       ]}
     />

@@ -54,7 +54,7 @@ export const mockData = {
   },
 
   tradeOpportunity: {
-    basic: () => ({
+    basic: (): { teamA: string; teamB: string; mutualBenefit: number } => ({
       teamA: 'team_strong_rb',
       teamB: 'team_strong_wr',
       mutualBenefit: 1
@@ -62,7 +62,7 @@ export const mockData = {
   },
 
   tradeAssessment: {
-    fair: () => ({
+    fair: (): { teamAValueDiff: number; teamBValueDiff: number; fairness: 'fair'; totalValue: number } => ({
       teamAValueDiff: 3,
       teamBValueDiff: -3,
       fairness: 'fair' as const,
@@ -71,14 +71,14 @@ export const mockData = {
   },
 
   rosterAnalysis: {
-    rbStrong: () => ({
+    rbStrong: (): { strengths: string[]; weaknesses: string[]; overallScore: number; positionScores: Record<string, number> } => ({
       strengths: ['RB'],
       weaknesses: ['WR'],
       overallScore: 78,
       positionScores: { RB: 92, WR: 45 }
     }),
 
-    wrStrong: () => ({
+    wrStrong: (): { strengths: string[]; weaknesses: string[]; overallScore: number; positionScores: Record<string, number> } => ({
       strengths: ['WR'],
       weaknesses: ['RB'],
       overallScore: 76,
@@ -87,13 +87,13 @@ export const mockData = {
   },
 
   faabAnalysis: {
-    biddingData: () => ({
+    biddingData: (): { averageWinningBid: number; bidRange: { min: number; max: number }; sampleSize: number } => ({
       averageWinningBid: 28,
       bidRange: { min: 15, max: 45 },
       sampleSize: 6
     }),
 
-    playerValue: () => ({
+    playerValue: (): { tier: 'medium'; score: number; confidence: 'high'; factors: Record<string, number> } => ({
       tier: 'medium' as const,
       score: 68,
       confidence: 'high' as const,
@@ -106,7 +106,7 @@ export const mockData = {
       }
     }),
 
-    budget: () => ({
+    budget: (): { totalBudget: number; spent: number; remaining: number; percentageSpent: number; weeksRemaining: number } => ({
       totalBudget: 200,
       spent: 65,
       remaining: 135,
@@ -114,7 +114,7 @@ export const mockData = {
       weeksRemaining: 9
     }),
 
-    bidRecommendation: () => ({
+    bidRecommendation: (): { recommendedBid: number; winProbability: number; strategy: 'balanced'; confidence: 'high'; reasoning: string } => ({
       recommendedBid: 34,
       winProbability: 0.74,
       strategy: 'balanced' as const,
@@ -128,17 +128,17 @@ export const mockData = {
  * Trade service mock factories
  */
 export const tradeServiceMocks = {
-  tradeOpportunityDetector: () =>
+  tradeOpportunityDetector: (): ReturnType<typeof createMockService> =>
     createMockService({
       findTradeOpportunities: [mockData.tradeOpportunity.basic()]
     }),
 
-  tradeValueCalculator: () =>
+  tradeValueCalculator: (): ReturnType<typeof createMockService> =>
     createMockService({
       assessTrade: mockData.tradeAssessment.fair()
     }),
 
-  rosterAnalyzer: () =>
+  rosterAnalyzer: (): ReturnType<typeof createMockService> =>
     createMockService({
       analyzeRoster: (playerIds: string[]) => {
         if (playerIds.includes('strong_rb')) {
@@ -153,22 +153,22 @@ export const tradeServiceMocks = {
  * FAAB service mock factories
  */
 export const faabServiceMocks = {
-  biddingAnalyzer: () =>
+  biddingAnalyzer: (): ReturnType<typeof createMockService> =>
     createMockService({
       analyzeSimilarPlayers: mockData.faabAnalysis.biddingData()
     }),
 
-  playerValueAssessor: () =>
+  playerValueAssessor: (): ReturnType<typeof createMockService> =>
     createMockService({
       assessValue: mockData.faabAnalysis.playerValue()
     }),
 
-  budgetTracker: () =>
+  budgetTracker: (): ReturnType<typeof createMockService> =>
     createMockService({
       getBudgetStatus: mockData.faabAnalysis.budget()
     }),
 
-  bidCalculator: () =>
+  bidCalculator: (): ReturnType<typeof createMockService> =>
     createMockService({
       calculateOptimalBid: mockData.faabAnalysis.bidRecommendation()
     })
@@ -182,10 +182,10 @@ export const testService = <TService, TMocks>(
   createMocks: () => TMocks,
   testCases: {
     description: string;
-    act: (service: TService) => any;
-    expect: (result: any) => void;
+    act: (service: TService) => unknown;
+    expect: (result: unknown) => void;
   }[]
-) => {
+): void => {
   testCases.forEach(({ description, act, expect: expectResult }) => {
     it(description, () => {
       const mocks = createMocks();

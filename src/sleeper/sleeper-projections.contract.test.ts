@@ -32,7 +32,7 @@ describe('Sleeper Projections API Contract', () => {
     const projections = await response.json();
 
     // Find any projection entry to examine structure
-    let sampleProjection: any;
+    let sampleProjection: unknown;
     if (Array.isArray(projections)) {
       sampleProjection = projections[0];
     } else {

@@ -48,7 +48,13 @@ const RosterSection: React.FC<{
   );
 };
 
-const useLeaguesData = () => {
+const useLeaguesData = (): {
+  userData: ReturnType<typeof useSleeperUser>;
+  leaguesData: ReturnType<typeof useSleeperLeagues>;
+  rosterData: ReturnType<typeof useSleeperRoster>;
+  selectedLeague: string | null;
+  setSelectedLeague: (id: string | null) => void;
+} => {
   const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
   const userData = useSleeperUser();
   const leaguesData = useSleeperLeagues();
