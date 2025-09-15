@@ -3,43 +3,40 @@ import React, { useState, useEffect } from 'react';
 import { useSleeperUser } from '../hooks/useSleeperUser';
 import { useSleeperLeagues } from '../hooks/useSleeperLeagues';
 import { useSleeperRoster } from '../hooks/useSleeperRoster';
+import {
+  UsernameForm,
+  UserInfo,
+  LeaguesList,
+  RosterGrid,
+  LoadingMessage,
+  ErrorMessage
+} from './Leagues.web.components';
 
 export function LeaguesWeb(): React.JSX.Element {
   const [username, setUsername] = useState('');
   const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
   const { user, error, loading, fetchUser } = useSleeperUser();
-  const {
-    leagues,
-    error: leaguesError,
-    loading: leaguesLoading,
-    fetchLeagues
-  } = useSleeperLeagues();
+  const { leagues, error: leaguesError, loading: leaguesLoading, fetchLeagues } = useSleeperLeagues();
   const { roster, error: rosterError, loading: rosterLoading, fetchRoster } = useSleeperRoster();
 
   useEffect(() => {
-    if (user?.user_id) {
-      void fetchLeagues(user.user_id);
-    }
+    if (user?.user_id) void fetchLeagues(user.user_id);
   }, [user]);
 
   useEffect(() => {
-    if (selectedLeague && user?.user_id) {
-      void fetchRoster(selectedLeague, user.user_id);
-    }
+    if (selectedLeague && user?.user_id) void fetchRoster(selectedLeague, user.user_id);
   }, [selectedLeague, user?.user_id, fetchRoster]);
 
-  const handleUsernameSubmit = (e: React.FormEvent) => {
+  const handleUsernameSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
-    if (username.trim()) {
-      void fetchUser(username.trim());
-    }
+    if (username.trim()) void fetchUser(username.trim());
   };
 
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setUsername(e.target.value);
   };
 
-  const handleLeagueKeyDown = (e: React.KeyboardEvent, leagueId: string) => {
+  const handleLeagueKeyDown = (e: React.KeyboardEvent, leagueId: string): void => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       setSelectedLeague(leagueId);
@@ -54,117 +51,39 @@ export function LeaguesWeb(): React.JSX.Element {
       </header>
 
       <section style={styles.usernameSection}>
-        <form onSubmit={handleUsernameSubmit} style={styles.usernameForm}>
-          <div style={styles.inputGroup}>
-            <input
-              type="text"
-              value={username}
-              onChange={handleUsernameChange}
-              placeholder="Enter your Sleeper username"
-              style={styles.usernameInput}
-              disabled={loading}
-              aria-label="Sleeper username"
-              aria-describedby="username-help"
-              aria-required="true"
-            />
-            <button
-              type="submit"
-              disabled={loading || !username.trim()}
-              style={{
-                ...styles.submitButton,
-                opacity: loading || !username.trim() ? 0.6 : 1
-              }}
-            >
-              {loading ? 'Loading...' : 'Get Leagues'}
-            </button>
-          </div>
-        </form>
+        <UsernameForm
+          username={username}
+          loading={loading}
+          onUsernameChange={handleUsernameChange}
+          onSubmit={handleUsernameSubmit}
+          styles={styles}
+        />
 
         <div id="username-help" style={styles.helpText}>
           Enter your Sleeper username to view your fantasy leagues and rosters
         </div>
 
-        {error && <div style={styles.errorMessage}>{error}</div>}
-
-        {user && (
-          <div style={styles.userInfo}>
-            <h3>Welcome, {user.display_name}!</h3>
-            <p>User ID: {user.user_id}</p>
-          </div>
-        )}
-
-        {leaguesLoading && <div style={styles.loadingMessage}>Loading your leagues...</div>}
-
-        {leaguesError && <div style={styles.errorMessage}>{leaguesError}</div>}
+        {error && <ErrorMessage error={error} styles={styles} />}
+        {user && <UserInfo user={user} styles={styles} />}
+        {leaguesLoading && <LoadingMessage message="Loading your leagues..." styles={styles} />}
+        {leaguesError && <ErrorMessage error={leaguesError} styles={styles} />}
 
         {leagues.length > 0 && (
-          <div style={styles.leaguesSection}>
-            <h3>Your Leagues ({leagues.length})</h3>
-            <div style={styles.leaguesList}>
-              {leagues.map(league => (
-                <div
-                  key={league.league_id}
-                  style={{
-                    ...styles.leagueCard,
-                    ...(selectedLeague === league.league_id ? styles.selectedLeagueCard : {})
-                  }}
-                  onClick={() => setSelectedLeague(league.league_id)}
-                  onKeyDown={e => handleLeagueKeyDown(e, league.league_id)}
-                  tabIndex={0}
-                  role="button"
-                  aria-pressed={selectedLeague === league.league_id}
-                  aria-label={`Select ${league.name} league`}
-                >
-                  <h4 style={styles.leagueName}>{league.name}</h4>
-                  <div style={styles.leagueDetails}>
-                    <span style={styles.leagueDetail}>Season: {league.season}</span>
-                    <span style={styles.leagueDetail}>Status: {league.status}</span>
-                  </div>
-                  {selectedLeague === league.league_id && (
-                    <div style={styles.selectedIndicator} aria-live="polite">
-                      ✓ Selected
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+          <LeaguesList
+            leagues={leagues}
+            selectedLeague={selectedLeague}
+            onLeagueSelect={setSelectedLeague}
+            onLeagueKeyDown={handleLeagueKeyDown}
+            styles={styles}
+          />
         )}
 
         {selectedLeague && (
           <section style={styles.rosterSection}>
             <h3>League Roster</h3>
-
-            {rosterLoading && <div style={styles.loadingMessage}>Loading roster...</div>}
-
-            {rosterError && <div style={styles.errorMessage}>{rosterError}</div>}
-
-            {roster.length > 0 && (
-              <div style={styles.rosterGrid}>
-                {roster.map(player => (
-                  <div key={player.player_id} style={styles.playerCard}>
-                    <div style={styles.playerHeader}>
-                      <h4 style={styles.playerName}>{player.name}</h4>
-                      <span style={styles.playerPosition}>{player.position}</span>
-                    </div>
-                    <div style={styles.playerDetails}>
-                      <div style={styles.playerDetail}>
-                        <span style={styles.detailLabel}>Team:</span>
-                        <span style={styles.detailValue}>{player.team}</span>
-                      </div>
-                      <div style={styles.playerDetail}>
-                        <span style={styles.detailLabel}>Projected:</span>
-                        <span style={styles.detailValue}>{player.projected_points} pts</span>
-                      </div>
-                      <div style={styles.playerDetail}>
-                        <span style={styles.detailLabel}>Matchup:</span>
-                        <span style={styles.detailValue}>{player.matchup}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            {rosterLoading && <LoadingMessage message="Loading roster..." styles={styles} />}
+            {rosterError && <ErrorMessage error={rosterError} styles={styles} />}
+            {roster.length > 0 && <RosterGrid roster={roster} styles={styles} />}
           </section>
         )}
       </section>
@@ -175,12 +94,12 @@ export function LeaguesWeb(): React.JSX.Element {
 const styles = {
   container: {
     minHeight: '100%',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#f5f5f5',
     padding: '1rem'
   },
   header: {
-    marginBottom: '2rem',
-    textAlign: 'center' as const
+    textAlign: 'center' as const,
+    marginBottom: '2rem'
   },
   title: {
     fontSize: '2.5rem',
@@ -191,136 +110,113 @@ const styles = {
   subtitle: {
     fontSize: '1.125rem',
     color: '#666',
-    lineHeight: '1.6',
-    maxWidth: '800px',
-    margin: '0 auto'
+    margin: 0
   },
   usernameSection: {
-    maxWidth: '600px',
-    margin: '0 auto',
-    backgroundColor: 'white',
-    padding: '2rem',
-    borderRadius: '16px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+    maxWidth: '1200px',
+    margin: '0 auto'
   },
   usernameForm: {
     marginBottom: '1rem'
   },
-  helpText: {
-    fontSize: '0.875rem',
-    color: '#666',
-    marginBottom: '1.5rem',
-    textAlign: 'center' as const
-  },
   inputGroup: {
     display: 'flex',
-    gap: '1rem',
-    alignItems: 'center'
+    gap: '0.5rem',
+    justifyContent: 'center',
+    flexWrap: 'wrap' as const
   },
   usernameInput: {
-    flex: 1,
-    padding: '0.75rem 1rem',
-    border: '2px solid #e1e5e9',
-    borderRadius: '8px',
+    padding: '0.75rem',
     fontSize: '1rem',
-    outline: 'none',
-    transition: 'border-color 0.2s ease',
-    ':focus': {
-      borderColor: '#007bff',
-      boxShadow: '0 0 0 3px rgba(0,123,255,0.1)'
-    }
+    border: '2px solid #ddd',
+    borderRadius: '4px',
+    minWidth: '280px',
+    flex: '0 1 400px'
   },
   submitButton: {
     padding: '0.75rem 1.5rem',
+    fontSize: '1rem',
     backgroundColor: '#007bff',
     color: 'white',
     border: 'none',
-    borderRadius: '8px',
-    fontWeight: '600',
+    borderRadius: '4px',
     cursor: 'pointer',
+    fontWeight: '600'
+  },
+  helpText: {
+    textAlign: 'center' as const,
+    color: '#666',
+    fontSize: '0.875rem',
+    marginBottom: '1rem'
+  },
+  userInfo: {
+    backgroundColor: 'white',
+    padding: '1.5rem',
+    borderRadius: '8px',
+    marginBottom: '1.5rem',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    textAlign: 'center' as const
+  },
+  loadingMessage: {
+    textAlign: 'center' as const,
+    color: '#007bff',
     fontSize: '1rem',
-    transition: 'background-color 0.2s ease',
-    whiteSpace: 'nowrap' as const
+    padding: '1rem'
   },
   errorMessage: {
     backgroundColor: '#f8d7da',
     color: '#721c24',
     padding: '0.75rem 1rem',
-    borderRadius: '8px',
-    border: '1px solid #f5c6cb',
-    marginBottom: '1rem'
-  },
-  userInfo: {
-    backgroundColor: '#d4edda',
-    color: '#155724',
-    padding: '1rem',
-    borderRadius: '8px',
-    border: '1px solid #c3e6cb'
-  },
-  loadingMessage: {
-    backgroundColor: '#d1ecf1',
-    color: '#0c5460',
-    padding: '0.75rem 1rem',
-    borderRadius: '8px',
-    border: '1px solid #bee5eb',
-    textAlign: 'center' as const
+    borderRadius: '4px',
+    marginBottom: '1rem',
+    border: '1px solid #f5c6cb'
   },
   leaguesSection: {
     marginTop: '2rem'
   },
   leaguesList: {
     display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
     gap: '1rem',
     marginTop: '1rem'
   },
   leagueCard: {
     backgroundColor: 'white',
-    padding: '1rem',
+    padding: '1.5rem',
     borderRadius: '8px',
-    border: '1px solid #dee2e6',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     cursor: 'pointer',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     transition: 'all 0.2s ease',
-    ':focus': {
-      outline: '2px solid #007bff',
-      outlineOffset: '2px'
-    },
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.15)'
-    }
+    position: 'relative' as const
   },
   selectedLeagueCard: {
-    backgroundColor: '#e7f3ff',
     borderColor: '#007bff',
+    borderWidth: '2px',
+    borderStyle: 'solid',
     boxShadow: '0 4px 8px rgba(0,123,255,0.2)'
   },
   leagueName: {
-    margin: '0 0 0.5rem 0',
-    fontSize: '1.125rem',
-    color: '#333'
+    fontSize: '1.25rem',
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: '0.5rem',
+    margin: '0 0 0.5rem 0'
   },
   leagueDetails: {
     display: 'flex',
-    gap: '1rem',
-    flexWrap: 'wrap' as const
+    flexDirection: 'column' as const,
+    gap: '0.25rem'
   },
   leagueDetail: {
     fontSize: '0.875rem',
-    color: '#666',
-    backgroundColor: '#f8f9fa',
-    padding: '0.25rem 0.5rem',
-    borderRadius: '4px'
+    color: '#666'
   },
   selectedIndicator: {
-    backgroundColor: '#007bff',
-    color: 'white',
-    padding: '0.5rem',
-    borderRadius: '4px',
-    marginTop: '0.5rem',
-    fontSize: '0.875rem',
-    fontWeight: 'bold',
-    textAlign: 'center' as const
+    position: 'absolute' as const,
+    top: '0.5rem',
+    right: '0.5rem',
+    color: '#007bff',
+    fontWeight: 'bold'
   },
   rosterSection: {
     marginTop: '2rem'
@@ -335,27 +231,28 @@ const styles = {
     backgroundColor: 'white',
     padding: '1rem',
     borderRadius: '8px',
-    border: '1px solid #dee2e6',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
   },
   playerHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '0.75rem'
+    marginBottom: '0.75rem',
+    paddingBottom: '0.5rem',
+    borderBottom: '1px solid #eee'
   },
   playerName: {
-    margin: 0,
-    fontSize: '1rem',
+    fontSize: '1.125rem',
     fontWeight: 'bold',
-    color: '#333'
+    color: '#333',
+    margin: 0
   },
   playerPosition: {
     backgroundColor: '#007bff',
     color: 'white',
     padding: '0.25rem 0.5rem',
-    borderRadius: '12px',
-    fontSize: '0.75rem',
+    borderRadius: '4px',
+    fontSize: '0.875rem',
     fontWeight: 'bold'
   },
   playerDetails: {
@@ -366,16 +263,14 @@ const styles = {
   playerDetail: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    fontSize: '0.875rem'
   },
   detailLabel: {
-    fontSize: '0.875rem',
     color: '#666',
     fontWeight: '500'
   },
   detailValue: {
-    fontSize: '0.875rem',
     color: '#333',
-    fontWeight: '600'
+    fontWeight: 'bold'
   }
 };
