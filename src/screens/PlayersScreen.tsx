@@ -154,7 +154,7 @@ const SkeletonBox = ({
         {
           width,
           height,
-          backgroundColor,
+          backgroundColor: backgroundColor as unknown as string,
           borderRadius: 4
         } as ViewStyle,
         style
