@@ -52,43 +52,49 @@ export class FaabOptimizer {
 
   async getMarketValue(playerId: string): Promise<MarketValue> {
     try {
-      const [rankings, projections] = await Promise.all([
-        this.services.fantasyProsApi.getConsensusRankings('HALF_PPR'),
-        this.getPlayerProjections(playerId)
-      ]);
-
+      const rankings = await this.services.fantasyProsApi.getConsensusRankings('HALF_PPR');
+      const projection = this.getPlayerProjections(playerId);
       const playerRanking = rankings.find(r => r.player_id === playerId);
-      const projection = projections;
 
       if (!playerRanking) {
-        // Player not ranked - likely a deep stash
-        return {
-          estimated_value: 2,
-          value_tier: 'deep_stash' as ValueTier,
-          position_rank: 999,
-          ros_projection: projection?.projected_points || 50
-        };
+        return this.createUnrankedPlayerValue(projection);
       }
 
-      const valueTier = this.determineValueTier(playerRanking.position, playerRanking.rank);
-      const estimatedValue = this.calculateEstimatedValue(playerRanking.rank, valueTier);
-
-      return {
-        estimated_value: estimatedValue,
-        value_tier: valueTier,
-        position_rank: playerRanking.rank,
-        ros_projection: projection?.projected_points || 0
-      };
+      return this.createRankedPlayerValue(playerRanking, projection);
     } catch (error) {
       console.error('Error getting market value:', error);
-      // Return conservative defaults
-      return {
-        estimated_value: 5,
-        value_tier: 'deep_stash' as ValueTier,
-        position_rank: 999,
-        ros_projection: 50
-      };
+      return this.createDefaultMarketValue();
     }
+  }
+
+  private createUnrankedPlayerValue(projection: { projected_points: number }): MarketValue {
+    return {
+      estimated_value: 2,
+      value_tier: 'deep_stash' as ValueTier,
+      position_rank: 999,
+      ros_projection: projection.projected_points || 50
+    };
+  }
+
+  private createRankedPlayerValue(playerRanking: PlayerRanking, projection: { projected_points: number }): MarketValue {
+    const valueTier = this.determineValueTier(playerRanking.position, playerRanking.rank);
+    const estimatedValue = this.calculateEstimatedValue(playerRanking.rank, valueTier);
+
+    return {
+      estimated_value: estimatedValue,
+      value_tier: valueTier,
+      position_rank: playerRanking.rank,
+      ros_projection: projection.projected_points || 0
+    };
+  }
+
+  private createDefaultMarketValue(): MarketValue {
+    return {
+      estimated_value: 5,
+      value_tier: 'deep_stash' as ValueTier,
+      position_rank: 999,
+      ros_projection: 50
+    };
   }
 
   private async getPlayerRanking(playerId: string): Promise<PlayerRanking | undefined> {
@@ -96,7 +102,7 @@ export class FaabOptimizer {
     return rankings.find(r => r.player_id === playerId);
   }
 
-  private async getPlayerProjections(playerId: string): Promise<{ player_id: string; projected_points: number; games_remaining: number; opportunity_score: number }> {
+  private getPlayerProjections(playerId: string): { player_id: string; projected_points: number; games_remaining: number; opportunity_score: number } {
     // Mock implementation - in real app would fetch specific player projection
     return {
       player_id: playerId,
@@ -106,7 +112,7 @@ export class FaabOptimizer {
     };
   }
 
-  private async getLeagueContext(): Promise<{ competition_level: 'low' | 'medium' | 'high'; avg_faab_spend: number; active_managers: number }> {
+  private getLeagueContext(): { competition_level: 'low' | 'medium' | 'high'; avg_faab_spend: number; active_managers: number } {
     // Mock implementation - in real app would analyze league competition level
     return {
       competition_level: 'medium' as const,
@@ -131,7 +137,7 @@ export class FaabOptimizer {
       DST: 0.02
     };
 
-    return basePercentages[position as Position] || 0.02;
+    return basePercentages[position] || 0.02;
   }
 
   private getRbBaseBid(rank: number): number {
@@ -193,18 +199,24 @@ export class FaabOptimizer {
   private calculateConfidence(marketValue: MarketValue, leagueContext: { competition_level: 'low' | 'medium' | 'high'; avg_faab_spend: number; active_managers: number }): number {
     let confidence = 70; // Base confidence
 
-    // Higher confidence for clearly valuable players
-    if (marketValue.position_rank <= 24) confidence += 15;
-    if (marketValue.position_rank <= 12) confidence += 10;
-
-    // Lower confidence for deep stashes
-    if (marketValue.value_tier === 'deep_stash') confidence -= 20;
-
-    // Adjust for league activity
-    if (leagueContext.competition_level === 'high') confidence -= 10;
-    if (leagueContext.competition_level === 'low') confidence += 10;
+    confidence += this.getPlayerValueConfidenceBonus(marketValue);
+    confidence += this.getLeagueContextConfidenceAdjustment(leagueContext);
 
     return Math.max(30, Math.min(95, confidence));
+  }
+
+  private getPlayerValueConfidenceBonus(marketValue: MarketValue): number {
+    let bonus = 0;
+    if (marketValue.position_rank <= 24) bonus += 15;
+    if (marketValue.position_rank <= 12) bonus += 10;
+    if (marketValue.value_tier === 'deep_stash') bonus -= 20;
+    return bonus;
+  }
+
+  private getLeagueContextConfidenceAdjustment(leagueContext: { competition_level: 'low' | 'medium' | 'high' }): number {
+    if (leagueContext.competition_level === 'high') return -10;
+    if (leagueContext.competition_level === 'low') return 10;
+    return 0;
   }
 
   private generateReasoning(
@@ -213,30 +225,36 @@ export class FaabOptimizer {
     suggestedBid: number
   ): string {
     const bidPercentage = Math.round((suggestedBid / request.remainingBudget) * 100);
-    const position = marketValue.value_tier.includes('rb') ? 'RB' :
-                    marketValue.value_tier.includes('wr') ? 'WR' : 'TE';
+    const position = this.getPositionFromValueTier(marketValue.value_tier);
 
     let reasoning = `Bidding ${bidPercentage}% of budget (${suggestedBid}) for ${marketValue.value_tier} ${position}. `;
-
-    if (request.teamNeed === 'high') {
-      reasoning += 'High team need justifies aggressive bid. ';
-    } else if (request.teamNeed === 'low') {
-      reasoning += 'Depth/upside play allows conservative approach. ';
-    }
-
-    if (request.strategy === 'aggressive') {
-      reasoning += 'Aggressive strategy prioritizes winning player over budget preservation.';
-    } else if (request.strategy === 'safe') {
-      reasoning += 'Conservative bid preserves budget for future opportunities.';
-    } else {
-      reasoning += 'Balanced approach weighs value against remaining budget.';
-    }
-
-    if (request.remainingBudget < 50) {
-      reasoning += ' Limited budget requires careful spending.';
-    }
+    reasoning += this.getTeamNeedReasoning(request.teamNeed);
+    reasoning += this.getStrategyReasoning(request.strategy);
+    reasoning += this.getBudgetConstraintReasoning(request.remainingBudget);
 
     return reasoning;
+  }
+
+  private getPositionFromValueTier(valueTier: ValueTier): string {
+    if (valueTier.includes('rb')) return 'RB';
+    if (valueTier.includes('wr')) return 'WR';
+    return 'TE';
+  }
+
+  private getTeamNeedReasoning(teamNeed: TeamNeed): string {
+    if (teamNeed === 'high') return 'High team need justifies aggressive bid. ';
+    if (teamNeed === 'low') return 'Depth/upside play allows conservative approach. ';
+    return '';
+  }
+
+  private getStrategyReasoning(strategy: Strategy): string {
+    if (strategy === 'aggressive') return 'Aggressive strategy prioritizes winning player over budget preservation.';
+    if (strategy === 'safe') return 'Conservative bid preserves budget for future opportunities.';
+    return 'Balanced approach weighs value against remaining budget.';
+  }
+
+  private getBudgetConstraintReasoning(remainingBudget: number): string {
+    return remainingBudget < 50 ? ' Limited budget requires careful spending.' : '';
   }
 
   private assessRisk(strategy: Strategy, bidPercentage: number): RiskAssessment {
@@ -248,27 +266,36 @@ export class FaabOptimizer {
   private determineValueTier(position: Position, rank: number): ValueTier {
     switch (position) {
       case 'RB':
-        if (rank <= 12) return 'rb1';
-        if (rank <= 24) return 'rb2';
-        if (rank <= 36) return 'rb3';
-        if (rank <= 48) return 'handcuff';
-        return 'deep_stash';
-
+        return this.getRbValueTier(rank);
       case 'WR':
-        if (rank <= 12) return 'wr1';
-        if (rank <= 24) return 'wr2';
-        if (rank <= 36) return 'wr3';
-        if (rank <= 48) return 'wr4';
-        return 'dart_throw';
-
+        return this.getWrValueTier(rank);
       case 'TE':
-        if (rank <= 6) return 'te1';
-        if (rank <= 12) return 'te2';
-        return 'streaming';
-
+        return this.getTeValueTier(rank);
       default:
         return 'deep_stash';
     }
+  }
+
+  private getRbValueTier(rank: number): ValueTier {
+    if (rank <= 12) return 'rb1';
+    if (rank <= 24) return 'rb2';
+    if (rank <= 36) return 'rb3';
+    if (rank <= 48) return 'handcuff';
+    return 'deep_stash';
+  }
+
+  private getWrValueTier(rank: number): ValueTier {
+    if (rank <= 12) return 'wr1';
+    if (rank <= 24) return 'wr2';
+    if (rank <= 36) return 'wr3';
+    if (rank <= 48) return 'wr4';
+    return 'dart_throw';
+  }
+
+  private getTeValueTier(rank: number): ValueTier {
+    if (rank <= 6) return 'te1';
+    if (rank <= 12) return 'te2';
+    return 'streaming';
   }
 
   private calculateEstimatedValue(rank: number, tier: ValueTier): number {

@@ -10,7 +10,7 @@ import {
   TeamAnalysis,
   PlayerRanking,
   PlayerProjection,
-  TrendingPlayer
+  Strategy
 } from './types';
 
 interface HotPickupsEngineServices {
@@ -22,15 +22,15 @@ export class HotPickupsEngine {
   constructor(private services: HotPickupsEngineServices) {}
 
   async getHotPickups(request: HotPickupsRequest): Promise<HotPickup[]> {
-    const [availablePlayers, rankings, projections, trending] = await Promise.all([
-      this.getAvailablePlayers(request.leagueId),
+    const [rankings, projections] = await Promise.all([
       this.services.fantasyProsApi.getConsensusRankings('HALF_PPR'),
-      this.getRelevantProjections(request.teamAnalysis),
-      this.services.fantasyProsApi.getTrendingPlayers('up')
+      this.getRelevantProjections(request.teamAnalysis)
     ]);
 
+    const availablePlayers = this.getAvailablePlayers();
+
     const scoredPlayers = availablePlayers.map(player =>
-      this.scorePlayer(player, request, rankings, projections, trending)
+      this.scorePlayer(player, request, rankings, projections)
     );
 
     return this.sortAndFilterPickups(scoredPlayers);
@@ -55,7 +55,7 @@ export class HotPickupsEngine {
     };
   }
 
-  private async getAvailablePlayers(leagueId: string): Promise<{ player_id: string; player_name: string; position: Position; team: string }[]> {
+  private getAvailablePlayers(): { player_id: string; player_name: string; position: Position; team: string }[] {
     // Mock implementation - in real app would check rosters and return unrostered players
     return [
       { player_id: '123', player_name: 'Jordan Mason', position: 'RB', team: 'SF' },
@@ -80,19 +80,34 @@ export class HotPickupsEngine {
     player: { player_id: string; player_name: string; position: Position; team: string },
     request: HotPickupsRequest,
     rankings: PlayerRanking[],
-    projections: PlayerProjection[],
-    trending: TrendingPlayer[]
+    projections: PlayerProjection[]
   ): HotPickup {
     const ranking = rankings.find(r => r.player_id === player.player_id);
     const projection = projections.find(p => p.player_id === player.player_id);
-    const trend = trending.find(t => t.player_id === player.player_id);
 
-    const scoreBreakdown = this.calculateScoreBreakdown(
-      player, request, ranking, projection
-    );
+    const scoreBreakdown = this.calculateScoreBreakdown(player, request, ranking, projection);
+    const totalScore = this.calculateTotalScore(scoreBreakdown);
 
-    const totalScore = Object.values(scoreBreakdown).reduce((sum, score) => sum + score, 0);
+    return this.createHotPickup(player, request, scoreBreakdown, totalScore);
+  }
 
+  private calculateTotalScore(scoreBreakdown: ScoreBreakdown): number {
+    const scores: number[] = [
+      scoreBreakdown.opportunity_score,
+      scoreBreakdown.performance_score,
+      scoreBreakdown.matchup_score,
+      scoreBreakdown.team_fit_bonus,
+      scoreBreakdown.trending_bonus
+    ];
+    return scores.reduce((sum, score) => sum + score, 0);
+  }
+
+  private createHotPickup(
+    player: { player_id: string; player_name: string; position: Position; team: string },
+    request: HotPickupsRequest,
+    scoreBreakdown: ScoreBreakdown,
+    totalScore: number
+  ): HotPickup {
     return {
       player_id: player.player_id,
       player_name: player.player_name,
@@ -138,11 +153,13 @@ export class HotPickupsEngine {
 
   private calculateTeamFitBonus(player: { position: Position }, teamAnalysis: TeamAnalysis): number {
     if (teamAnalysis === 'healthy') return 0;
+    return this.getPositionMatchBonus(player.position, teamAnalysis);
+  }
 
-    const positionMatch = (teamAnalysis === 'need_rb2' && player.position === 'RB') ||
-                         (teamAnalysis === 'need_wr2' && player.position === 'WR');
-
-    return positionMatch ? 25 : 0;
+  private getPositionMatchBonus(position: Position, teamAnalysis: TeamAnalysis): number {
+    const isRbNeed = teamAnalysis === 'need_rb2' && position === 'RB';
+    const isWrNeed = teamAnalysis === 'need_wr2' && position === 'WR';
+    return (isRbNeed || isWrNeed) ? 25 : 0;
   }
 
   private generateRecommendationReason(player: { position: Position }, request: HotPickupsRequest, breakdown: ScoreBreakdown): string {
@@ -157,7 +174,7 @@ export class HotPickupsEngine {
     return 'Strong opportunity-based pickup with favorable upcoming matchups';
   }
 
-  private calculateFaabSuggestion(totalScore: number, strategy: string): number {
+  private calculateFaabSuggestion(totalScore: number, strategy: Strategy): number {
     const basePercentage = strategy === 'safe' ? 0.05 :
                           strategy === 'aggressive' ? 0.20 :
                           0.12;

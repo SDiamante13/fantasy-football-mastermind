@@ -63,4 +63,7 @@ After completing a task do the following:
 
 - `npm run setup` (enables husky hooks)
 - add files and commit (short message with high level details), don't include Claude Code or Happy as editor
-- `git push` 
+- `git push`
+
+## Code Quality Requirements
+ALWAYS fix ALL ESLint violations. NEVER disable ESLint rules or bypass quality checks unless explicitly authorized by the human user. Quality gates must always pass. 
