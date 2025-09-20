@@ -9,7 +9,10 @@ export function HomeScreenWeb(): React.JSX.Element {
         <h1 style={styles.title} aria-label="Fantasy Football Mastermind - Main application title">
           Fantasy Football Mastermind
         </h1>
-        <p style={styles.subtitle} aria-label="Welcome message: Your fantasy football command center">
+        <p
+          style={styles.subtitle}
+          aria-label="Welcome message: Your fantasy football command center"
+        >
           Welcome to your fantasy football command center
         </p>
         <div style={styles.featuresContainer}>

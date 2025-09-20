@@ -24,11 +24,19 @@ const WelcomeMessage: React.FC = () => (
 
 const Features: React.FC = () => (
   <View style={styles.featuresContainer}>
-    <Text style={styles.featuresTitle} accessibilityRole="header">Features</Text>
+    <Text style={styles.featuresTitle} accessibilityRole="header">
+      Features
+    </Text>
     <View style={styles.featuresList}>
-      <Text style={styles.featureItem} accessibilityRole="text">• View and manage your fantasy leagues</Text>
-      <Text style={styles.featureItem} accessibilityRole="text">• Search and analyze player statistics</Text>
-      <Text style={styles.featureItem} accessibilityRole="text">• Access comprehensive analytics dashboard</Text>
+      <Text style={styles.featureItem} accessibilityRole="text">
+        • View and manage your fantasy leagues
+      </Text>
+      <Text style={styles.featureItem} accessibilityRole="text">
+        • Search and analyze player statistics
+      </Text>
+      <Text style={styles.featureItem} accessibilityRole="text">
+        • Access comprehensive analytics dashboard
+      </Text>
     </View>
   </View>
 );
@@ -36,7 +44,11 @@ const Features: React.FC = () => (
 export function HomeScreen(): React.JSX.Element {
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content} accessibilityRole="none" accessibilityLabel="Fantasy Football Mastermind home screen">
+      <View
+        style={styles.content}
+        accessibilityRole="none"
+        accessibilityLabel="Fantasy Football Mastermind home screen"
+      >
         <AppTitle />
         <WelcomeMessage />
         <Features />

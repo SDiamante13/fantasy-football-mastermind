@@ -51,9 +51,7 @@ const applyFilters = (
 };
 
 const sortAndLimitPlayers = (players: Player[]): Player[] => {
-  return players
-    .sort((a, b) => a.full_name.localeCompare(b.full_name))
-    .slice(0, 50);
+  return players.sort((a, b) => a.full_name.localeCompare(b.full_name)).slice(0, 50);
 };
 
 const filterPlayers = (
@@ -420,8 +418,14 @@ const usePlayersData = (): PlayersData => {
     [players, searchTerm, selectedPosition]
   );
   return {
-    loading, error, searchTerm, setSearchTerm,
-    selectedPosition, setSelectedPosition, positions, filteredPlayers
+    loading,
+    error,
+    searchTerm,
+    setSearchTerm,
+    selectedPosition,
+    setSelectedPosition,
+    positions,
+    filteredPlayers
   };
 };
 

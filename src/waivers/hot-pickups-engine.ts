@@ -55,7 +55,12 @@ export class HotPickupsEngine {
     };
   }
 
-  private getAvailablePlayers(): { player_id: string; player_name: string; position: Position; team: string }[] {
+  private getAvailablePlayers(): {
+    player_id: string;
+    player_name: string;
+    position: Position;
+    team: string;
+  }[] {
     // Mock implementation - in real app would check rosters and return unrostered players
     return [
       { player_id: '123', player_name: 'Jordan Mason', position: 'RB', team: 'SF' },
@@ -65,12 +70,13 @@ export class HotPickupsEngine {
   }
 
   private async getRelevantProjections(teamAnalysis: TeamAnalysis): Promise<PlayerProjection[]> {
-    const positions = teamAnalysis === 'need_rb2' ? ['RB'] :
-                     teamAnalysis === 'need_wr2' ? ['WR'] :
-                     ['RB', 'WR'];
+    const positions =
+      teamAnalysis === 'need_rb2' ? ['RB'] : teamAnalysis === 'need_wr2' ? ['WR'] : ['RB', 'WR'];
 
     const projections = await Promise.all(
-      positions.map(pos => this.services.fantasyProsApi.getPlayerProjections(pos as Position, 'HALF_PPR'))
+      positions.map(pos =>
+        this.services.fantasyProsApi.getPlayerProjections(pos as Position, 'HALF_PPR')
+      )
     );
 
     return projections.flat();
@@ -151,7 +157,10 @@ export class HotPickupsEngine {
     return 50 + Math.random() * 40;
   }
 
-  private calculateTeamFitBonus(player: { position: Position }, teamAnalysis: TeamAnalysis): number {
+  private calculateTeamFitBonus(
+    player: { position: Position },
+    teamAnalysis: TeamAnalysis
+  ): number {
     if (teamAnalysis === 'healthy') return 0;
     return this.getPositionMatchBonus(player.position, teamAnalysis);
   }
@@ -159,10 +168,14 @@ export class HotPickupsEngine {
   private getPositionMatchBonus(position: Position, teamAnalysis: TeamAnalysis): number {
     const isRbNeed = teamAnalysis === 'need_rb2' && position === 'RB';
     const isWrNeed = teamAnalysis === 'need_wr2' && position === 'WR';
-    return (isRbNeed || isWrNeed) ? 25 : 0;
+    return isRbNeed || isWrNeed ? 25 : 0;
   }
 
-  private generateRecommendationReason(player: { position: Position }, request: HotPickupsRequest, breakdown: ScoreBreakdown): string {
+  private generateRecommendationReason(
+    player: { position: Position },
+    request: HotPickupsRequest,
+    breakdown: ScoreBreakdown
+  ): string {
     if (request.teamAnalysis === 'healthy') {
       return 'League-winning upside play with strong opportunity metrics';
     }
@@ -175,18 +188,14 @@ export class HotPickupsEngine {
   }
 
   private calculateFaabSuggestion(totalScore: number, strategy: Strategy): number {
-    const basePercentage = strategy === 'safe' ? 0.05 :
-                          strategy === 'aggressive' ? 0.20 :
-                          0.12;
+    const basePercentage = strategy === 'safe' ? 0.05 : strategy === 'aggressive' ? 0.2 : 0.12;
 
     const scoreMultiplier = Math.max(0.5, Math.min(2.0, totalScore / 100));
-    return Math.round((basePercentage * scoreMultiplier) * 100);
+    return Math.round(basePercentage * scoreMultiplier * 100);
   }
 
   private sortAndFilterPickups(pickups: HotPickup[]): HotPickup[] {
-    return pickups
-      .sort((a, b) => b.total_score - a.total_score)
-      .slice(0, 15); // Return top 15 pickups
+    return pickups.sort((a, b) => b.total_score - a.total_score).slice(0, 15); // Return top 15 pickups
   }
 
   private analyzePositionStrength(): Record<Position, number> {

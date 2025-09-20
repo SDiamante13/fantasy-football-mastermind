@@ -18,7 +18,10 @@ const createBidRequestWithOverrides = (overrides: Partial<FaabBidRequest>): Faab
   ...overrides
 });
 
-const assertValidBidRecommendation = (bidRecommendation: BidRecommendation, request: FaabBidRequest): void => {
+const assertValidBidRecommendation = (
+  bidRecommendation: BidRecommendation,
+  request: FaabBidRequest
+): void => {
   expect(bidRecommendation).toHaveProperty('suggested_bid');
   expect(bidRecommendation).toHaveProperty('bid_range');
   expect(bidRecommendation).toHaveProperty('confidence_level');
@@ -148,6 +151,8 @@ describe.skip('getMarketValue', () => {
 
     expect(typeof marketValue.estimated_value).toBe('number');
     expect(marketValue.estimated_value).toBeGreaterThan(0);
-    expect(['high_end_rb1', 'rb1', 'rb2', 'rb3', 'handcuff', 'deep_stash']).toContain(marketValue.value_tier);
+    expect(['high_end_rb1', 'rb1', 'rb2', 'rb3', 'handcuff', 'deep_stash']).toContain(
+      marketValue.value_tier
+    );
   });
 });

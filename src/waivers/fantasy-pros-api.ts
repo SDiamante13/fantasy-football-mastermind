@@ -1,11 +1,20 @@
-import { PlayerRanking, PlayerProjection, TrendingPlayer, ScoringFormat, Position, TrendDirection } from './types';
+import {
+  PlayerRanking,
+  PlayerProjection,
+  TrendingPlayer,
+  ScoringFormat,
+  Position,
+  TrendDirection
+} from './types';
 
 export class FantasyProsApiService {
   private readonly baseUrl = 'https://api.fantasypros.com/public/v2';
 
   async getConsensusRankings(scoringFormat: ScoringFormat): Promise<PlayerRanking[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/rankings/consensus?format=${scoringFormat.toLowerCase()}`);
+      const response = await fetch(
+        `${this.baseUrl}/rankings/consensus?format=${scoringFormat.toLowerCase()}`
+      );
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
@@ -18,7 +27,10 @@ export class FantasyProsApiService {
     }
   }
 
-  async getPlayerProjections(position: Position, scoringFormat: ScoringFormat): Promise<PlayerProjection[]> {
+  async getPlayerProjections(
+    position: Position,
+    scoringFormat: ScoringFormat
+  ): Promise<PlayerProjection[]> {
     try {
       const response = await fetch(
         `${this.baseUrl}/projections/ros?position=${position}&format=${scoringFormat.toLowerCase()}`

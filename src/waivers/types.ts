@@ -13,9 +13,21 @@ export type TrendDirection = 'up' | 'down' | 'stable';
 export type RiskAssessment = 'low' | 'medium' | 'high';
 
 export type ValueTier =
-  | 'high_end_rb1' | 'rb1' | 'rb2' | 'rb3' | 'handcuff' | 'deep_stash'
-  | 'high_end_wr1' | 'wr1' | 'wr2' | 'wr3' | 'wr4' | 'dart_throw'
-  | 'te1' | 'te2' | 'streaming';
+  | 'high_end_rb1'
+  | 'rb1'
+  | 'rb2'
+  | 'rb3'
+  | 'handcuff'
+  | 'deep_stash'
+  | 'high_end_wr1'
+  | 'wr1'
+  | 'wr2'
+  | 'wr3'
+  | 'wr4'
+  | 'dart_throw'
+  | 'te1'
+  | 'te2'
+  | 'streaming';
 
 export interface PlayerRanking {
   player_id: string;
@@ -51,10 +63,13 @@ export interface HotPickup {
   player_id: string;
   player_name: string;
   position: Position;
+  team?: string;
   total_score: number;
   score_breakdown: ScoreBreakdown;
   recommendation_reason: string;
   faab_suggestion: number;
+  ownership_percentage: number;
+  is_available: boolean;
 }
 
 export interface HotPickupsRequest {

@@ -33,7 +33,8 @@ export class FaabOptimizer {
     const needMultiplier = this.getTeamNeedMultiplier(request.teamNeed);
     const budgetAdjustment = this.getBudgetAdjustment(request.remainingBudget);
 
-    const adjustedPercentage = baseBidPercentage * strategyMultiplier * needMultiplier * budgetAdjustment;
+    const adjustedPercentage =
+      baseBidPercentage * strategyMultiplier * needMultiplier * budgetAdjustment;
     const suggestedBid = Math.round(request.remainingBudget * adjustedPercentage);
 
     const bidRange = this.calculateBidRange(suggestedBid, request.strategy);
@@ -76,7 +77,10 @@ export class FaabOptimizer {
     };
   }
 
-  private createRankedPlayerValue(playerRanking: PlayerRanking, projection: { projected_points: number }): MarketValue {
+  private createRankedPlayerValue(
+    playerRanking: PlayerRanking,
+    projection: { projected_points: number }
+  ): MarketValue {
     const valueTier = this.determineValueTier(playerRanking.position, playerRanking.rank);
     const estimatedValue = this.calculateEstimatedValue(playerRanking.rank, valueTier);
 
@@ -102,7 +106,12 @@ export class FaabOptimizer {
     return rankings.find(r => r.player_id === playerId);
   }
 
-  private getPlayerProjections(playerId: string): { player_id: string; projected_points: number; games_remaining: number; opportunity_score: number } {
+  private getPlayerProjections(playerId: string): {
+    player_id: string;
+    projected_points: number;
+    games_remaining: number;
+    opportunity_score: number;
+  } {
     // Mock implementation - in real app would fetch specific player projection
     return {
       player_id: playerId,
@@ -112,7 +121,11 @@ export class FaabOptimizer {
     };
   }
 
-  private getLeagueContext(): { competition_level: 'low' | 'medium' | 'high'; avg_faab_spend: number; active_managers: number } {
+  private getLeagueContext(): {
+    competition_level: 'low' | 'medium' | 'high';
+    avg_faab_spend: number;
+    active_managers: number;
+  } {
     // Mock implementation - in real app would analyze league competition level
     return {
       competition_level: 'medium' as const,
@@ -121,7 +134,10 @@ export class FaabOptimizer {
     };
   }
 
-  private calculateBaseBidPercentage(marketValue: MarketValue, playerRanking: PlayerRanking | undefined): number {
+  private calculateBaseBidPercentage(
+    marketValue: MarketValue,
+    playerRanking: PlayerRanking | undefined
+  ): number {
     if (!playerRanking) return 0.02; // Unranked players get minimal base bid
 
     const position = playerRanking.position;
@@ -148,7 +164,7 @@ export class FaabOptimizer {
   }
 
   private getWrBaseBid(rank: number): number {
-    if (rank <= 12) return 0.20; // WR1 tier
+    if (rank <= 12) return 0.2; // WR1 tier
     if (rank <= 24) return 0.12; // WR2 tier
     if (rank <= 36) return 0.06; // WR3 tier
     if (rank <= 48) return 0.03; // WR4 tier
@@ -163,19 +179,27 @@ export class FaabOptimizer {
 
   private getStrategyMultiplier(strategy: Strategy): number {
     switch (strategy) {
-      case 'safe': return 0.7;
-      case 'balanced': return 1.0;
-      case 'aggressive': return 1.5;
-      default: return 1.0;
+      case 'safe':
+        return 0.7;
+      case 'balanced':
+        return 1.0;
+      case 'aggressive':
+        return 1.5;
+      default:
+        return 1.0;
     }
   }
 
   private getTeamNeedMultiplier(teamNeed: TeamNeed): number {
     switch (teamNeed) {
-      case 'low': return 0.8;
-      case 'medium': return 1.0;
-      case 'high': return 1.3;
-      default: return 1.0;
+      case 'low':
+        return 0.8;
+      case 'medium':
+        return 1.0;
+      case 'high':
+        return 1.3;
+      default:
+        return 1.0;
     }
   }
 
@@ -187,7 +211,10 @@ export class FaabOptimizer {
     return 1.0;
   }
 
-  private calculateBidRange(suggestedBid: number, strategy: Strategy): { min: number; max: number } {
+  private calculateBidRange(
+    suggestedBid: number,
+    strategy: Strategy
+  ): { min: number; max: number } {
     const variance = strategy === 'safe' ? 0.2 : strategy === 'aggressive' ? 0.4 : 0.3;
 
     return {
@@ -196,7 +223,14 @@ export class FaabOptimizer {
     };
   }
 
-  private calculateConfidence(marketValue: MarketValue, leagueContext: { competition_level: 'low' | 'medium' | 'high'; avg_faab_spend: number; active_managers: number }): number {
+  private calculateConfidence(
+    marketValue: MarketValue,
+    leagueContext: {
+      competition_level: 'low' | 'medium' | 'high';
+      avg_faab_spend: number;
+      active_managers: number;
+    }
+  ): number {
     let confidence = 70; // Base confidence
 
     confidence += this.getPlayerValueConfidenceBonus(marketValue);
@@ -213,7 +247,9 @@ export class FaabOptimizer {
     return bonus;
   }
 
-  private getLeagueContextConfidenceAdjustment(leagueContext: { competition_level: 'low' | 'medium' | 'high' }): number {
+  private getLeagueContextConfidenceAdjustment(leagueContext: {
+    competition_level: 'low' | 'medium' | 'high';
+  }): number {
     if (leagueContext.competition_level === 'high') return -10;
     if (leagueContext.competition_level === 'low') return 10;
     return 0;
@@ -248,7 +284,8 @@ export class FaabOptimizer {
   }
 
   private getStrategyReasoning(strategy: Strategy): string {
-    if (strategy === 'aggressive') return 'Aggressive strategy prioritizes winning player over budget preservation.';
+    if (strategy === 'aggressive')
+      return 'Aggressive strategy prioritizes winning player over budget preservation.';
     if (strategy === 'safe') return 'Conservative bid preserves budget for future opportunities.';
     return 'Balanced approach weighs value against remaining budget.';
   }
@@ -301,21 +338,21 @@ export class FaabOptimizer {
   private calculateEstimatedValue(rank: number, tier: ValueTier): number {
     // Estimated percentage of total FAAB budget this player is worth
     const tierValues: Record<ValueTier, number> = {
-      'high_end_rb1': 35,
-      'rb1': 25,
-      'rb2': 15,
-      'rb3': 8,
-      'handcuff': 3,
-      'deep_stash': 2,
-      'high_end_wr1': 30,
-      'wr1': 20,
-      'wr2': 12,
-      'wr3': 6,
-      'wr4': 3,
-      'dart_throw': 1,
-      'te1': 8,
-      'te2': 4,
-      'streaming': 1
+      high_end_rb1: 35,
+      rb1: 25,
+      rb2: 15,
+      rb3: 8,
+      handcuff: 3,
+      deep_stash: 2,
+      high_end_wr1: 30,
+      wr1: 20,
+      wr2: 12,
+      wr3: 6,
+      wr4: 3,
+      dart_throw: 1,
+      te1: 8,
+      te2: 4,
+      streaming: 1
     };
 
     return tierValues[tier] || 2;

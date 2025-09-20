@@ -180,8 +180,12 @@ const useLeaguesHandlers = (
 export function LeaguesWeb(): React.JSX.Element {
   const [username, setUsername] = useState('');
   const { userData, leaguesData, rosterData, selectedLeague, setSelectedLeague } = useLeaguesData();
-  const { handleUsernameSubmit, handleUsernameChange, handleLeagueKeyDown } =
-    useLeaguesHandlers(username, setUsername, userData, setSelectedLeague);
+  const { handleUsernameSubmit, handleUsernameChange, handleLeagueKeyDown } = useLeaguesHandlers(
+    username,
+    setUsername,
+    userData,
+    setSelectedLeague
+  );
 
   return (
     <div style={styles.container}>

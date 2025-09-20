@@ -130,7 +130,10 @@ export const UserInfo: React.FC<UserInfoProps> = ({ user, styles }) => (
   </div>
 );
 
-const LeagueCardDetails: React.FC<{ league: League; styles: Record<string, React.CSSProperties> }> = ({ league, styles }) => (
+const LeagueCardDetails: React.FC<{
+  league: League;
+  styles: Record<string, React.CSSProperties>;
+}> = ({ league, styles }) => (
   <>
     <h4 style={styles.leagueName}>{league.name}</h4>
     <div style={styles.leagueDetails}>
@@ -140,7 +143,9 @@ const LeagueCardDetails: React.FC<{ league: League; styles: Record<string, React
   </>
 );
 
-const SelectedIndicator: React.FC<{ styles: Record<string, React.CSSProperties> }> = ({ styles }) => (
+const SelectedIndicator: React.FC<{ styles: Record<string, React.CSSProperties> }> = ({
+  styles
+}) => (
   <div style={styles.selectedIndicator} aria-live="polite">
     ✓ Selected
   </div>
@@ -226,10 +231,12 @@ export const RosterGrid: React.FC<RosterGridProps> = ({ roster, styles }) => (
   </div>
 );
 
-export const LoadingMessage: React.FC<{ message: string; styles: Record<string, React.CSSProperties> }> = ({ message, styles }) => (
-  <div style={styles.loadingMessage}>{message}</div>
-);
+export const LoadingMessage: React.FC<{
+  message: string;
+  styles: Record<string, React.CSSProperties>;
+}> = ({ message, styles }) => <div style={styles.loadingMessage}>{message}</div>;
 
-export const ErrorMessage: React.FC<{ error: string; styles: Record<string, React.CSSProperties> }> = ({ error, styles }) => (
-  <div style={styles.errorMessage}>{error}</div>
-);
+export const ErrorMessage: React.FC<{
+  error: string;
+  styles: Record<string, React.CSSProperties>;
+}> = ({ error, styles }) => <div style={styles.errorMessage}>{error}</div>;

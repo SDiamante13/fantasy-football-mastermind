@@ -55,14 +55,38 @@ const PlayerStatCards: React.FC<{
   wrCount: number;
 }> = ({ playerCount, qbCount, rbCount, wrCount }) => (
   <div style={styles.overviewGrid}>
-    <OverviewCard title="Total Players" value={playerCount.toLocaleString()} description="Active NFL players in database" icon="🏈" />
-    <OverviewCard title="Quarterbacks" value={qbCount.toString()} description="Starting and backup QBs" icon="🎯" />
-    <OverviewCard title="Running Backs" value={rbCount.toString()} description="Featured backs and handcuffs" icon="💨" />
-    <OverviewCard title="Wide Receivers" value={wrCount.toString()} description="WR1s, WR2s, and sleepers" icon="🎪" />
+    <OverviewCard
+      title="Total Players"
+      value={playerCount.toLocaleString()}
+      description="Active NFL players in database"
+      icon="🏈"
+    />
+    <OverviewCard
+      title="Quarterbacks"
+      value={qbCount.toString()}
+      description="Starting and backup QBs"
+      icon="🎯"
+    />
+    <OverviewCard
+      title="Running Backs"
+      value={rbCount.toString()}
+      description="Featured backs and handcuffs"
+      icon="💨"
+    />
+    <OverviewCard
+      title="Wide Receivers"
+      value={wrCount.toString()}
+      description="WR1s, WR2s, and sleepers"
+      icon="🎪"
+    />
   </div>
 );
 
-const InsightItem: React.FC<{ icon: string; title: string; description: string }> = ({ icon, title, description }) => (
+const InsightItem: React.FC<{ icon: string; title: string; description: string }> = ({
+  icon,
+  title,
+  description
+}) => (
   <div style={styles.insightItem}>
     <span style={styles.insightIcon}>{icon}</span>
     <div>
@@ -76,9 +100,21 @@ const InsightsSection: React.FC = () => (
   <div style={styles.insightsSection}>
     <h2 style={styles.insightsTitle}>🔍 Fantasy Insights</h2>
     <div style={styles.insightsList}>
-      <InsightItem icon="📈" title="Player Trends" description="Track rising and falling player values across the season" />
-      <InsightItem icon="💰" title="FAAB Analysis" description="Optimize your free agent acquisition budget spending" />
-      <InsightItem icon="🔄" title="Trade Opportunities" description="Identify undervalued players for potential trades" />
+      <InsightItem
+        icon="📈"
+        title="Player Trends"
+        description="Track rising and falling player values across the season"
+      />
+      <InsightItem
+        icon="💰"
+        title="FAAB Analysis"
+        description="Optimize your free agent acquisition budget spending"
+      />
+      <InsightItem
+        icon="🔄"
+        title="Trade Opportunities"
+        description="Identify undervalued players for potential trades"
+      />
     </div>
   </div>
 );
@@ -86,7 +122,9 @@ const InsightsSection: React.FC = () => (
 const countPlayersByPosition = (players: Record<string, Player>, position: string): number =>
   Object.values(players || {}).filter(p => p.position === position).length;
 
-const getPlayerCounts = (players: Record<string, Player>): { playerCount: number; qbCount: number; rbCount: number; wrCount: number } => ({
+const getPlayerCounts = (
+  players: Record<string, Player>
+): { playerCount: number; qbCount: number; rbCount: number; wrCount: number } => ({
   playerCount: Object.keys(players || {}).length,
   qbCount: countPlayersByPosition(players, 'QB'),
   rbCount: countPlayersByPosition(players, 'RB'),

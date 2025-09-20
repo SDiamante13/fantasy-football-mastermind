@@ -283,13 +283,22 @@ const useLeaguesScreenData = (): LeaguesScreenData => {
   const [username, setUsername] = useState('');
   const [submittedUsername, setSubmittedUsername] = useState('');
   const { user, loading: userLoading, error: userError } = useSleeperUser(submittedUsername);
-  const { leagues, loading: leaguesLoading, error: leaguesError } = useUserLeagues(
-    user?.user_id || null
-  );
+  const {
+    leagues,
+    loading: leaguesLoading,
+    error: leaguesError
+  } = useUserLeagues(user?.user_id || null);
   const handleSubmit = (): void => setSubmittedUsername(username.trim());
   return {
-    username, setUsername, handleSubmit, userError, leaguesError,
-    userLoading, user, leaguesLoading, leagues
+    username,
+    setUsername,
+    handleSubmit,
+    userError,
+    leaguesError,
+    userLoading,
+    user,
+    leaguesLoading,
+    leagues
   };
 };
 

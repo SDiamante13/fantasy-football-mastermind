@@ -91,8 +91,15 @@ const usePlayersWebData = (): PlayersWebData => {
     [players, searchTerm, selectedPosition]
   );
   return {
-    players, loading, error, searchTerm, setSearchTerm,
-    selectedPosition, setSelectedPosition, positions, filteredPlayers
+    players,
+    loading,
+    error,
+    searchTerm,
+    setSearchTerm,
+    selectedPosition,
+    setSelectedPosition,
+    positions,
+    filteredPlayers
   };
 };
 
