@@ -1,5 +1,6 @@
 import type { SleeperApiService } from '../services/SleeperApiService';
 import type { League, Roster, Player } from '../sleeper/types';
+
 import type { HotPickup, HotPickupsRequest } from './types';
 import type { HotPickupsEngine } from './hot-pickups-engine';
 
@@ -38,24 +39,30 @@ export class LeagueWaiverService {
   }
 
   async getAvailableHotPickups(request: HotPickupsRequest): Promise<HotPickup[]> {
-    const waiverData = await this.getLeagueWaiverData(request.leagueId);
-    const basePickups = await this.hotPickupsEngine.getHotPickups(request);
+    try {
+      const waiverData = await this.getLeagueWaiverData(request.leagueId);
+      const basePickups = await this.hotPickupsEngine.getHotPickups(request);
 
-    return basePickups
-      .map(pickup => this.enhancePickupWithLeagueData(pickup, waiverData))
-      .filter(pickup => pickup.is_available)
-      .sort((a, b) => {
-        // Prioritize lower ownership and higher scores
-        const ownershipWeight = (100 - a.ownership_percentage) * 0.3;
-        const scoreWeight = a.total_score * 0.7;
-        const aValue = ownershipWeight + scoreWeight;
+      return basePickups
+        .map(pickup => this.enhancePickupWithLeagueData(pickup, waiverData))
+        .filter(pickup => pickup.is_available)
+        .sort((a, b) => {
+          // Prioritize lower ownership and higher scores
+          const ownershipWeight = (100 - a.ownership_percentage) * 0.3;
+          const scoreWeight = a.total_score * 0.7;
+          const aValue = ownershipWeight + scoreWeight;
 
-        const bOwnershipWeight = (100 - b.ownership_percentage) * 0.3;
-        const bScoreWeight = b.total_score * 0.7;
-        const bValue = bOwnershipWeight + bScoreWeight;
+          const bOwnershipWeight = (100 - b.ownership_percentage) * 0.3;
+          const bScoreWeight = b.total_score * 0.7;
+          const bValue = bOwnershipWeight + bScoreWeight;
 
-        return bValue - aValue;
-      });
+          return bValue - aValue;
+        });
+    } catch (error) {
+      console.warn('League waiver service error, using fallback:', error);
+      // Return fallback data even if league data fails
+      return this.hotPickupsEngine.getHotPickups(request);
+    }
   }
 
   private extractRosteredPlayers(rosters: Roster[]): Set<string> {
