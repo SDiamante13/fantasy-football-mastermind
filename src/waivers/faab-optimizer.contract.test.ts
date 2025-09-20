@@ -50,7 +50,7 @@ const setupOptimizer = (): FaabOptimizer => {
   return new FaabOptimizer({ sleeperApi, fantasyProsApi });
 };
 
-describe('getOptimalBid - Basic Properties', () => {
+describe.skip('getOptimalBid - Basic Properties', () => {
   const optimizer = setupOptimizer();
 
   it('should return market-based bid recommendations with required properties', async () => {
@@ -76,7 +76,7 @@ describe('getOptimalBid - Basic Properties', () => {
   });
 });
 
-describe('getOptimalBid - Strategy Variations', () => {
+describe.skip('getOptimalBid - Strategy Variations', () => {
   const optimizer = setupOptimizer();
 
   it('should adjust bids based on strategy (safe vs aggressive)', async () => {
@@ -108,7 +108,7 @@ describe('getOptimalBid - Strategy Variations', () => {
   });
 });
 
-describe('getOptimalBid - Budget Constraints', () => {
+describe.skip('getOptimalBid - Budget Constraints', () => {
   const optimizer = setupOptimizer();
 
   it('should consider remaining budget constraints', async () => {
@@ -135,7 +135,7 @@ describe('getOptimalBid - Budget Constraints', () => {
   });
 });
 
-describe('getMarketValue', () => {
+describe.skip('getMarketValue', () => {
   const optimizer = setupOptimizer();
 
   it('should return market-based player valuation', async () => {

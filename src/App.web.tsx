@@ -4,10 +4,11 @@ import { HomeScreenWeb } from './screens/HomeScreen.web';
 import { PlayersWeb } from './screens/Players.web';
 import { AnalyticsWeb } from './screens/Analytics.web';
 import { LeaguesWeb } from './screens/Leagues.web';
+import { WaiversWeb } from './screens/Waivers.web';
 
-type TabName = 'Home' | 'Leagues' | 'Players' | 'Analytics';
+type TabName = 'Home' | 'Leagues' | 'Players' | 'Waivers' | 'Analytics';
 
-const tabNames: TabName[] = ['Home', 'Leagues', 'Players', 'Analytics'];
+const tabNames: TabName[] = ['Home', 'Leagues', 'Players', 'Waivers', 'Analytics'];
 
 const TabNavigation: React.FC<{
   activeTab: TabName;
@@ -39,6 +40,8 @@ const TabScreen: React.FC<{ tab: TabName }> = ({ tab }) => {
       return <LeaguesWeb />;
     case 'Players':
       return <PlayersWeb />;
+    case 'Waivers':
+      return <WaiversWeb />;
     case 'Analytics':
       return <AnalyticsWeb />;
     default:

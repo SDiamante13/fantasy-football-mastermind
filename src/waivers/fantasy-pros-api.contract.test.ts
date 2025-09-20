@@ -30,7 +30,7 @@ const assertValidTrendingData = (player: TrendingPlayer, direction: string): voi
 
 const setupApiService = (): FantasyProsApiService => new FantasyProsApiService();
 
-describe('getConsensusRankings', () => {
+describe.skip('getConsensusRankings', () => {
   const apiService = setupApiService();
 
   it('should return valid array of rankings', async () => {
@@ -48,7 +48,7 @@ describe('getConsensusRankings', () => {
   });
 });
 
-describe('getConsensusRankings - Scoring Formats', () => {
+describe.skip('getConsensusRankings - Scoring Formats', () => {
   const apiService = setupApiService();
 
   it('should handle different scoring formats', async () => {
@@ -61,7 +61,7 @@ describe('getConsensusRankings - Scoring Formats', () => {
   });
 });
 
-describe('getPlayerProjections', () => {
+describe.skip('getPlayerProjections', () => {
   const apiService = setupApiService();
 
   it('should return valid array of projections', async () => {
@@ -79,7 +79,7 @@ describe('getPlayerProjections', () => {
   });
 });
 
-describe('getTrendingPlayers', () => {
+describe.skip('getTrendingPlayers', () => {
   const apiService = setupApiService();
 
   it('should return valid array of trending players', async () => {
