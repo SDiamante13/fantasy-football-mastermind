@@ -1,5 +1,5 @@
 import { SleeperApiService } from '../services/SleeperApiService';
-import type { TrendingPlayer } from '../sleeper/types';
+import type { TrendingPlayer, Player } from '../sleeper/types';
 
 import {
   HotPickup,
@@ -21,7 +21,8 @@ export class HotPickupsEngine {
   async getHotPickups(request: HotPickupsRequest): Promise<HotPickup[]> {
     try {
       const trendingAdds = await this.services.sleeperApi.getTrendingAdds();
-      const availablePlayers = this.getAvailablePlayers();
+      const allPlayers = await this.services.sleeperApi.getAllPlayers();
+      const availablePlayers = this.getAvailablePlayersFromTrending(trendingAdds, allPlayers);
 
       const scoredPlayers = availablePlayers.map(player =>
         this.scorePlayerWithTrending(player, request, trendingAdds)
@@ -53,13 +54,40 @@ export class HotPickupsEngine {
     };
   }
 
+  private getAvailablePlayersFromTrending(
+    trendingAdds: TrendingPlayer[],
+    allPlayers: Record<string, Player>
+  ): {
+    player_id: string;
+    player_name: string;
+    position: Position;
+    team: string;
+  }[] {
+    // Get top trending players and map to our format
+    return trendingAdds
+      .slice(0, 15) // Top 15 trending adds
+      .map(trending => {
+        const player = allPlayers[trending.player_id];
+        if (player && player.active && player.team) {
+          return {
+            player_id: trending.player_id,
+            player_name: player.full_name || `${player.first_name} ${player.last_name}`,
+            position: player.position as Position,
+            team: player.team
+          };
+        }
+        return null;
+      })
+      .filter((player): player is NonNullable<typeof player> => player !== null);
+  }
+
   private getAvailablePlayers(): {
     player_id: string;
     player_name: string;
     position: Position;
     team: string;
   }[] {
-    // Mock implementation - in real app would check rosters and return unrostered players
+    // Fallback mock implementation for tests
     return [
       { player_id: '123', player_name: 'Jordan Mason', position: 'RB', team: 'SF' },
       { player_id: '456', player_name: 'Darnell Mooney', position: 'WR', team: 'ATL' },

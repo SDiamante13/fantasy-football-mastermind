@@ -28,7 +28,23 @@ describe('HotPickupsEngine', () => {
       getTrendingAdds: jest.fn().mockResolvedValue([
         { player_id: 'high_add_player', count: 500 },
         { player_id: 'low_add_player', count: 50 }
-      ])
+      ]),
+      getAllPlayers: jest.fn().mockResolvedValue({
+        'high_add_player': {
+          player_id: 'high_add_player',
+          full_name: 'Hot Pickup Player',
+          position: 'WR',
+          team: 'LAC',
+          active: true
+        },
+        'low_add_player': {
+          player_id: 'low_add_player',
+          full_name: 'Mild Pickup Player',
+          position: 'RB',
+          team: 'DEN',
+          active: true
+        }
+      })
     } as unknown as SleeperApiService;
 
     const engine = new HotPickupsEngine({ sleeperApi: mockSleeperApi });

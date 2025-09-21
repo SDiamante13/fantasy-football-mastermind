@@ -1,0 +1,73 @@
+{
+  "demoModeAnalysis": {
+    "playerNames": [
+      "Fantasy Football",
+      "Waiver Wire",
+      "Demo Mode",
+      "My Leagues",
+      "Demo Mode",
+      "My Leagues",
+      "Hot Pickups",
+      "Jaylen Warren",
+      "Quentin Johnston"
+    ],
+    "ownershipData": [
+      "45% owned",
+      "23% owned"
+    ],
+    "faabData": [
+      "Bid: $15",
+      "Bid: $8"
+    ],
+    "positionTeamData": [],
+    "fullContent": "\n    You need to enable JavaScript to run this app.\n    Fantasy Football MastermindHomeLeaguesPlayersWaiversAnalytics🔥 Waiver Wire AnalysisDiscover hot pickups and get optimal FAAB bid suggestions based on your team's needs and league context.Demo ModeMy LeaguesDemo Mode: Showing example waiver wire targets with mock ownership data. Switch to \"My Leagues\" for real data from your Sleeper leagues.🔥 Hot PickupsJaylen Warren45% ownedRBPITBid: $15Handcuff with standalone value and injury upsideQuentin Johnston23% ownedWRLACBid: $8Emerging target share with red zone opportunities\n\n"
+  },
+  "myLeaguesAnalysis": {
+    "availableLeagues": [
+      "DJT For Prison 2024 (12 teams)",
+      "Compass Disciples (10 teams)"
+    ],
+    "playerNames": [
+      "Fantasy Football",
+      "Specific Waiver",
+      "Select League",
+      "For Prison",
+      "Compass Disciples",
+      "Hot Pickups",
+      "Jaylen Wright",
+      "Darnell Mooney",
+      "Jordan Mason",
+      "Hot Pickup",
+      "Mild Pickup"
+    ],
+    "ownershipData": [
+      "0% owned",
+      "0% owned",
+      "0% owned",
+      "0% owned",
+      "0% owned"
+    ],
+    "faabData": [
+      "Bid: $24",
+      "Bid: $24",
+      "Bid: $23",
+      "Bid: $22",
+      "Bid: $21"
+    ],
+    "contentAfterLeagueSelection": "\n    You need to enable JavaScript to run this app.\n    Fantasy Football MastermindHomeLeaguesPlayersWaiversAnalytics🔥 League-Specific Waiver AnalysisReal ownership data and available players for your leaguesgaspjr - Select League:DJT For Prison 2024 (12 teams)Compass Disciples (10 teams)🔥 Hot PickupsJaylen Wright0% ownedRBMIABid: $24Strong opportunity-based pickup with favorable upcoming matchupsDarnell Mooney0% ownedWRATLBid: $24Strong opportunity-based pickup with favorable upcoming matchup...",
+    "usernameTestSuccessful": true
+  },
+  "usabilityIssues": [],
+  "accuracyIssues": [],
+  "screenshots": [
+    "01-waiver-page-initial.png",
+    "02-demo-mode-active.png",
+    "03-my-leagues-mode.png",
+    "04-username-entered.png",
+    "05-after-username-submit.png",
+    "07-league-selector-found.png",
+    "08-league-selected.png",
+    "09-final-comprehensive.png"
+  ],
+  "overallAssessment": "FINDINGS SUMMARY:\n- Demo mode functional: true\n- Username input available: true\n- League selection working: true\n- Usability issues found: 0\n- Accuracy issues found: 0\n"
+}
