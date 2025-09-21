@@ -9,7 +9,10 @@ type SleeperLeague = {
   status: string;
 };
 
-const handleTestUser = (setLeagues: (leagues: SleeperLeague[]) => void, setError: (error: string | null) => void): void => {
+const handleTestUser = (
+  setLeagues: (leagues: SleeperLeague[]) => void,
+  setError: (error: string | null) => void
+): void => {
   setLeagues([
     {
       league_id: 'league1',
@@ -27,7 +30,10 @@ const handleTestUser = (setLeagues: (leagues: SleeperLeague[]) => void, setError
   setError(null);
 };
 
-const handleInvalidUser = (setLeagues: (leagues: SleeperLeague[]) => void, setError: (error: string | null) => void): void => {
+const handleInvalidUser = (
+  setLeagues: (leagues: SleeperLeague[]) => void,
+  setError: (error: string | null) => void
+): void => {
   setLeagues([]);
   setError('Failed to fetch leagues');
 };

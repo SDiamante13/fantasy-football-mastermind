@@ -1,9 +1,10 @@
-import { screen, waitFor, act } from '@testing-library/react-native';
+import { waitFor, act } from '@testing-library/react-native';
 import { userEvent } from '@testing-library/react-native';
+import type { ReactTestInstance } from 'react-test-renderer';
 
 import { Player, User, League } from '../sleeper/types';
 
-type TestElement = ReturnType<typeof screen.getByText>;
+type TestElement = ReactTestInstance;
 
 /**
  * Creates a userEvent instance for consistent user interactions
@@ -42,7 +43,10 @@ export const typeInField = async (
 /**
  * Clicks/presses a button or touchable element
  */
-export const pressElement = async (user: ReturnType<typeof setupUser>, element: TestElement): Promise<void> => {
+export const pressElement = async (
+  user: ReturnType<typeof setupUser>,
+  element: TestElement
+): Promise<void> => {
   await performUserAction(async () => {
     await user.press(element);
   });
@@ -88,9 +92,15 @@ type MockOverrides = {
 /**
  * Common mock for Sleeper API hooks with default test data
  */
-export const createSleeperApiMocks = (overrides?: MockOverrides): {
+export const createSleeperApiMocks = (
+  overrides?: MockOverrides
+): {
   useAllPlayers: () => { players: Record<string, Player>; loading: boolean; error: string | null };
-  useSleeperUser: (submittedUsername: string) => { user: User | null; loading: boolean; error: string | null };
+  useSleeperUser: (submittedUsername: string) => {
+    user: User | null;
+    loading: boolean;
+    error: string | null;
+  };
   useUserLeagues: () => { leagues: League[]; loading: boolean; error: string | null };
 } => ({
   useAllPlayers: () => ({

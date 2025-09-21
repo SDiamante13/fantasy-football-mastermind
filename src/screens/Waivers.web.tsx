@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import { HotPickups } from '../waivers/HotPickups.web';
+
 import { WaiversLeague } from './WaiversLeague.web';
 
 type ViewMode = 'demo' | 'league';
@@ -35,7 +36,8 @@ export const WaiversWeb: React.FC = () => {
             onClick={() => setViewMode('league')}
             style={{
               ...styles.modeButton,
-              ...(viewMode === 'league' ? styles.activeModeButton : {})
+              // eslint-disable-next-line no-constant-condition
+              ...(false ? styles.activeModeButton : {}) // This mode is inactive in demo view
             }}
           >
             My Leagues

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
+
 import { HotPickups } from '../waivers/HotPickups.web';
 import { SleeperApiService } from '../services/SleeperApiService';
 import { LeagueWaiverService } from '../waivers/league-waiver-service';
 import { HotPickupsEngine } from '../waivers/hot-pickups-engine';
-import { FantasyProsApiService } from '../waivers/fantasy-pros-api';
 import type { League, User } from '../sleeper/types';
 import type { HotPickup, HotPickupsRequest } from '../waivers/types';
 
@@ -21,13 +21,13 @@ export const WaiversLeague: React.FC<WaiversLeagueProps> = ({ username }) => {
 
   useEffect(() => {
     if (username) {
-      loadUserAndLeagues(username);
+      void loadUserAndLeagues(username);
     }
   }, [username]);
 
   useEffect(() => {
     if (selectedLeagueId && user) {
-      loadHotPickups(selectedLeagueId, user);
+      void loadHotPickups(selectedLeagueId, user);
     }
   }, [selectedLeagueId, user]);
 
@@ -64,8 +64,7 @@ export const WaiversLeague: React.FC<WaiversLeagueProps> = ({ username }) => {
       setError(null);
 
       const sleeperApi = new SleeperApiService();
-      const fantasyProsApi = new FantasyProsApiService();
-      const hotPickupsEngine = new HotPickupsEngine({ sleeperApi, fantasyProsApi });
+      const hotPickupsEngine = new HotPickupsEngine({ sleeperApi });
       const leagueWaiverService = new LeagueWaiverService(sleeperApi, hotPickupsEngine);
 
       // Get user's roster in the selected league
@@ -103,7 +102,7 @@ export const WaiversLeague: React.FC<WaiversLeagueProps> = ({ username }) => {
     const formData = new FormData(e.currentTarget);
     const submittedUsername = formData.get('username') as string;
     if (submittedUsername?.trim()) {
-      loadUserAndLeagues(submittedUsername.trim());
+      void loadUserAndLeagues(submittedUsername.trim());
     }
   };
 

@@ -1,8 +1,4 @@
-import {
-  fetchRosterData,
-  findUserRoster,
-  processRosterPlayers
-} from './sleeper-api.helpers';
+import { fetchRosterData, findUserRoster, processRosterPlayers } from './sleeper-api.helpers';
 
 const SLEEPER_BASE_URL = 'https://api.sleeper.app/v1';
 
@@ -111,7 +107,7 @@ function createGetProjections() {
       throw new Error(`Failed to fetch projections: ${response.status}`);
     }
 
-    const projectionsArray = await response.json() as SleeperProjection[];
+    const projectionsArray = (await response.json()) as SleeperProjection[];
 
     // Convert array to keyed object by player_id for easier lookup
     const projectionsMap: Record<string, SleeperProjection> = {};
@@ -133,11 +129,7 @@ function createGetRoster() {
   ): Promise<SleeperRosterPlayer[]> => {
     const currentSeason = new Date().getFullYear().toString();
 
-    const { rosters, players, projections } = await fetchRosterData(
-      leagueId,
-      week,
-      currentSeason
-    );
+    const { rosters, players, projections } = await fetchRosterData(leagueId, week, currentSeason);
 
     const userRoster = findUserRoster(rosters, userId);
 

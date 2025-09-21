@@ -22,7 +22,9 @@ const fetchResponses = async (
   return Promise.all([
     fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/rosters`),
     fetch(`${SLEEPER_BASE_URL}/players/nfl`),
-    fetch(`https://api.sleeper.app/projections/nfl/${currentSeason}/${week}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE&position[]=K&position[]=DEF&position[]=FLEX`)
+    fetch(
+      `https://api.sleeper.app/projections/nfl/${currentSeason}/${week}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE&position[]=K&position[]=DEF&position[]=FLEX`
+    )
   ]);
 };
 
@@ -59,9 +61,9 @@ export const fetchRosterData = async (
 
   validateResponses(rostersResponse, playersData, projectionsResponse);
 
-  const rosters = await rostersResponse.json() as RosterData[];
-  const players = await playersData.json() as Record<string, SleeperPlayer>;
-  const projections = await projectionsResponse.json() as Record<string, ProjectionData>;
+  const rosters = (await rostersResponse.json()) as RosterData[];
+  const players = (await playersData.json()) as Record<string, SleeperPlayer>;
+  const projections = (await projectionsResponse.json()) as Record<string, ProjectionData>;
 
   return { rosters, players, projections };
 };

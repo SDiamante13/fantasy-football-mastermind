@@ -3,13 +3,13 @@
  */
 type ServiceMethod = (...args: unknown[]) => unknown;
 
-export const createMockService = <
-  T extends Record<string, ServiceMethod>
->(serviceMethods: { [K in keyof T]: ReturnType<T[K]> }): T => {
+export const createMockService = <T extends Record<string, ServiceMethod>>(serviceMethods: {
+  [K in keyof T]: ReturnType<T[K]>;
+}): T => {
   const mock = {} as T;
 
   for (const [methodName, returnValue] of Object.entries(serviceMethods)) {
-    mock[methodName as keyof T] = (() => returnValue) as unknown as T[keyof T];
+    (mock as Record<string, ServiceMethod>)[methodName] = (): unknown => returnValue;
   }
 
   return mock;
@@ -20,7 +20,13 @@ export const createMockService = <
  */
 export const mockData = {
   player: {
-    basic: (): { player_id: string; full_name: string; position: string; team: string; active: boolean } => ({
+    basic: (): {
+      player_id: string;
+      full_name: string;
+      position: string;
+      team: string;
+      active: boolean;
+    } => ({
       player_id: 'test-player-1',
       full_name: 'Test Player',
       position: 'QB',
@@ -37,7 +43,9 @@ export const mockData = {
   },
 
   user: {
-    basic: (username = 'testuser'): { user_id: string; username: string; display_name: string } => ({
+    basic: (
+      username = 'testuser'
+    ): { user_id: string; username: string; display_name: string } => ({
       user_id: 'test-user-id',
       username,
       display_name: username
@@ -62,7 +70,12 @@ export const mockData = {
   },
 
   tradeAssessment: {
-    fair: (): { teamAValueDiff: number; teamBValueDiff: number; fairness: 'fair'; totalValue: number } => ({
+    fair: (): {
+      teamAValueDiff: number;
+      teamBValueDiff: number;
+      fairness: 'fair';
+      totalValue: number;
+    } => ({
       teamAValueDiff: 3,
       teamBValueDiff: -3,
       fairness: 'fair' as const,
@@ -71,14 +84,24 @@ export const mockData = {
   },
 
   rosterAnalysis: {
-    rbStrong: (): { strengths: string[]; weaknesses: string[]; overallScore: number; positionScores: Record<string, number> } => ({
+    rbStrong: (): {
+      strengths: string[];
+      weaknesses: string[];
+      overallScore: number;
+      positionScores: Record<string, number>;
+    } => ({
       strengths: ['RB'],
       weaknesses: ['WR'],
       overallScore: 78,
       positionScores: { RB: 92, WR: 45 }
     }),
 
-    wrStrong: (): { strengths: string[]; weaknesses: string[]; overallScore: number; positionScores: Record<string, number> } => ({
+    wrStrong: (): {
+      strengths: string[];
+      weaknesses: string[];
+      overallScore: number;
+      positionScores: Record<string, number>;
+    } => ({
       strengths: ['WR'],
       weaknesses: ['RB'],
       overallScore: 76,
@@ -87,13 +110,22 @@ export const mockData = {
   },
 
   faabAnalysis: {
-    biddingData: (): { averageWinningBid: number; bidRange: { min: number; max: number }; sampleSize: number } => ({
+    biddingData: (): {
+      averageWinningBid: number;
+      bidRange: { min: number; max: number };
+      sampleSize: number;
+    } => ({
       averageWinningBid: 28,
       bidRange: { min: 15, max: 45 },
       sampleSize: 6
     }),
 
-    playerValue: (): { tier: 'medium'; score: number; confidence: 'high'; factors: Record<string, number> } => ({
+    playerValue: (): {
+      tier: 'medium';
+      score: number;
+      confidence: 'high';
+      factors: Record<string, number>;
+    } => ({
       tier: 'medium' as const,
       score: 68,
       confidence: 'high' as const,
@@ -106,7 +138,13 @@ export const mockData = {
       }
     }),
 
-    budget: (): { totalBudget: number; spent: number; remaining: number; percentageSpent: number; weeksRemaining: number } => ({
+    budget: (): {
+      totalBudget: number;
+      spent: number;
+      remaining: number;
+      percentageSpent: number;
+      weeksRemaining: number;
+    } => ({
       totalBudget: 200,
       spent: 65,
       remaining: 135,
@@ -114,7 +152,13 @@ export const mockData = {
       weeksRemaining: 9
     }),
 
-    bidRecommendation: (): { recommendedBid: number; winProbability: number; strategy: 'balanced'; confidence: 'high'; reasoning: string } => ({
+    bidRecommendation: (): {
+      recommendedBid: number;
+      winProbability: number;
+      strategy: 'balanced';
+      confidence: 'high';
+      reasoning: string;
+    } => ({
       recommendedBid: 34,
       winProbability: 0.74,
       strategy: 'balanced' as const,

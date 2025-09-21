@@ -9,7 +9,10 @@ type SleeperUser = {
   avatar: string;
 };
 
-const handleTestUser = (setUser: (user: SleeperUser | null) => void, setError: (error: string | null) => void): void => {
+const handleTestUser = (
+  setUser: (user: SleeperUser | null) => void,
+  setError: (error: string | null) => void
+): void => {
   setUser({
     user_id: '123456',
     username: 'testuser',
@@ -19,7 +22,10 @@ const handleTestUser = (setUser: (user: SleeperUser | null) => void, setError: (
   setError(null);
 };
 
-const handleInvalidUser = (setUser: (user: SleeperUser | null) => void, setError: (error: string | null) => void): void => {
+const handleInvalidUser = (
+  setUser: (user: SleeperUser | null) => void,
+  setError: (error: string | null) => void
+): void => {
   setUser(null);
   setError('User not found');
 };

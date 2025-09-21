@@ -1,6 +1,5 @@
 import { SleeperApiService } from '../services/SleeperApiService';
 
-import { FantasyProsApiService } from './fantasy-pros-api';
 import {
   BidRecommendation,
   FaabBidRequest,
@@ -15,7 +14,6 @@ import {
 
 interface FaabOptimizerServices {
   sleeperApi: SleeperApiService;
-  fantasyProsApi: FantasyProsApiService;
 }
 
 export class FaabOptimizer {
@@ -24,8 +22,8 @@ export class FaabOptimizer {
   async getOptimalBid(request: FaabBidRequest): Promise<BidRecommendation> {
     const [marketValue, playerRanking, leagueContext] = await Promise.all([
       this.getMarketValue(request.playerId),
-      this.getPlayerRanking(request.playerId),
-      this.getLeagueContext()
+      Promise.resolve(this.getPlayerRanking()),
+      Promise.resolve(this.getLeagueContext())
     ]);
 
     const baseBidPercentage = this.calculateBaseBidPercentage(marketValue, playerRanking);
@@ -53,15 +51,15 @@ export class FaabOptimizer {
 
   async getMarketValue(playerId: string): Promise<MarketValue> {
     try {
-      const rankings = await this.services.fantasyProsApi.getConsensusRankings('HALF_PPR');
+      const trendingAdds = await this.services.sleeperApi.getTrendingAdds();
       const projection = this.getPlayerProjections(playerId);
-      const playerRanking = rankings.find(r => r.player_id === playerId);
+      const trendingData = trendingAdds.find((t) => t.player_id === playerId);
 
-      if (!playerRanking) {
+      if (!trendingData) {
         return this.createUnrankedPlayerValue(projection);
       }
 
-      return this.createRankedPlayerValue(playerRanking, projection);
+      return this.createTrendingBasedValue(trendingData, projection);
     } catch (error) {
       console.error('Error getting market value:', error);
       return this.createDefaultMarketValue();
@@ -77,17 +75,19 @@ export class FaabOptimizer {
     };
   }
 
-  private createRankedPlayerValue(
-    playerRanking: PlayerRanking,
+  private createTrendingBasedValue(
+    trendingData: { player_id: string; count: number },
     projection: { projected_points: number }
   ): MarketValue {
-    const valueTier = this.determineValueTier(playerRanking.position, playerRanking.rank);
-    const estimatedValue = this.calculateEstimatedValue(playerRanking.rank, valueTier);
+    // Convert trending count to estimated rank (high adds = lower rank = better)
+    const estimatedRank = Math.max(1, Math.round(200 - trendingData.count / 5));
+    const valueTier = this.determineValueTierFromTrending(trendingData.count);
+    const estimatedValue = this.calculateEstimatedValueFromTrending(trendingData.count);
 
     return {
       estimated_value: estimatedValue,
       value_tier: valueTier,
-      position_rank: playerRanking.rank,
+      position_rank: estimatedRank,
       ros_projection: projection.projected_points || 0
     };
   }
@@ -101,9 +101,10 @@ export class FaabOptimizer {
     };
   }
 
-  private async getPlayerRanking(playerId: string): Promise<PlayerRanking | undefined> {
-    const rankings = await this.services.fantasyProsApi.getConsensusRankings('HALF_PPR');
-    return rankings.find(r => r.player_id === playerId);
+  private getPlayerRanking(): PlayerRanking | undefined {
+    // Since we no longer use external rankings, return undefined
+    // The trending data will be used instead in market value calculation
+    return undefined;
   }
 
   private getPlayerProjections(playerId: string): {
@@ -356,5 +357,23 @@ export class FaabOptimizer {
     };
 
     return tierValues[tier] || 2;
+  }
+
+  private determineValueTierFromTrending(count: number): ValueTier {
+    // Determine value tier based on trending add count
+    if (count >= 500) return 'rb1'; // Very hot pickup
+    if (count >= 300) return 'rb2'; // Popular pickup
+    if (count >= 150) return 'rb3'; // Solid pickup
+    if (count >= 75) return 'handcuff'; // Moderate interest
+    return 'deep_stash'; // Low interest
+  }
+
+  private calculateEstimatedValueFromTrending(count: number): number {
+    // Convert trending count to FAAB percentage estimate
+    if (count >= 500) return 25; // Very hot = 25% budget
+    if (count >= 300) return 15; // Popular = 15% budget
+    if (count >= 150) return 8; // Solid = 8% budget
+    if (count >= 75) return 3; // Moderate = 3% budget
+    return 2; // Low interest = 2% budget
   }
 }

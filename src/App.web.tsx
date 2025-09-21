@@ -30,27 +30,26 @@ const TabNavigation: React.FC<{
   </nav>
 );
 
+const tabComponents: Record<TabName, React.ComponentType> = {
+  Home: HomeScreenWeb,
+  Leagues: LeaguesWeb,
+  Players: PlayersWeb,
+  Waivers: WaiversWeb,
+  Analytics: AnalyticsWeb,
+};
+
+const getTabScreen = (tab: TabName): React.JSX.Element => {
+  const Component = tabComponents[tab];
+  return Component ? <Component /> : (
+    <div style={styles.screenContainer}>
+      <h1>Unknown Tab</h1>
+    </div>
+  );
+};
+
 const TabScreen: React.FC<{ tab: TabName }> = ({ tab }) => {
   console.log(`Rendering tab: ${tab}`);
-  
-  switch (tab) {
-    case 'Home':
-      return <HomeScreenWeb />;
-    case 'Leagues':
-      return <LeaguesWeb />;
-    case 'Players':
-      return <PlayersWeb />;
-    case 'Waivers':
-      return <WaiversWeb />;
-    case 'Analytics':
-      return <AnalyticsWeb />;
-    default:
-      return (
-        <div style={styles.screenContainer}>
-          <h1>Unknown Tab</h1>
-        </div>
-      );
-  }
+  return getTabScreen(tab);
 };
 
 export const AppWeb: React.FC = () => {

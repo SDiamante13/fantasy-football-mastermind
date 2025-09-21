@@ -175,30 +175,32 @@ const handlePlayersError = (
   }
 };
 
-const createPlayersDataFetcher = (
-  isMountedRef: { current: boolean },
-  setLoading: (loading: boolean) => void,
-  setError: (error: string | null) => void,
-  setPlayers: (players: Record<string, Player>) => void
-) => async (): Promise<void> => {
-  if (!isMountedRef.current) return;
+const createPlayersDataFetcher =
+  (
+    isMountedRef: { current: boolean },
+    setLoading: (loading: boolean) => void,
+    setError: (error: string | null) => void,
+    setPlayers: (players: Record<string, Player>) => void
+  ) =>
+  async (): Promise<void> => {
+    if (!isMountedRef.current) return;
 
-  setLoading(true);
-  setError(null);
+    setLoading(true);
+    setError(null);
 
-  try {
-    const sleeperService = new SleeperApiService();
-    const playersData = await sleeperService.getAllPlayers();
+    try {
+      const sleeperService = new SleeperApiService();
+      const playersData = await sleeperService.getAllPlayers();
 
-    handlePlayersSuccess(playersData, isMountedRef.current, setPlayers);
-  } catch (err) {
-    handlePlayersError(err, isMountedRef.current, setError, setPlayers);
-  } finally {
-    if (isMountedRef.current) {
-      setLoading(false);
+      handlePlayersSuccess(playersData, isMountedRef.current, setPlayers);
+    } catch (err) {
+      handlePlayersError(err, isMountedRef.current, setError, setPlayers);
+    } finally {
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
-  }
-};
+  };
 
 export function useAllPlayers(): UseAllPlayersReturn {
   const [players, setPlayers] = useState<Record<string, Player>>({});
@@ -208,12 +210,7 @@ export function useAllPlayers(): UseAllPlayersReturn {
   useEffect(() => {
     const isMountedRef = { current: true };
 
-    const fetchPlayers = createPlayersDataFetcher(
-      isMountedRef,
-      setLoading,
-      setError,
-      setPlayers
-    );
+    const fetchPlayers = createPlayersDataFetcher(isMountedRef, setLoading, setError, setPlayers);
 
     void fetchPlayers();
 

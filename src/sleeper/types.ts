@@ -52,3 +52,8 @@ export type Transaction = {
   drops?: Record<string, string>;
   creator: string;
 };
+
+export type TrendingPlayer = {
+  player_id: string;
+  count: number;
+};

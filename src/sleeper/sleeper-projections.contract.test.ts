@@ -49,14 +49,14 @@ describe('Sleeper Projections API Contract', () => {
     const url = `https://api.sleeper.app/projections/nfl/${currentSeason}/${currentWeek}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE&position[]=K&position[]=DEF`;
     const response = await fetch(url);
     expect(response.ok).toBe(true);
-    const projections = await response.json() as unknown;
+    const projections = (await response.json()) as unknown;
     validateProjectionsResponse(projections);
   });
 
   it('should have projection data with fantasy points for players', async () => {
     const url = `https://api.sleeper.app/projections/nfl/${currentSeason}/${currentWeek}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE`;
     const response = await fetch(url);
-    const projections = await response.json() as unknown;
+    const projections = (await response.json()) as unknown;
     const sampleProjection = getSampleProjection(projections);
     console.log('Sample projection structure:', sampleProjection);
     expect(sampleProjection).toBeDefined();

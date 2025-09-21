@@ -83,24 +83,26 @@ type UseSleeperRosterReturn = {
   fetchRoster: (leagueId: string, userId: string) => Promise<void>;
 };
 
-const createFetchRoster = (
-  sleeperApi: ReturnType<typeof createSleeperApi>,
-  setLoading: (loading: boolean) => void,
-  setError: (error: string | null) => void,
-  setRoster: (roster: SleeperRosterPlayer[]) => void
-) => async (leagueId: string, userId: string): Promise<void> => {
-  setLoading(true);
-  setError(null);
-  if (leagueId === 'league1') {
-    await handleMockLeague(setRoster, setError, setLoading);
-    return;
-  }
-  if (leagueId === 'invalid') {
-    await handleInvalidLeague(setRoster, setError, setLoading);
-    return;
-  }
-  await fetchRealRoster(leagueId, userId, sleeperApi, { setRoster, setError, setLoading });
-};
+const createFetchRoster =
+  (
+    sleeperApi: ReturnType<typeof createSleeperApi>,
+    setLoading: (loading: boolean) => void,
+    setError: (error: string | null) => void,
+    setRoster: (roster: SleeperRosterPlayer[]) => void
+  ) =>
+  async (leagueId: string, userId: string): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    if (leagueId === 'league1') {
+      await handleMockLeague(setRoster, setError, setLoading);
+      return;
+    }
+    if (leagueId === 'invalid') {
+      await handleInvalidLeague(setRoster, setError, setLoading);
+      return;
+    }
+    await fetchRealRoster(leagueId, userId, sleeperApi, { setRoster, setError, setLoading });
+  };
 
 export function useSleeperRoster(): UseSleeperRosterReturn {
   const [roster, setRoster] = useState<SleeperRosterPlayer[]>([]);
@@ -108,10 +110,9 @@ export function useSleeperRoster(): UseSleeperRosterReturn {
   const [loading, setLoading] = useState(false);
   const sleeperApi = useMemo(() => createSleeperApi(), []);
 
-  const fetchRoster = useCallback(
-    createFetchRoster(sleeperApi, setLoading, setError, setRoster),
-    [sleeperApi]
-  );
+  const fetchRoster = useCallback(createFetchRoster(sleeperApi, setLoading, setError, setRoster), [
+    sleeperApi
+  ]);
 
   return { roster, error, loading, fetchRoster };
 }

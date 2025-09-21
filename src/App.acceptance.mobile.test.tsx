@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React from 'react';
 
 import {
@@ -25,25 +26,40 @@ const renderHomeScreenAndVerifyElements = (): void => {
   expectVisible(screen.getByRole('header', { name: /Features/i }));
 };
 
+const findUsernameInput = (): ReturnType<typeof screen.getByPlaceholderText> =>
+  screen.getByPlaceholderText('Enter your Sleeper username');
+
+const findLoadButton = (): ReturnType<typeof screen.getByRole> =>
+  screen.getByRole('button', { name: /Load leagues/i });
+
+const findUserDisplay = (): ReturnType<typeof screen.getByText> =>
+  screen.getByText('testuser (@testuser)');
+
 const enterUsernameAndLoadLeagues = async (user: ReturnType<typeof setupUser>): Promise<void> => {
-  const usernameInput = screen.getByPlaceholderText('Enter your Sleeper username');
-  const loadButton = screen.getByRole('button', { name: /Load leagues/i });
+  const usernameInput = findUsernameInput();
+  const loadButton = findLoadButton();
 
   await typeInField(user, usernameInput, 'testuser');
   await pressElement(user, loadButton);
 
-  await waitForElementToAppear(() => screen.getByText('testuser (@testuser)'));
+  await waitForElementToAppear(findUserDisplay);
 };
+
+const findSearchInput = (): ReturnType<typeof screen.getByRole> =>
+  screen.getByRole('search', { name: /Search players/i });
+
+const findQbFilterButton = (): ReturnType<typeof screen.getByRole> =>
+  screen.getByRole('button', { name: /Filter by QB/i });
 
 const searchPlayersAndFilter = async (user: ReturnType<typeof setupUser>): Promise<void> => {
   expectVisible(screen.getByRole('header', { name: /Player Analysis/i }));
 
-  const searchInput = screen.getByRole('search', { name: /Search players/i });
+  const searchInput = findSearchInput();
   await typeInField(user, searchInput, 'Test');
 
   expectVisible(screen.getByText('Test Player'));
 
-  const qbFilterButton = screen.getByRole('button', { name: /Filter by QB/i });
+  const qbFilterButton = findQbFilterButton();
   expectVisible(qbFilterButton);
 
   await pressElement(user, qbFilterButton);

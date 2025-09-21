@@ -1,4 +1,4 @@
-import { League, User, Roster, Player } from '../sleeper/types';
+import { League, User, Roster, Player, TrendingPlayer } from '../sleeper/types';
 
 const SLEEPER_BASE_URL = 'https://api.sleeper.app/v1';
 
@@ -89,6 +89,36 @@ export class SleeperApiService {
       console.error('Error fetching league:', error);
       throw new Error(
         `Failed to fetch league: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  async getTrendingAdds(): Promise<TrendingPlayer[]> {
+    try {
+      const response = await fetch(`${SLEEPER_BASE_URL}/players/nfl/trending/add`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json() as Promise<TrendingPlayer[]>;
+    } catch (error) {
+      console.error('Error fetching trending adds:', error);
+      throw new Error(
+        `Failed to fetch trending adds: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  async getTrendingDrops(): Promise<TrendingPlayer[]> {
+    try {
+      const response = await fetch(`${SLEEPER_BASE_URL}/players/nfl/trending/drop`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json() as Promise<TrendingPlayer[]>;
+    } catch (error) {
+      console.error('Error fetching trending drops:', error);
+      throw new Error(
+        `Failed to fetch trending drops: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
